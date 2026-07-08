@@ -14,8 +14,7 @@
     --text:#e9eff6; --muted:#94a6bb; --faint:#63768c;
     --up:#4fc9bd; --mid:#e8a44c; --down:#b98ce6;
     --risk:#e87a6c;  /* 风险红 */
-    --warn:#e8a44c;  /* 警示琥珀，复用 mid */
-    --gap-sm:8px; --gap-md:14px; --gap-lg:22px;
+    --warn:#e8a44c;  /* 警示琥珀,复用 mid */
     --sans:'Sora',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
     --cn:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
     --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -41,7 +40,7 @@
   .brand .en{font-family:var(--mono); font-size:11px; color:var(--faint); letter-spacing:2px; text-transform:uppercase}
   .brand .tag{font-size:12px; color:var(--muted); border-left:1px solid var(--border2); padding-left:11px; margin-left:2px}
 
-  .pills{display:flex; gap:6px; flex-wrap:wrap}
+  .pills{display:flex; gap:6px; margin-left:auto; flex-wrap:wrap}
   .pill{
     font-family:var(--cn); font-size:13px; color:var(--muted); cursor:pointer;
     background:transparent; border:1px solid var(--border); border-radius:999px;
@@ -52,10 +51,10 @@
   .pill:focus-visible{outline:2px solid var(--up); outline-offset:2px}
 
   /* 搜索框 */
-  .search{position:relative; margin-left:auto; display:flex; align-items:center}
+  .search{position:relative; display:flex; align-items:center}
   .search input{
     background:var(--bg2); border:1px solid var(--border); border-radius:999px;
-    color:var(--text); font-size:13px; padding:8px 32px 8px 15px; width:240px;
+    color:var(--text); font-size:13px; padding:8px 32px 8px 15px; width:220px;
     transition:all .18s ease; font-family:var(--cn);
   }
   .search input:focus{outline:none; border-color:var(--up); box-shadow:0 0 0 3px rgba(79,201,189,.13); background:var(--panel)}
@@ -77,7 +76,7 @@
   .canvas-wrap{flex:1; min-width:0; position:relative; overflow:auto}
   .canvas{position:relative; min-width:840px; padding:26px 30px 50px}
 
-  .columns{display:grid; grid-template-columns:repeat(3,minmax(230px,1fr)); gap:100px; position:relative; z-index:2; align-items:start}
+  .columns{display:grid; grid-template-columns:repeat(3,minmax(230px,1fr)); gap:60px; position:relative; z-index:2; align-items:start}
   .col-head{
     font-family:var(--mono); font-size:12px; letter-spacing:3px; text-transform:uppercase;
     display:flex; align-items:center; gap:9px; margin-bottom:18px; padding-bottom:11px;
@@ -98,7 +97,7 @@
     transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease, opacity .2s ease; overflow:hidden;
   }
   .node::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--tc); opacity:.85}
-  .node:hover{transform:translateY(-2px); border-color:var(--tc); box-shadow:0 8px 26px rgba(0,0,0,.4), 0 0 18px -8px var(--tc)}
+  .node:hover{transform:translateY(-1px); border-color:var(--tc); box-shadow:0 6px 22px rgba(0,0,0,.35)}
   .node .nm{font-size:14px; font-weight:600; letter-spacing:.3px; margin-bottom:3px; padding-left:4px; display:flex; align-items:center; gap:7px}
   .node .badge{font-family:var(--mono); font-size:9.5px; font-weight:600; padding:1px 5px; border-radius:4px; letter-spacing:.5px; color:var(--tc); background:var(--tc-dim); border:1px solid var(--tc)}
   .node .sub{font-size:11.5px; color:var(--muted); padding-left:4px; line-height:1.5}
@@ -107,7 +106,7 @@
   .node .chip.hl{background:rgba(79,201,189,.18); border-color:var(--up); color:var(--up)}
   .node:focus-visible{outline:2px solid var(--tc); outline-offset:2px}
 
-  /* 节点卡片投资指标条 */
+  /* 节点卡片投资指标条(紧凑版) */
   .node .ind-bar{display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; padding-left:4px}
   .node .ind{display:inline-flex; align-items:center; gap:5px; font-size:10px; background:var(--bg2); border:1px solid var(--border); border-radius:5px; padding:3px 7px}
   .node .ind .ik{color:var(--faint); letter-spacing:.3px}
@@ -129,9 +128,9 @@
   .wires{position:absolute; inset:0; z-index:1; pointer-events:none; overflow:visible}
   .wire{fill:none; stroke:var(--border2); stroke-width:1.2; opacity:.16; transition:opacity .2s, stroke-width .2s}
   .canvas.tracing .wire{opacity:.05}
-  .wire.active{opacity:.95; stroke-width:2; stroke:var(--wc)}
   .canvas.searching .wire{opacity:.04}
   .canvas.searching .wire.matched{opacity:.65; stroke:var(--up); stroke-width:1.6}
+  .wire.active{opacity:.95; stroke-width:2; stroke:var(--wc)}
   @media (prefers-reduced-motion: no-preference){
     .wire.active{stroke-dasharray:7 7; animation:flow 1s linear infinite}
     @keyframes flow{to{stroke-dashoffset:-14}}
@@ -146,7 +145,7 @@
   .d-desc{font-size:13px; line-height:1.7; color:var(--muted); margin-bottom:18px}
 
   /* 详情面板:投资指标卡 */
-  .inv-card{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:20px}
+  .inv-card{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px}
   .inv-cell{background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:10px 11px}
   .inv-cell .ic-k{font-size:10px; color:var(--faint); letter-spacing:.5px; margin-bottom:4px}
   .inv-cell .ic-v{font-family:var(--mono); font-size:15px; font-weight:600; color:var(--text); line-height:1.2}
@@ -154,9 +153,15 @@
   .inv-cell.growth .ic-v{color:var(--up)}
 
   /* 详情面板:投资逻辑卡 */
-  .logic-card{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--tc); border-radius:0 8px 8px 0; padding:11px 14px; margin-bottom:20px}
+  .logic-card{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--tc); border-radius:0 8px 8px 0; padding:11px 14px; margin-bottom:18px}
   .logic-card .lc-title{font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--faint); margin-bottom:6px}
   .logic-card .lc-text{font-size:13px; line-height:1.6; color:var(--text); font-weight:500}
+
+  .metrics{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px}
+  .metric{background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:8px 11px; min-width:76px}
+  .metric .mv{font-family:var(--mono); font-size:15px; font-weight:600; color:var(--tc)}
+  .metric .mk{font-size:10.5px; color:var(--muted); margin-top:2px}
+  .note-box{font-size:12.5px; line-height:1.66; color:var(--muted); background:var(--panel); border-left:2px solid var(--tc); border-radius:0 8px 8px 0; padding:11px 13px; margin-bottom:18px}
 
   /* 详情面板:竞争格局条形图 */
   .share-chart{margin-bottom:14px}
@@ -167,18 +172,13 @@
   .share-row .sr-val{flex-shrink:0; font-family:var(--mono); font-size:10.5px; color:var(--text); min-width:38px; text-align:right}
 
   /* 详情面板:卡点风险卡 */
-  .risk-card{background:rgba(232,122,108,.07); border:1px solid rgba(232,122,108,.25); border-left:3px solid var(--risk); border-radius:0 8px 8px 0; padding:11px 14px; margin-bottom:20px}
+  .risk-card{background:rgba(232,122,108,.07); border:1px solid rgba(232,122,108,.25); border-left:3px solid var(--risk); border-radius:0 8px 8px 0; padding:11px 14px; margin-bottom:18px}
   .risk-card .rc-title{font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--risk); margin-bottom:6px}
   .risk-card .rc-text{font-size:12.5px; line-height:1.6; color:var(--text)}
 
-  .metrics{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px}
-  .metric{background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:8px 11px; min-width:76px}
-  .metric .mv{font-family:var(--mono); font-size:15px; font-weight:600; color:var(--tc)}
-  .metric .mk{font-size:10.5px; color:var(--muted); margin-top:2px}
-  .note-box{font-size:12.5px; line-height:1.66; color:var(--muted); background:var(--panel); border-left:2px solid var(--tc); border-radius:0 8px 8px 0; padding:11px 13px; margin-bottom:22px}
   .d-sec{font-family:var(--mono); font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--faint); margin:0 0 11px; display:flex; align-items:center; gap:8px}
   .d-sec::after{content:""; flex:1; height:1px; background:var(--border)}
-  .co-list{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:24px}
+  .co-list{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px}
   .co{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:7px 11px}
   .co .idx{font-family:var(--mono); font-size:10px; color:var(--faint)}
   .neighbors{display:flex; flex-direction:column; gap:16px}
@@ -233,10 +233,38 @@
     .canvas-wrap{overflow-x:auto; overflow-y:hidden}
     .detail{width:auto; border-left:none; border-top:1px solid var(--border)}
     .legend .note{width:100%; margin:6px 0 0}
-    .search{margin-left:0; width:100%}
+    .search{width:100%}
     .search input{width:100%}
     .inv-card{grid-template-columns:1fr 1fr}
   }
+
+  /* ---- 供给格局 + 护城河(观点层) ---- */
+  .node .top{display:flex; align-items:flex-start; gap:8px; margin-bottom:3px}
+  .node .top .nm{flex:1; margin-bottom:0}
+  .node .top .sup{font-size:10px; white-space:nowrap; padding-top:2px; line-height:1.35; text-align:right; max-width:104px}
+  .sup{font-family:var(--mono); font-weight:600; letter-spacing:.2px}
+  .sup.cn{color:#54cf8b} .sup.risk{color:#ec6d5f} .sup.race{color:#e0a94b} .sup.neutral{color:var(--faint)}
+  .moat{display:flex; align-items:center; gap:7px; padding-left:4px; margin-top:8px}
+  .moat .stars{font-size:12px; letter-spacing:2px; color:#e8c14a}
+  .moat .stars .off{color:var(--border2)}
+  .moat .ml{font-family:var(--mono); font-size:9px; letter-spacing:1.5px; color:var(--faint); text-transform:uppercase}
+  .node[data-moat="3"]::after{content:""; position:absolute; top:0; left:0; right:0; height:2px; background:var(--sc,var(--tc)); opacity:.95}
+  .moat-detail{display:flex; flex-direction:column; gap:10px; margin-bottom:12px}
+  .md-row{display:flex; align-items:center; gap:10px; font-size:13px}
+  .md-k{font-family:var(--mono); font-size:10px; letter-spacing:1px; color:var(--faint); width:60px; flex-shrink:0}
+  .md-row .stars{font-size:15px; letter-spacing:2px; color:#e8c14a}
+  .md-row .stars .off{color:var(--border2)}
+  .md-row .ml2{font-size:12px; color:var(--muted)}
+  .moat-why{font-size:12.5px; line-height:1.66; color:var(--muted); margin-bottom:18px}
+
+  /* ---- 多层级 stage 表头 ---- */
+  .col-head.stage{display:block; padding-bottom:13px}
+  .col-head.stage .ch-top{display:flex; align-items:center; gap:9px}
+  .col-head.stage .ch-top .cn{font-family:var(--cn); font-size:14.5px; letter-spacing:.5px; font-weight:600}
+  .col-head.stage .ch-top .ct{margin-left:auto; font-family:var(--mono); color:var(--faint); font-size:11px}
+  .col-head.stage .ch-sub{display:flex; align-items:center; gap:8px; margin-top:7px; padding-left:31px}
+  .col-head.stage .en2{font-family:var(--mono); font-size:9px; letter-spacing:2px; color:var(--faint); text-transform:uppercase}
+  .tchip{font-family:var(--cn); font-size:10px; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid; letter-spacing:.5px; line-height:1.5}
 </style>
 </head>
 <body>
@@ -256,7 +284,7 @@
       <span class="li"><span class="dot" style="background:var(--up)"></span>上游 · 零部件与软硬件基础</span>
       <span class="li"><span class="dot" style="background:var(--mid)"></span>中游 · 本体制造与整机集成</span>
       <span class="li"><span class="dot" style="background:var(--down)"></span>下游 · 应用场景</span>
-      <span class="note">连线代表供应关系;标注截至 2026 年,企业为代表性梳理</span>
+      <span class="note">连线=供应关系　★=护城河 / 定价权强度　顶部红条=命门(海外主导/卡脖子)·绿条=中国主导　数据截至 2026 年,示例性梳理</span>
     </div>
   </header>
 
@@ -285,11 +313,19 @@ const DATA = {
     name:'机器人', short:'以人形机器人为主线',
     sub:'从减速器、丝杠、电机、传感器等核心零部件,到芯片、具身智能算法,再到本体制造与多元应用场景。',
     note:'上游零部件约占整机成本 70%,其中执行器系统约 45%、传感器约 15% 为最大头。中国供应链配套完整、整机成本约为海外同类 50%,但六维力传感器、行星滚柱丝杠等高端环节仍在追赶。',
+    stages:[
+      {k:'mat',    label:'基础材料',   en:'RAW MATERIALS', tier:'up',  ids:['u12','u18','u11']},
+      {k:'drive',  label:'传动与执行', en:'ACTUATION',     tier:'up',  ids:['u01','u02','u03','u04','u05','u10']},
+      {k:'sense',  label:'感知与灵巧手',en:'PERCEPTION',    tier:'up',  ids:['u06','u07','u08','u09','u17']},
+      {k:'compute',label:'芯片与软件', en:'COMPUTE & AI',  tier:'up',  ids:['u13','u14','u15','u16']},
+      {k:'body',   label:'本体制造',   en:'INTEGRATION',   tier:'mid', ids:['m1','m2','m3','m4','m5']},
+      {k:'app',    label:'应用场景',   en:'APPLICATIONS',  tier:'down',ids:['d1','d2','d3','d4','d5','d6']}
+    ],
     nodes:{
       /* ---- 上游 ---- */
       u01:{tier:'up',group:'传动与执行',name:'谐波减速器',sub:'旋转关节降速增扭核心',
         co:['绿的谐波','双环传动','中大力德','来福谐波(未上市)','哈默纳科(日)'],links:['m1','m2','m3','m4','m5'],
-        metrics:[{k:'成本占比',v:'~13%'}],
+        metrics:[{k:'成本占比',v:'~13%'},{k:'国产化率',v:'~45%'}],
         note:'旋转关节的核心。全球由日本哈默纳科主导(约 82%),国产厂商靠齿形优化把国产化率从 10% 提到约 45%,并在攻关直径 6mm 级超微型减速器。',
         size:'约80亿', growth:'~30%',
         logic:'国产替代+人形放量核心受益,价值量高',
@@ -319,7 +355,7 @@ const DATA = {
         logic:'单台用量28个,量产降本核心受益',
         share:[{co:'科尔摩根/Maxon',v:30},{co:'步科股份',v:10},{co:'禾川科技',v:8},{co:'其他',v:52}]},
       u05:{tier:'up',group:'传动与执行',name:'空心杯电机',sub:'灵巧手微型驱动',
-        co:['鸣志电器','兆威机电','Maxon(瑞士)'],links:['m1','m2'],
+        co:['鸣志电器','兆威机电','Maxon(瑞士)'],links:['u17'],
         metrics:[{k:'成本占比',v:'~8%'}],
         note:'体积小、响应快,主要用于灵巧手手指驱动。鸣志的空心杯技术已进入头部机器人供应链。',
         size:'约30亿', growth:'~25%',
@@ -360,12 +396,12 @@ const DATA = {
         logic:'减速器与关节关键基础件',
         bottleneck:'高端轴承精度与寿命'},
       u11:{tier:'up',group:'结构与材料',name:'轻量化材料',sub:'PEEK / LCP / PPS',
-        co:['中研股份','沃特股份','普利特','科盟创新(未上市)'],links:['m1','m2','m5'],
+        co:['中研股份','沃特股份','普利特','科盟创新(未上市)'],links:['u01','u03'],
         note:'PEEK 等工程塑料用于减速器、丝杠、结构件的减重与耐磨。科盟创新已发布 PEEK 轻量化谐波减速机,可减重约 40%。',
         size:'约20亿', growth:'~30%',
         logic:'PEEK减重40%,轻量化趋势受益'},
       u12:{tier:'up',group:'结构与材料',name:'稀土永磁材料',sub:'电机磁材',
-        co:['金力永磁','中科三环','正海磁材'],links:['m1','m2','m3','m5'],
+        co:['金力永磁','中科三环','正海磁材'],links:['u04','u05'],
         note:'高性能钕铁硼永磁是伺服/无框电机的核心磁材,直接影响电机的功率密度。',
         size:'约150亿', growth:'~15%',
         logic:'电机磁材核心,国产份额领先',
@@ -401,6 +437,13 @@ const DATA = {
         logic:'最高价值总成,单只占整机20-30%',
         bottleneck:'拟人化操作与可靠性',
         share:[{co:'因时机器人',v:20},{co:'兆威机电',v:15},{co:'灵心巧手',v:10},{co:'其他',v:55}]},
+      u18:{tier:'up',group:'结构与材料',name:'特种钢与精密合金',sub:'减速器 / 丝杠 / 轴承基材',
+        co:['抚顺特钢','中信泰富特钢','天工国际'],links:['u01','u02','u03','u10'],
+        note:'谐波/RV 减速器、行星滚柱丝杠、精密轴承的核心基材,对纯净度、疲劳强度与加工一致性要求极高,是隐性的上游壁垒。',
+        size:'约100亿', growth:'~10%',
+        logic:'减速器/丝杠/轴承基材,高端待突破',
+        bottleneck:'高纯净度轴承钢、模具钢高端依赖进口',
+        share:[{co:'抚顺特钢',v:25},{co:'中信泰富特钢',v:20},{co:'天工国际',v:10},{co:'其他',v:45}]},
       /* ---- 中游 ---- */
       m1:{tier:'mid',group:'本体制造 · 人形',name:'人形机器人(海外)',sub:'通用人形整机',badge:'海外',
         co:['特斯拉 Optimus(美)','Figure AI(美)','波士顿动力(美)','1X(挪威)'],links:['d1','d2','d4'],
@@ -598,6 +641,88 @@ const DATA = {
   }
 };
 
+/* ===== 供给格局 + 护城河评级(供给集中度 + 技术壁垒 + 可替代性综合判断) ===== */
+const MOAT = {
+  robot:{
+    u01:{sup:'日本主导 82%',supc:'race',moat:3,why:'旋转关节核心,技术壁垒高、供给高度集中(日本哈默纳科约 82%);国产绿的谐波等已把国产化率提至约 45%,是正在被攻克的高价值卡点。'},
+    u02:{sup:'日本主导 61%',supc:'race',moat:3,why:'摆线针轮结构,刚性与承载壁垒高,日本纳博特斯克主导(约 61%);主要用于大负载工业机器人,国产双环、中大力德加速切入。'},
+    u03:{sup:'欧美主导 · 卡脖子',supc:'risk',moat:3,why:'把旋转转直线的核心机械件,磨床工序壁垒极高;欧美 CR5 超 80%,国产良率约 60%(海外 85%+),是当前人形量产最硬的卡点。'},
+    u04:{sup:'国产崛起',supc:'cn',moat:2,why:'关节动力源,国产步科/禾川单价较海外低约 30%,量产阶段成本优势明显,技术壁垒中等。'},
+    u05:{sup:'海外领先 · 国产追赶',supc:'race',moat:2,why:'灵巧手微型驱动,瑞士 Maxon 技术领先;国产鸣志已进入头部供应链,壁垒中等。'},
+    u06:{sup:'美日领先 · 国产短板',supc:'risk',moat:2,why:'力控闭环核心,精度与一致性仍落后海外,是感知环节主要短板;供给较集中但未被单一巨头垄断。'},
+    u07:{sup:'前沿 · 格局未定',supc:'race',moat:1,why:'技术尚不成熟、路线与玩家分散,暂无主导方,可替代性高,护城河尚未形成。'},
+    u08:{sup:'海外偏强',supc:'race',moat:2,why:'位置反馈基础件,海外在高精度端占优,国产可满足中端需求,壁垒中等。'},
+    u09:{sup:'美日领先 · 国产追赶',supc:'race',moat:2,why:'环境感知入口,Keyence / Cognex 等海外领先;国产海康、奥比中光在 3D 视觉快速追赶。'},
+    u10:{sup:'高端海外主导',supc:'race',moat:2,why:'关节与减速器关键基础件,高端由舍弗勒 / NSK 主导,国产集中在中低端,壁垒中等。'},
+    u11:{sup:'海外偏强 · 国产突破',supc:'race',moat:1,why:'PEEK 等工程塑料用于减重耐磨,海外料商偏强,国产中研股份等已突破,可替代性较高。'},
+    u12:{sup:'中国主导 95%',supc:'cn',moat:3,why:'电机核心磁材,中国掌握全球约 90%+ 的稀土加工与永磁产能,是中国在机器人链上最硬的战略筹码。'},
+    u18:{sup:'国产可控 · 高端待突破',supc:'race',moat:2,why:'减速器/丝杠所需高纯净度轴承钢、模具钢,高端仍偏赖进口;国产抚顺特钢等在追赶,属隐性的上游卡点。'},
+    u13:{sup:'美国封锁',supc:'risk',moat:3,why:'高阶感知决策算力核心,英伟达主导且对华出口受管制,华为昇腾亦受制约,是最受地缘约束的卡点之一。'},
+    u14:{sup:'国产较强',supc:'cn',moat:2,why:'实时运动控制("小脑"),国产汇川、埃斯顿在工业级控制器上较强,自主度较高。'},
+    u15:{sup:'美国主导 · 中国追赶',supc:'risk',moat:3,why:'决定机器人"会不会干活"的软件大脑,美国在 VLA 等前沿主导;中国银河、智元追赶中,是未来定价权最高的环节之一。'},
+    u16:{sup:'分散 · 各厂自研',supc:'race',moat:1,why:'全身协调与平衡控制,多为本体厂自研、路线分散,尚未形成独立的护城河环节。'},
+    u17:{sup:'国产活跃 · 格局未定',supc:'race',moat:2,why:'价值量最高的总成(占整机 20~30%),壁垒高但玩家众多、格局未定,国产上游零部件较本体自研更领先。'},
+    m1:{sup:'海外领先',supc:'race',moat:2,why:'系统集成与软硬件整合构成壁垒,特斯拉 Optimus 路线为风向标;整机玩家增多,单一垄断尚未形成。'},
+    m2:{sup:'中国量产领先',supc:'cn',moat:2,why:'依托完整供应链,中国整机量产与成本控制全球领先(约海外一半),壁垒中等偏上。'},
+    m3:{sup:'四大家族主导',supc:'race',moat:2,why:'发那科 / ABB / 库卡 / 安川主导高端,壁垒来自可靠性与工艺积累;国产在中低端加速替代。'},
+    m4:{sup:'格局分散',supc:'race',moat:1,why:'技术相对成熟、玩家众多、竞争充分,单体护城河较弱。'},
+    m5:{sup:'国产领先',supc:'cn',moat:1,why:'宇树等国产在四足领域全球领先,壁垒主要在运动控制与量产成本。'},
+    d1:{sup:'需求驱动',supc:'neutral',moat:1,why:'应用需求端,议价力来自采购规模而非技术垄断。'},
+    d2:{sup:'需求驱动',supc:'neutral',moat:1,why:'标准化高频场景,渗透快,属需求端。'},
+    d3:{sup:'需求驱动',supc:'neutral',moat:1,why:'已跑通商业模式的服务场景,属需求端。'},
+    d4:{sup:'远期市场',supc:'neutral',moat:1,why:'远期最大潜在市场,当前处早期,尚未形成规模需求。'},
+    d5:{sup:'需求驱动',supc:'neutral',moat:1,why:'对环境适应性要求高的专业需求端。'},
+    d6:{sup:'需求驱动',supc:'neutral',moat:1,why:'算法迭代与出货的稳定需求端。'}
+  },
+  ev:{
+    u1:{sup:'中国主导',supc:'cn',moat:2,why:'中国掌握锂盐加工与盐湖提锂,但锂矿资源仍部分依赖进口(澳矿/南美);周期性强,供给弹性大。'},
+    u2:{sup:'海外依赖',supc:'risk',moat:2,why:'钴资源高度依赖刚果金,镍依赖印尼/菲律宾;资源端议价权弱,是三元路线的隐性卡点。'},
+    u3:{sup:'中国主导',supc:'cn',moat:2,why:'磷酸铁锂/三元正极、石墨负极国产化率高,龙头规模优势明显;技术壁垒中等。'},
+    u4:{sup:'中国主导',supc:'cn',moat:2,why:'电解液与隔膜国产主导,恩捷等龙头集中度高,壁垒来自规模与工艺。'},
+    u5:{sup:'海外主导 · 国产追赶',supc:'race',moat:2,why:'IGBT/SiC 器件英飞凌主导,国产斯达、士兰加速替代;车规 SiC 良率与可靠性是关键卡点。'},
+    m1:{sup:'中国主导',supc:'cn',moat:3,why:'中国动力电池全球份额超 65%,宁德时代、比亚迪形成绝对龙头;规模、工艺、产业链一体化构成强护城河。'},
+    m2:{sup:'国产较强',supc:'cn',moat:1,why:'驱动电机与电控国产化率高,技术壁垒中等,竞争充分。'},
+    m3:{sup:'海外偏强 · 国产追赶',supc:'race',moat:2,why:'域控制器、智能座舱海外 Tier1 偏强,德赛西威等国产加速替代;壁垒来自车规认证与生态。'},
+    d1:{sup:'中国崛起',supc:'cn',moat:2,why:'比亚迪、蔚来、理想等中国品牌崛起,壁垒来自品牌、规模与供应链整合;特斯拉为全球标杆。'},
+    d2:{sup:'国产主导',supc:'cn',moat:1,why:'补能基础设施国产主导,壁垒来自网络规模与运营,技术壁垒较低。'},
+    d3:{sup:'美国领先 · 中国追赶',supc:'race',moat:2,why:'L2+ 国产已规模落地,L4 受算法与长尾场景制约;华为、Momenta、小马智行追赶特斯拉/Waymo。'},
+    d4:{sup:'国产兴起',supc:'cn',moat:1,why:'循环经济高增长,格林美、邦普等布局领先;壁垒来自渠道与工艺,格局未定。'}
+  },
+  chip:{
+    u1:{sup:'海外主导 · 国产追赶',supc:'race',moat:2,why:'硅片/光刻胶/电子特气高端品种海外主导,国产沪硅、南大光电等加速替代;光刻胶是关键卡点。'},
+    u2:{sup:'海外垄断 · 卡脖子',supc:'risk',moat:3,why:'光刻机被 ASML 垄断,EUV 受出口管制;刻蚀/薄膜沉积国产北方华创、中微追赶,是最受地缘约束的卡点。'},
+    u3:{sup:'海外垄断 · 卡脖子',supc:'risk',moat:3,why:'Synopsys/Cadence 双寡头主导,生态壁垒极高;国产华大九天份额不足 10%,是设计端最硬的卡点。'},
+    m1:{sup:'美国主导 · 中国追赶',supc:'risk',moat:2,why:'英伟达、高通等美国巨头主导高端设计,华为海思受制约;国产韦尔等在中低端追赶。'},
+    m2:{sup:'海外主导 · 卡脖子',supc:'risk',moat:3,why:'台积电主导先进制程(约 60%),7nm 以下受设备限制;中芯国际在成熟制程追赶,先进制程是核心卡点。'},
+    m3:{sup:'国产较强',supc:'cn',moat:2,why:'封测国产化率约 65%,长电、通富规模领先;先进封装(CoWoS 等)仍偏弱,是追赶方向。'},
+    d1:{sup:'需求驱动',supc:'neutral',moat:1,why:'终端应用,成熟稳增,议价力来自品牌与规模。'},
+    d2:{sup:'美国主导 · 高增长',supc:'risk',moat:2,why:'AI 算力需求爆发,高端 AI 芯片被英伟达垄断;国产替代空间大但受制于先进制程。'},
+    d3:{sup:'海外偏强 · 国产追赶',supc:'race',moat:2,why:'车规芯片博世、大陆等海外主导,比亚迪半导体等国产加速;认证周期长,壁垒中等。'},
+    d4:{sup:'国产较强',supc:'cn',moat:1,why:'工控/通信/边缘设备国产份额较高,华为、中兴、汇川等领先,竞争充分。'}
+  },
+  solar:{
+    u1:{sup:'中国主导',supc:'cn',moat:3,why:'中国多晶硅全球份额超 80%,通威、协鑫、大全形成龙头集中;规模与能耗管控构成强壁垒。'},
+    u2:{sup:'中国主导',supc:'cn',moat:3,why:'中国硅片全球份额超 95%,隆基、中环双寡头;单晶拉棒与切片工艺壁垒高,是光伏链上最硬的筹码。'},
+    u3:{sup:'中国主导',supc:'cn',moat:2,why:'光伏玻璃与胶膜国产主导,福莱特、信义、福斯特龙头集中;壁垒来自规模与窑炉产能。'},
+    u4:{sup:'海外主导 · 国产追赶',supc:'race',moat:2,why:'逆变器用 IGBT/SiC 英飞凌主导,国产斯达、士兰替代中;车规与光伏 SiC 良率是卡点。'},
+    m1:{sup:'中国主导',supc:'cn',moat:2,why:'电池片与组件国产主导,隆基、晶科、天合等龙头;TOPCon/HJT 技术迭代期,壁垒中等。'},
+    m2:{sup:'中国领先',supc:'cn',moat:2,why:'阳光电源、华为全球领先,出海受益;壁垒来自电力电子技术与品牌。'},
+    d1:{sup:'需求驱动',supc:'neutral',moat:1,why:'地面电站开发,国企主导,议价力来自资源与规模。'},
+    d2:{sup:'需求驱动',supc:'neutral',moat:1,why:'工商业与户用屋顶,高增长但壁垒低,渠道与融资为王。'},
+    d3:{sup:'国产主导',supc:'cn',moat:2,why:'光储一体化高增长,宁德、阳光、比亚迪领先;壁垒来自电池与系统集成。'}
+  }
+};
+/* 通过 Object.assign 把护城河字段合并到各产业节点 */
+Object.entries(MOAT).forEach(([ind, m])=>{
+  Object.entries(m).forEach(([id, v])=>{
+    if(DATA[ind] && DATA[ind].nodes[id]) Object.assign(DATA[ind].nodes[id], v);
+  });
+});
+DATA.robot.moatNote='★ = 该环节护城河 / 定价权强度(供给集中度 + 技术壁垒 + 可替代性综合判断),★★★ 为最强卡点。卡片顶部红条=命门(海外主导 / 被封锁),绿条=中国自主可控的关键筹码。评级为主观初判,可按你的口径调整。';
+const SUPC={cn:'#54cf8b',risk:'#ec6d5f',race:'#e0a94b',neutral:'#63768c'};
+const MOATTXT={0:'—',1:'弱 · 竞争充分',2:'较强',3:'极强 · 定价权 / 卡点'};
+function stars(m){ let s=''; for(let i=0;i<3;i++){ s+= i<m?'★':'<span class="off">☆</span>'; } return s; }
+
 /* ============ 工具函数 ============ */
 /* 从规模字符串中解析出数值(统一换算为亿),用于条形图比例计算 */
 function parseSize(s){
@@ -639,32 +764,58 @@ function nodeIndBar(n){
 
 function renderChain(){
   colsEl.innerHTML='';
-  ['up','mid','down'].forEach(tier=>{
-    const T=TIERS[tier], ids=idsByTier(tier);
-    const col=document.createElement('div');
-    const head=document.createElement('div'); head.className='col-head'; head.style.color=T.c;
-    head.innerHTML=`<span class="bar" style="background:${T.c}"></span><span class="cn">${T.label}</span>${T.en}<span class="ct">${ids.length} 环节</span>`;
-    col.appendChild(head);
-    let lastGroup=null;
-    ids.forEach(id=>{
-      const n=DATA[current].nodes[id];
-      if(n.group && n.group!==lastGroup){
-        const g=document.createElement('div'); g.className='grp'; g.textContent=n.group; col.appendChild(g); lastGroup=n.group;
-      }
-      const el=document.createElement('div');
-      el.className='node'; el.dataset.id=id; el.tabIndex=0;
-      el.style.setProperty('--tc',T.c); el.style.setProperty('--tc-dim',dim(T.c));
-      el.innerHTML=`<div class="nm">${n.name}${n.badge?`<span class="badge">${n.badge}</span>`:''}</div>
-        <div class="sub">${n.sub}</div>
-        ${nodeIndBar(n)}
-        <div class="chips">${n.co.slice(0,3).map(c=>`<span class="chip">${c}</span>`).join('')}${n.co.length>3?`<span class="chip">+${n.co.length-3}</span>`:''}</div>`;
-      el.onclick=e=>{ e.stopPropagation(); select(id); };
-      el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); select(id);} };
-      col.appendChild(el);
+  const stages=DATA[current].stages;
+  if(stages){
+    /* 多 stage 分栏布局 */
+    colsEl.style.gridTemplateColumns=`repeat(${stages.length}, minmax(184px,1fr))`;
+    cvs.style.minWidth=(stages.length*184 + (stages.length-1)*60 + 60)+'px';
+    stages.forEach(s=>{
+      const T=TIERS[s.tier];
+      const col=document.createElement('div');
+      const head=document.createElement('div'); head.className='col-head stage'; head.style.color=T.c;
+      head.innerHTML=`<div class="ch-top"><span class="bar" style="background:${T.c}"></span><span class="cn">${s.label}</span><span class="ct">${s.ids.length}</span></div>
+        <div class="ch-sub"><span class="en2">${s.en}</span><span class="tchip" style="color:${T.c};background:${dim(T.c)};border-color:${T.c}">${T.label}</span></div>`;
+      col.appendChild(head);
+      s.ids.forEach(id=>col.appendChild(makeNode(id, s.tier)));
+      colsEl.appendChild(col);
     });
-    colsEl.appendChild(col);
-  });
+  } else {
+    /* 三栏布局(上中下游) */
+    colsEl.style.gridTemplateColumns='repeat(3, minmax(230px,1fr))';
+    cvs.style.minWidth='840px';
+    ['up','mid','down'].forEach(tier=>{
+      const T=TIERS[tier], ids=idsByTier(tier);
+      const col=document.createElement('div');
+      const head=document.createElement('div'); head.className='col-head'; head.style.color=T.c;
+      head.innerHTML=`<span class="bar" style="background:${T.c}"></span><span class="cn">${T.label}</span>${T.en}<span class="ct">${ids.length} 环节</span>`;
+      col.appendChild(head);
+      let lastGroup=null;
+      ids.forEach(id=>{
+        const n=DATA[current].nodes[id];
+        if(n.group && n.group!==lastGroup){ const g=document.createElement('div'); g.className='grp'; g.textContent=n.group; col.appendChild(g); lastGroup=n.group; }
+        col.appendChild(makeNode(id, tier));
+      });
+      colsEl.appendChild(col);
+    });
+  }
   requestAnimationFrame(()=>{ drawWires(); applySearchToNodes(); });
+}
+
+function makeNode(id, tier){
+  const n=DATA[current].nodes[id], T=TIERS[tier];
+  const el=document.createElement('div');
+  el.className='node'; el.dataset.id=id; el.tabIndex=0;
+  el.style.setProperty('--tc',T.c); el.style.setProperty('--tc-dim',dim(T.c));
+  if(n.supc) el.style.setProperty('--sc',SUPC[n.supc]);
+  if(n.moat!=null) el.dataset.moat=n.moat;
+  el.innerHTML=`<div class="top"><div class="nm">${n.name}${n.badge?`<span class="badge">${n.badge}</span>`:''}</div>${n.sup?`<div class="sup ${n.supc}">${n.sup}</div>`:''}</div>
+    <div class="sub">${n.sub}</div>
+    ${n.moat!=null?`<div class="moat"><span class="stars">${stars(n.moat)}</span><span class="ml">护城河</span></div>`:''}
+    ${nodeIndBar(n)}
+    <div class="chips">${n.co.slice(0,3).map(c=>`<span class="chip">${c}</span>`).join('')}${n.co.length>3?`<span class="chip">+${n.co.length-3}</span>`:''}</div>`;
+  el.onclick=e=>{ e.stopPropagation(); select(id); };
+  el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); select(id);} };
+  return el;
 }
 
 function forward(id){ const s=new Set(),q=[id]; while(q.length){const c=q.pop();(DATA[current].nodes[c].links||[]).forEach(t=>{if(!s.has(t)){s.add(t);q.push(t);}});} return s; }
@@ -766,9 +917,9 @@ function renderOverview(d){
   const nodes=d.nodes,t={up:0,mid:0,down:0}; Object.values(nodes).forEach(n=>t[n.tier]++);
   detailEl.className='inner overview'; detailEl.style.removeProperty('--tc');
 
-  /* a. 价值量分布图 */
+  /* 价值量分布图 */
   const valChartHtml = buildValueChart(nodes);
-  /* b. 关键卡点 */
+  /* 关键卡点 */
   const riskHtml = buildRiskList(nodes);
 
   detailEl.innerHTML=`<div class="d-eyebrow">当前产业${d.short?' · '+d.short:''}</div>
@@ -782,6 +933,7 @@ function renderOverview(d){
     ${valChartHtml}
     ${riskHtml}
     ${d.note?`<div class="ov-note">${d.note}</div>`:''}
+    ${d.moatNote?`<div class="ov-note" style="border-left:2px solid #e8c14a">${d.moatNote}</div>`:''}
     <div class="cta-hint"><span class="k">▶</span><span>点击任一环节,自动追踪它向上溯源、向下延伸的完整链路;其余淡出。详情里的上下游环节可继续点进,顺着链条一路走。点空白处取消。</span></div>`;
 }
 
@@ -837,18 +989,18 @@ function renderNodeDetail(d){
   const n=d.nodes[selected], T=TIERS[n.tier];
   detailEl.className='inner'; detailEl.style.setProperty('--tc',T.c);
 
-  /* a. 投资指标区 */
+  /* 投资指标卡 */
   const invHtml = buildInvCard(n);
-  /* b. 投资逻辑 */
+  /* 投资逻辑卡 */
   const logicHtml = n.logic ? `<div class="logic-card"><div class="lc-title">投资逻辑</div><div class="lc-text">${n.logic}</div></div>` : '';
-  /* c. 竞争格局 */
+  /* 竞争格局条形图 */
   const shareHtml = n.share ? `<div class="d-sec">竞争格局</div><div class="share-chart">${n.share.map(s=>`
     <div class="share-row">
       <span class="sr-name" title="${s.co}">${s.co}</span>
       <span class="sr-track"><span class="sr-fill" style="width:${s.v}%;background:${T.c}"></span></span>
       <span class="sr-val">${s.v}%</span>
     </div>`).join('')}</div>` : '';
-  /* d. 卡点风险 */
+  /* 卡点风险卡 */
   const riskHtml = n.bottleneck ? `<div class="risk-card"><div class="rc-title">卡点与风险</div><div class="rc-text">${n.bottleneck}</div></div>` : '';
 
   detailEl.innerHTML=`<div class="d-head-row"><div style="flex:1">
@@ -859,7 +1011,14 @@ function renderNodeDetail(d){
     <div class="d-desc">${n.sub}</div>
     ${invHtml}
     ${logicHtml}
+    ${n.metrics?`<div class="metrics">${n.metrics.map(m=>`<div class="metric"><div class="mv">${m.v}</div><div class="mk">${m.k}</div></div>`).join('')}</div>`:''}
     ${n.note?`<div class="note-box">${n.note}</div>`:''}
+    ${n.moat!=null?`<div class="d-sec">供给格局与护城河</div>
+    <div class="moat-detail">
+      <div class="md-row"><span class="md-k">供给格局</span><span class="sup ${n.supc}">${n.sup}</span></div>
+      <div class="md-row"><span class="md-k">护城河</span><span class="stars">${stars(n.moat)}</span><span class="ml2">${MOATTXT[n.moat]}</span></div>
+    </div>
+    ${n.why?`<div class="moat-why">${n.why}</div>`:''}`:''}
     ${shareHtml}
     <div class="d-sec">代表企业 · ${n.co.length}</div>
     <div class="co-list">${n.co.map((c,i)=>`<span class="co"><span class="idx">${String(i+1).padStart(2,'0')}</span>${c}</span>`).join('')}</div>
@@ -868,18 +1027,11 @@ function renderNodeDetail(d){
     <div class="neighbors">${nbGroup('上游来源','←',directParents(selected))}${nbGroup('下游去向','→',n.links||[])}</div>`;
 }
 
-/* 投资指标卡:市场规模/增速 */
+/* 投资指标卡:市场规模 / 年增速 */
 function buildInvCard(n){
-  if(!n.size && !n.growth && !n.metrics) return '';
   const cells=[];
   if(n.size) cells.push(`<div class="inv-cell size"><div class="ic-k">市场规模</div><div class="ic-v">${n.size}</div></div>`);
   if(n.growth) cells.push(`<div class="inv-cell growth"><div class="ic-k">年增速</div><div class="ic-v">${n.growth}</div></div>`);
-  /* 若不足3列且有 metrics,补充展示 */
-  if(n.metrics && cells.length<3){
-    n.metrics.slice(0, 3-cells.length).forEach(m=>{
-      cells.push(`<div class="inv-cell"><div class="ic-k">${m.k}</div><div class="ic-v" style="color:var(--tc)">${m.v}</div></div>`);
-    });
-  }
   if(!cells.length) return '';
   return `<div class="inv-card">${cells.join('')}</div>`;
 }
