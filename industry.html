@@ -103,7 +103,10 @@
   .node .sub{font-size:11.5px; color:var(--muted); padding-left:4px; line-height:1.5}
   .node .chips{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; padding-left:4px}
   .node .chip{font-family:var(--mono); font-size:10px; color:var(--faint); background:var(--bg2); border:1px solid var(--border); border-radius:5px; padding:2px 6px; letter-spacing:.3px; transition:all .15s}
+  .node a.chip{cursor:pointer; text-decoration:none; color:inherit}
+  .node a.chip:hover{color:var(--text); border-color:var(--border2); background:var(--panel2)}
   .node .chip.hl{background:rgba(79,201,189,.18); border-color:var(--up); color:var(--up)}
+  .node a.chip.hl:hover{background:rgba(79,201,189,.28)}
   .node:focus-visible{outline:2px solid var(--tc); outline-offset:2px}
 
   /* 节点卡片投资指标条(紧凑版) */
@@ -180,6 +183,8 @@
   .d-sec::after{content:""; flex:1; height:1px; background:var(--border)}
   .co-list{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px}
   .co{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:7px 11px}
+  a.co{cursor:pointer; text-decoration:none; color:inherit; transition:all .15s ease}
+  a.co:hover{border-color:var(--border2); background:var(--panel2); transform:translateY(-1px)}
   .co .idx{font-family:var(--mono); font-size:10px; color:var(--faint)}
   .neighbors{display:flex; flex-direction:column; gap:16px}
   .nb-group .lbl{font-size:12px; color:var(--muted); margin-bottom:8px; display:flex; align-items:center; gap:6px}
@@ -812,7 +817,7 @@ function makeNode(id, tier){
     <div class="sub">${n.sub}</div>
     ${n.moat!=null?`<div class="moat"><span class="stars">${stars(n.moat)}</span><span class="ml">护城河</span></div>`:''}
     ${nodeIndBar(n)}
-    <div class="chips">${n.co.slice(0,3).map(c=>`<span class="chip">${c}</span>`).join('')}${n.co.length>3?`<span class="chip">+${n.co.length-3}</span>`:''}</div>`;
+    <div class="chips">${n.co.slice(0,3).map(c=>`<a class="chip" href="company.html?name=${encodeURIComponent(c)}&ind=${current}&node=${encodeURIComponent(n.name)}" onclick="event.stopPropagation()">${c}</a>`).join('')}${n.co.length>3?`<span class="chip">+${n.co.length-3}</span>`:''}</div>`;
   el.onclick=e=>{ e.stopPropagation(); select(id); };
   el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); select(id);} };
   return el;
@@ -1021,7 +1026,7 @@ function renderNodeDetail(d){
     ${n.why?`<div class="moat-why">${n.why}</div>`:''}`:''}
     ${shareHtml}
     <div class="d-sec">代表企业 · ${n.co.length}</div>
-    <div class="co-list">${n.co.map((c,i)=>`<span class="co"><span class="idx">${String(i+1).padStart(2,'0')}</span>${c}</span>`).join('')}</div>
+    <div class="co-list">${n.co.map((c,i)=>`<a class="co" href="company.html?name=${encodeURIComponent(c)}&ind=${current}&node=${encodeURIComponent(n.name)}" onclick="event.stopPropagation()"><span class="idx">${String(i+1).padStart(2,'0')}</span>${c}</a>`).join('')}</div>
     ${riskHtml}
     <div class="d-sec">链路关系</div>
     <div class="neighbors">${nbGroup('上游来源','←',directParents(selected))}${nbGroup('下游去向','→',n.links||[])}</div>`;

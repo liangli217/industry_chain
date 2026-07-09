@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>链脉 · 公司分析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1119; --bg2:#0e1622; --panel:#121e2d; --panel2:#16273a;
+    --line:#22344a; --border:#233852; --border2:#2e4763;
+    --text:#e9eff6; --muted:#94a6bb; --faint:#63768c;
+    --up:#4fc9bd; --mid:#e8a44c; --down:#b98ce6;
+    --risk:#e87a6c;
+    --warn:#e8a44c;
+    --sans:'Sora',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+    --cn:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--cn); background:var(--bg); color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(1100px 600px at 78% -10%, rgba(79,201,189,.07), transparent 60%),
+      radial-gradient(900px 700px at 8% 120%, rgba(185,140,230,.06), transparent 55%);
+    min-height:100vh;
+  }
+
+  /* 顶部导航栏 */
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+    padding:16px 26px; border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,rgba(18,30,45,.92),rgba(11,17,25,.7)); backdrop-filter:blur(10px);
+  }
+  .back{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:var(--cn); font-size:13px; color:var(--muted); cursor:pointer;
+    background:var(--bg2); border:1px solid var(--border); border-radius:999px;
+    padding:8px 16px; transition:all .18s ease; text-decoration:none; white-space:nowrap;
+  }
+  .back:hover{color:var(--text); border-color:var(--border2); background:var(--panel)}
+  .back .arrow{font-family:var(--mono); font-size:15px; line-height:1}
+  .co-head{display:flex; flex-direction:column; gap:3px; flex:1; min-width:0}
+  .co-head .nm{font-family:var(--sans); font-size:24px; font-weight:600; line-height:1.2; letter-spacing:.3px}
+  .co-head .code{font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:1px}
+  .ind-tag{
+    font-size:12px; color:var(--up); background:rgba(79,201,189,.1);
+    border:1px solid rgba(79,201,189,.3); border-radius:999px;
+    padding:6px 13px; white-space:nowrap; font-weight:500;
+  }
+
+  /* 主体内容 */
+  .wrap{
+    max-width:880px; margin:0 auto; padding:30px 26px 60px;
+  }
+  .loading{ text-align:center; padding:80px 20px; color:var(--muted); font-size:15px; }
+  .loading .spinner{ display:inline-block; width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--up); border-radius:50%; animation:spin .8s linear infinite; margin-bottom:14px; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .error-box{ text-align:center; padding:60px 20px; }
+  .error-box .title{ font-size:18px; color:var(--risk); margin-bottom:10px; }
+  .error-box .msg{ font-size:13px; color:var(--muted); }
+  .hint-box{
+    text-align:center; padding:90px 30px; color:var(--muted); line-height:1.8;
+    background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    margin-top:30px;
+  }
+  .hint-box .big{font-size:18px; color:var(--text); margin-bottom:10px; font-weight:500}
+  .hint-box .small{font-size:13px; color:var(--faint)}
+  .hint-box a{color:var(--up); text-decoration:none}
+  .hint-box a:hover{text-decoration:underline}
+
+  /* 通用 section */
+  .sec{margin-bottom:34px}
+  .sec-title{
+    font-family:var(--mono); font-size:11px; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--faint); margin-bottom:16px; display:flex; align-items:center; gap:9px;
+  }
+  .sec-title::after{content:""; flex:1; height:1px; background:var(--border)}
+  .sec-title .num{
+    font-family:var(--mono); font-size:10px; color:var(--up);
+    border:1px solid var(--up); border-radius:4px; padding:1px 6px; letter-spacing:1px;
+  }
+
+  /* 面包屑 */
+  .crumb{
+    display:flex; align-items:center; gap:11px; flex-wrap:wrap; margin-bottom:18px;
+    font-size:13px;
+  }
+  .crumb .item{color:var(--muted)}
+  .crumb .item.cur{color:var(--text); font-weight:500}
+  .crumb .sep{color:var(--faint); font-family:var(--mono); font-size:11px}
+  .tier-chip{
+    font-family:var(--cn); font-size:11px; font-weight:600; padding:3px 10px;
+    border-radius:999px; border:1px solid; letter-spacing:.5px;
+  }
+
+  /* 市场份额条形图 */
+  .share-block{margin-top:18px}
+  .share-block .sb-label{
+    font-size:12px; color:var(--muted); margin-bottom:11px; letter-spacing:.3px;
+  }
+  .share-row{display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:12.5px}
+  .share-row .sr-name{
+    flex-shrink:0; width:110px; color:var(--muted); white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis;
+  }
+  .share-row .sr-name.me{color:var(--up); font-weight:600}
+  .share-row .sr-track{flex:1; height:14px; background:var(--bg2); border-radius:4px; overflow:hidden}
+  .share-row .sr-fill{height:100%; border-radius:4px; opacity:.85}
+  .share-row .sr-fill.me{opacity:1}
+  .share-row .sr-val{
+    flex-shrink:0; font-family:var(--mono); font-size:11px; color:var(--text);
+    min-width:42px; text-align:right;
+  }
+
+  /* 竞争对手 chips */
+  .rivals{margin-top:18px}
+  .rivals .rl-label{font-size:12px; color:var(--muted); margin-bottom:10px}
+  .rivals .rl-chips{display:flex; flex-wrap:wrap; gap:7px}
+  .rivals .rl-chip{
+    font-family:var(--mono); font-size:11px; color:var(--muted);
+    background:var(--panel); border:1px solid var(--border); border-radius:6px;
+    padding:5px 10px; letter-spacing:.3px; transition:all .15s;
+    text-decoration:none;
+  }
+  .rivals .rl-chip:hover{color:var(--text); border-color:var(--border2)}
+  .rivals .rl-chip.me{color:var(--up); border-color:var(--up); background:rgba(79,201,189,.08)}
+
+  /* 财务指标卡片网格 */
+  .fin-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:11px;
+  }
+  .fin-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:11px;
+    padding:16px 15px; transition:border-color .18s ease;
+  }
+  .fin-card:hover{border-color:var(--border2)}
+  .fin-card .fk{font-size:11px; color:var(--faint); letter-spacing:.5px; margin-bottom:8px}
+  .fin-card .fv{
+    font-family:var(--mono); font-size:22px; font-weight:600; color:var(--text);
+    line-height:1.1; letter-spacing:.3px;
+  }
+  .fin-card .fu{font-size:11px; color:var(--muted); margin-top:4px; letter-spacing:.3px}
+  .fin-card.yoy-up .fv{color:var(--up)}
+  .fin-card.yoy-down .fv{color:var(--risk)}
+  .fin-empty{
+    grid-column:1/-1; text-align:center; padding:36px 20px;
+    color:var(--faint); font-size:13px; font-style:italic;
+    background:var(--panel); border:1px dashed var(--border2); border-radius:11px;
+  }
+  .fin-desc{
+    margin-top:14px; font-size:13px; color:var(--muted); line-height:1.6;
+    background:var(--panel); border-left:2px solid var(--up);
+    border-radius:0 8px 8px 0; padding:11px 14px;
+  }
+
+  /* 环节投资指标双卡 */
+  .inv-pair{display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:16px}
+  .inv-pair .ip-cell{
+    background:var(--panel); border:1px solid var(--border); border-radius:11px;
+    padding:16px 15px;
+  }
+  .inv-pair .ip-k{font-size:11px; color:var(--faint); letter-spacing:.5px; margin-bottom:8px}
+  .inv-pair .ip-v{font-family:var(--mono); font-size:22px; font-weight:600; line-height:1.1}
+  .inv-pair .ip-cell.size .ip-v{color:var(--mid)}
+  .inv-pair .ip-cell.growth .ip-v{color:var(--up)}
+
+  /* 护城河评级 */
+  .moat-box{
+    background:var(--panel); border:1px solid var(--border); border-radius:11px;
+    padding:14px 16px; margin-bottom:14px;
+  }
+  .moat-row{display:flex; align-items:center; gap:14px; font-size:13px; margin-bottom:9px}
+  .moat-row:last-child{margin-bottom:0}
+  .moat-k{font-family:var(--mono); font-size:10px; letter-spacing:1px; color:var(--faint); width:64px; flex-shrink:0}
+  .stars{font-size:16px; letter-spacing:2px; color:#e8c14a}
+  .stars .off{color:var(--border2)}
+  .sup{font-family:var(--mono); font-weight:600; letter-spacing:.2px; font-size:12px}
+  .sup.cn{color:#54cf8b} .sup.risk{color:#ec6d5f} .sup.race{color:#e0a94b} .sup.neutral{color:var(--faint)}
+  .moat-txt{font-size:12px; color:var(--muted); margin-left:8px}
+
+  /* 投资逻辑卡 */
+  .logic-box{
+    background:var(--panel); border:1px solid var(--border);
+    border-left:3px solid var(--up); border-radius:0 8px 8px 0;
+    padding:13px 16px; margin-bottom:14px;
+  }
+  .logic-box .lb-title{
+    font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--faint); margin-bottom:7px;
+  }
+  .logic-box .lb-text{font-size:14px; line-height:1.65; color:var(--text); font-weight:500}
+
+  /* 供给格局说明 */
+  .why-box{
+    font-size:13px; line-height:1.7; color:var(--muted);
+    background:var(--panel); border-left:2px solid var(--mid);
+    border-radius:0 8px 8px 0; padding:12px 15px; margin-bottom:14px;
+  }
+
+  /* 风险卡片 */
+  .risk-card{
+    background:rgba(232,122,108,.07); border:1px solid rgba(232,122,108,.25);
+    border-left:3px solid var(--risk); border-radius:0 8px 8px 0;
+    padding:13px 16px; margin-bottom:11px;
+  }
+  .risk-card .rc-title{
+    font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--risk); margin-bottom:7px;
+  }
+  .risk-card .rc-text{font-size:13px; line-height:1.6; color:var(--text)}
+  .risk-list{display:flex; flex-direction:column; gap:8px}
+  .risk-item{
+    display:flex; align-items:flex-start; gap:9px;
+    font-size:13px; color:var(--text); line-height:1.55;
+    background:rgba(232,122,108,.05); border:1px solid rgba(232,122,108,.2);
+    border-radius:8px; padding:10px 13px;
+  }
+  .risk-item .ri-dot{
+    flex-shrink:0; width:6px; height:6px; border-radius:50%;
+    background:var(--risk); margin-top:7px;
+  }
+  .risk-empty{
+    text-align:center; padding:24px 20px; color:var(--faint); font-size:13px;
+    font-style:italic; background:var(--panel); border:1px dashed var(--border2);
+    border-radius:11px;
+  }
+
+  ::-webkit-scrollbar{width:9px; height:9px}
+  ::-webkit-scrollbar-thumb{background:var(--border2); border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  @media (max-width:680px){
+    .fin-grid{grid-template-columns:repeat(2,1fr)}
+    .inv-pair{grid-template-columns:1fr}
+    .topbar{padding:14px 18px}
+    .wrap{padding:24px 18px 50px}
+    .co-head .nm{font-size:20px}
+  }
+  .info-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;overflow:hidden}
+  .info-row{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+  .info-row:last-child{border-bottom:none}
+  .info-row .k{color:var(--mute);font-size:13px}
+  .info-row .v{font-weight:600}
+</style>
+</head>
+<body>
+
+<div id="root">
+  <div class="loading"><div class="spinner"></div>加载中…</div>
+</div>
+
+<script>
+/* ============ Supabase 配置(直接 fetch REST API) ============ */
+const SUPABASE_URL = 'https://vibfjrxwwncjmykilkxg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_qv2Si85HMvlbBV0vLjvVRQ_HPlGhHll';
+
+/* ============ 产业层级配置(与 industry.html 一致) ============ */
+const TIERS = {
+  up:  {label:'上游', en:'UPSTREAM',   c:'#4fc9bd'},
+  mid: {label:'中游', en:'MIDSTREAM',  c:'#e8a44c'},
+  down:{label:'下游', en:'DOWNSTREAM', c:'#b98ce6'}
+};
+const SUPC={cn:'#54cf8b',risk:'#ec6d5f',race:'#e0a94b',neutral:'#63768c'};
+const MOATTXT={0:'—',1:'弱 · 竞争充分',2:'较强',3:'极强 · 定价权 / 卡点'};
+function stars(m){ let s=''; for(let i=0;i<3;i++){ s+= i<m?'★':'<span class="off">☆</span>'; } return s; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+
+/* ============ 主流程:从 Supabase 查询公司数据 ============ */
+async function init(){
+  const params = new URLSearchParams(location.search);
+  const coName = params.get('name');
+
+  /* URL 无 name 参数 */
+  if(!coName){
+    renderHint('请从产业链页面进入', '点击下方按钮返回产业链图谱,选择企业与环节查看分析。');
+    return;
+  }
+
+  try{
+    const url = `${SUPABASE_URL}/rest/v1/companies?name=eq.${encodeURIComponent(coName)}&select=*`;
+    const resp = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Accept': 'application/json'
+      }
+    });
+    if(!resp.ok){
+      const errText = await resp.text();
+      renderError('查询失败', `HTTP ${resp.status}: ${errText}`);
+      return;
+    }
+    const rows = await resp.json();
+    if(!rows || rows.length === 0){
+      renderFallback(coName, params.get('ind'), params.get('node'));
+      return;
+    }
+    renderPage(rows[0]);
+  }catch(e){
+    renderError('加载异常', (e && e.message) ? e.message : String(e));
+  }
+}
+
+/* ============ 友好提示(无 name 参数) ============ */
+function renderHint(title, msg){
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="wrap"><div class="hint-box">
+    <div class="big">${esc(title)}</div>
+    <div class="small">${esc(msg)}</div>
+    <div style="margin-top:18px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
+  </div></div>`;
+}
+
+/* ============ 错误提示(Supabase 未配置 / 查询失败) ============ */
+function renderError(title, msg){
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="wrap"><div class="error-box">
+    <div class="title">${esc(title)}</div>
+    <div class="msg">${esc(msg)}</div>
+    <div style="margin-top:20px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
+  </div></div>`;
+}
+
+/* ============ 未收录公司兜底页(带产业链上下文) ============ */
+const IND_LABELS = {robot:'机器人产业链', ev:'新能源汽车产业链', chip:'半导体产业链', solar:'光伏产业链'};
+function renderFallback(coName, ind, node){
+  const root = document.getElementById('root');
+  const indLabel = IND_LABELS[ind] || '产业链';
+  root.innerHTML = `<div class="wrap">
+    <div class="topbar"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
+    <div class="co-head">
+      <div class="nm">${esc(coName)}</div>
+      <div class="sub">${esc(indLabel)}${node ? ' · ' + esc(node) : ''}</div>
+    </div>
+    <div class="hint-box" style="margin:24px 0">
+      <div class="big">暂无详细财务数据</div>
+      <div class="small">该公司暂未收录在数据库中,可能为未上市公司、外资企业或非 A股标的。你可以在产业链图谱中查看该环节的投资逻辑与竞争格局。</div>
+    </div>
+    <div class="d-sec">产业链定位</div>
+    <div class="info-card">
+      <div class="info-row"><span class="k">所属产业</span><span class="v">${esc(indLabel)}</span></div>
+      ${node ? `<div class="info-row"><span class="k">所处环节</span><span class="v">${esc(node)}</span></div>` : ''}
+    </div>
+    <div style="margin-top:24px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链图谱</a></div>
+  </div>`;
+}
+
+function renderPage(row){
+  const root = document.getElementById('root');
+  const coName = row.name;
+
+  const tierInfo = row.tier ? TIERS[row.tier] : null;
+  const indName = row.industry_name || '产业链';
+  const nodeName = row.node_name || '';
+
+  /* 顶部栏 */
+  let html = `<div class="topbar">
+    <a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a>
+    <div class="co-head">
+      <div class="nm">${esc(coName)}</div>
+      <div class="code">${row.code ? esc(row.code + (row.mkt ? ' · ' + row.mkt : '')) : '—'}</div>
+    </div>
+    <span class="ind-tag">${esc(indName)}${nodeName ? ' · ' + esc(nodeName) : ''}</span>
+  </div>`;
+
+  html += `<div class="wrap">`;
+
+  /* ===== Section 1: 供应链定位 ===== */
+  if(tierInfo && nodeName){
+    html += `<div class="sec">
+      <div class="sec-title"><span class="num">01</span>供应链定位</div>
+      <div class="crumb">
+        <span class="item">${esc(indName)}</span>
+        <span class="sep">›</span>
+        <span class="item">${esc(nodeName)}</span>
+        <span class="sep">›</span>
+        <span class="tier-chip" style="color:${tierInfo.c};background:rgba(${parseInt(tierInfo.c.slice(1,3),16)},${parseInt(tierInfo.c.slice(3,5),16)},${parseInt(tierInfo.c.slice(5,7),16)},.12);border-color:${tierInfo.c}">${tierInfo.label} · ${tierInfo.en}</span>
+      </div>`;
+
+    /* 市场份额条形图(share 字段格式:[{n, s}]) */
+    const share = Array.isArray(row.share) ? row.share : [];
+    if(share.length){
+      const maxV = Math.max(...share.map(s => s.s));
+      html += `<div class="share-block">
+        <div class="sb-label">环节竞争格局 · 市场份额</div>`;
+      share.forEach(sh => {
+        const isMe = sh.n === coName;
+        const w = maxV > 0 ? (sh.s / maxV) * 100 : 0;
+        const color = isMe ? 'var(--up)' : tierInfo.c;
+        html += `<div class="share-row">
+          <span class="sr-name ${isMe ? 'me' : ''}" title="${esc(sh.n)}">${esc(sh.n)}${isMe ? ' (本企业)' : ''}</span>
+          <span class="sr-track"><span class="sr-fill ${isMe ? 'me' : ''}" style="width:${w}%;background:${color}"></span></span>
+          <span class="sr-val">${sh.s}%</span>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    /* 竞争对手 chips(peers 字段为公司名数组) */
+    const peers = Array.isArray(row.peers) ? row.peers : [];
+    const rivals = peers.filter(c => c !== coName && !/\(.*\)/.test(c) && !/未上市/.test(c));
+    if(rivals.length){
+      html += `<div class="rivals">
+        <div class="rl-label">同环节代表企业</div>
+        <div class="rl-chips">
+          <span class="rl-chip me">${esc(coName)} (当前)</span>
+          ${rivals.map(c => `<a class="rl-chip" href="company.html?name=${encodeURIComponent(c)}">${esc(c)}</a>`).join('')}
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  } else {
+    html += `<div class="sec">
+      <div class="sec-title"><span class="num">01</span>供应链定位</div>
+      <div style="font-size:13px;color:var(--faint);font-style:italic;padding:18px;background:var(--panel);border:1px dashed var(--border2);border-radius:11px">未获取到环节上下文,无法显示供应链定位。请从产业链页面进入。</div>
+    </div>`;
+  }
+
+  /* ===== Section 2: 财务摘要 ===== */
+  html += `<div class="sec">
+    <div class="sec-title"><span class="num">02</span>财务摘要</div>`;
+  if(row.rev || row.profit || row.mktcap){
+    const yoyNum = parseFloat(row.yoy);
+    const yoyClass = isNaN(yoyNum) ? '' : (yoyNum >= 0 ? 'yoy-up' : 'yoy-down');
+    html += `<div class="fin-grid">
+      <div class="fin-card"><div class="fk">营业收入</div><div class="fv">${esc(row.rev)}</div><div class="fu">2024 年</div></div>
+      <div class="fin-card"><div class="fk">净利润</div><div class="fv">${esc(row.profit)}</div><div class="fu">2024 年</div></div>
+      <div class="fin-card"><div class="fk">毛利率</div><div class="fv">${esc(row.margin)}</div><div class="fu">Gross Margin</div></div>
+      <div class="fin-card"><div class="fk">总市值</div><div class="fv">${esc(row.mktcap)}</div><div class="fu">Market Cap</div></div>
+      <div class="fin-card"><div class="fk">市盈率 PE</div><div class="fv">${esc(row.pe)}</div><div class="fu">P/E Ratio</div></div>
+      <div class="fin-card ${yoyClass}"><div class="fk">同比增速</div><div class="fv">${esc(row.yoy)}</div><div class="fu">YoY Growth</div></div>
+    </div>
+    <div class="fin-desc">${esc(row.description)}</div>`;
+  } else {
+    html += `<div class="fin-empty">暂无财务数据 · 该公司未纳入财务数据库</div>`;
+  }
+  html += `</div>`;
+
+  /* ===== Section 3: 环节投资逻辑 ===== */
+  if(tierInfo && nodeName){
+    html += `<div class="sec">
+      <div class="sec-title"><span class="num">03</span>环节投资逻辑</div>`;
+
+    /* 环节市场规模 + 增速 双卡 */
+    if(row.size || row.growth){
+      html += `<div class="inv-pair">`;
+      if(row.size)   html += `<div class="ip-cell size"><div class="ip-k">环节市场规模</div><div class="ip-v">${esc(row.size)}</div></div>`;
+      if(row.growth) html += `<div class="ip-cell growth"><div class="ip-k">环节年增速</div><div class="ip-v">${esc(row.growth)}</div></div>`;
+      html += `</div>`;
+    }
+
+    /* 护城河评级 */
+    if(row.moat != null && row.moat > 0){
+      html += `<div class="moat-box">`;
+      if(row.sup){
+        html += `<div class="moat-row"><span class="moat-k">供给格局</span><span class="sup ${row.supc || 'neutral'}">${esc(row.sup)}</span></div>`;
+      }
+      html += `<div class="moat-row"><span class="moat-k">护城河</span><span class="stars">${stars(row.moat)}</span><span class="moat-txt">${MOATTXT[row.moat] || ''}</span></div>`;
+      html += `</div>`;
+    }
+
+    /* 投资逻辑文本 */
+    if(row.logic){
+      html += `<div class="logic-box"><div class="lb-title">投资逻辑</div><div class="lb-text">${esc(row.logic)}</div></div>`;
+    }
+
+    /* 供给格局说明 */
+    if(row.why){
+      html += `<div class="why-box">${esc(row.why)}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  /* ===== Section 4: 风险提示 ===== */
+  html += `<div class="sec">
+    <div class="sec-title"><span class="num">04</span>风险提示</div>`;
+
+  let hasRisk = false;
+  /* 环节卡点 */
+  if(row.bottleneck){
+    hasRisk = true;
+    html += `<div class="risk-card"><div class="rc-title">环节卡点</div><div class="rc-text">${esc(row.bottleneck)}</div></div>`;
+  }
+  /* 公司特定风险(risks 字段为字符串数组) */
+  const risks = Array.isArray(row.risks) ? row.risks : [];
+  if(risks.length){
+    hasRisk = true;
+    html += `<div class="risk-list">`;
+    risks.forEach(r => {
+      html += `<div class="risk-item"><span class="ri-dot"></span><span>${esc(r)}</span></div>`;
+    });
+    html += `</div>`;
+  }
+  if(!hasRisk){
+    html += `<div class="risk-empty">暂无风险提示</div>`;
+  }
+  html += `</div>`;
+
+  html += `</div>`; /* .wrap */
+
+  root.innerHTML = html;
+}
+
+/* ============ 启动 ============ */
+init();
+</script>
+</body>
+</html>
