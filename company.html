@@ -247,6 +247,33 @@
   .info-row:last-child{border-bottom:none}
   .info-row .k{color:var(--mute);font-size:13px}
   .info-row .v{font-weight:600}
+  /* 财报预期 vs 实际 */
+  .earn-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .earn-card{background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:14px 16px}
+  .earn-card.beat{border-color:var(--up);background:rgba(84,207,139,.05)}
+  .earn-card.miss{border-color:#e87a6c;background:rgba(232,122,108,.05)}
+  .ec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .ec-k{font-size:13px;color:var(--mute);font-weight:500}
+  .ec-surp{font-size:16px;font-weight:700}
+  .ec-surp.up{color:var(--up)}
+  .ec-surp.down{color:#e87a6c}
+  .ec-body{display:flex;flex-direction:column;gap:6px}
+  .ec-row{display:flex;justify-content:space-between;align-items:center}
+  .ec-label{font-size:12px;color:var(--mute)}
+  .ec-val{font-size:18px;font-weight:600;font-family:'SF Mono','Cascadia Code',monospace}
+  .ec-val.est{color:var(--mute);text-decoration:line-through;font-size:14px}
+  .ec-val.act{color:var(--text)}
+  .earn-card.beat .ec-val.act{color:var(--up)}
+  .earn-card.miss .ec-val.act{color:#e87a6c}
+  .ec-arrow{text-align:center;font-size:16px;margin:4px 0}
+  .ec-arrow.up{color:var(--up)}
+  .ec-arrow.down{color:#e87a6c}
+  .earn-summary{margin-top:14px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;text-align:center}
+  .earn-summary.beat{background:rgba(84,207,139,.1);color:var(--up);border:1px solid rgba(84,207,139,.3)}
+  .earn-summary.miss{background:rgba(232,122,108,.1);color:#e87a6c;border:1px solid rgba(232,122,108,.3)}
+  .earn-summary.mixed{background:rgba(224,169,75,.1);color:#e0a94b;border:1px solid rgba(224,169,75,.3)}
+  .qd{margin-left:auto;font-size:11px;color:var(--mute);font-weight:400}
+  @media(max-width:520px){.earn-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -441,6 +468,39 @@ function renderPage(row){
     html += `<div class="fin-empty">暂无财务数据 · 该公司未纳入财务数据库</div>`;
   }
   html += `</div>`;
+
+  /* ===== Section 2.5: 财报预期 vs 实际 ===== */
+  if(row.eps || row.eps_est){
+    const epsSurp = row.eps_surp ? parseFloat(row.eps_surp) : null;
+    const revSurp = row.rev_surp ? parseFloat(row.rev_surp) : null;
+    const epsBeat = epsSurp !== null && epsSurp >= 0;
+    const revBeat = revSurp !== null && revSurp >= 0;
+    const beatAll = epsBeat && revBeat;
+    const missAll = !epsBeat && !revBeat;
+
+    html += `<div class="sec">
+      <div class="sec-title"><span class="num">02.5</span>财报预期 vs 实际${row.q_date ? `<span class="qd">${esc(row.q_date)}</span>` : ''}</div>
+      <div class="earn-grid">
+        <div class="earn-card ${epsBeat ? 'beat' : (epsSurp !== null ? 'miss' : '')}">
+          <div class="ec-head"><span class="ec-k">EPS 每股收益</span><span class="ec-surp ${epsBeat ? 'up' : 'down'}">${esc(row.eps_surp || '—')}</span></div>
+          <div class="ec-body">
+            <div class="ec-row"><span class="ec-label">预期</span><span class="ec-val est">${esc(row.eps_est || '—')}</span></div>
+            <div class="ec-arrow ${epsBeat ? 'up' : 'down'}">${epsBeat ? '▲' : '▼'}</div>
+            <div class="ec-row"><span class="ec-label">实际</span><span class="ec-val act">${esc(row.eps || '—')}</span></div>
+          </div>
+        </div>
+        <div class="earn-card ${revBeat ? 'beat' : (revSurp !== null ? 'miss' : '')}">
+          <div class="ec-head"><span class="ec-k">Revenue 营收</span><span class="ec-surp ${revBeat ? 'up' : 'down'}">${esc(row.rev_surp || '—')}</span></div>
+          <div class="ec-body">
+            <div class="ec-row"><span class="ec-label">预期</span><span class="ec-val est">${esc(row.rev_est || '—')}</span></div>
+            <div class="ec-arrow ${revBeat ? 'up' : 'down'}">${revBeat ? '▲' : '▼'}</div>
+            <div class="ec-row"><span class="ec-label">实际</span><span class="ec-val act">${esc(row.rev || '—')}</span></div>
+          </div>
+        </div>
+      </div>
+      ${beatAll ? '<div class="earn-summary beat">✓ EPS & Revenue 双超预期</div>' : (missAll ? '<div class="earn-summary miss">✗ EPS & Revenue 双不及预期</div>' : '<div class="earn-summary mixed">△ 预期与实际参差</div>')}
+    </div>`;
+  }
 
   /* ===== Section 3: 环节投资逻辑 ===== */
   if(tierInfo && nodeName){

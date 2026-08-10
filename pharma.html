@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全球创新药龙头 · JPM 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --border:#30363d; --border2:#21262d;
+    --text:#e6edf3; --mute:#8b949e; --faint:#484f58;
+    --up:#4fc9bd; --mid:#e8a44c; --down:#b98ce6; --risk:#e87a6c; --opp:#54cf8b; --warn:#e0a94b;
+    --mono:'JetBrains Mono',monospace; --cn:'Noto Sans SC',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Sora',var(--cn);line-height:1.6;min-height:100vh}
+  a{color:inherit;text-decoration:none}
+
+  /* Header */
+  .header{max-width:1200px;margin:0 auto;padding:32px 24px 16px}
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--mute);font-size:13px;margin-bottom:16px;transition:color .2s}
+  .back:hover{color:var(--text)}
+  .back::before{content:'←';font-size:16px}
+  h1{font-size:28px;font-weight:700;margin-bottom:8px}
+  .subtitle{color:var(--mute);font-size:15px;margin-bottom:20px}
+  .stats{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:8px}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 20px}
+  .stat .k{font-size:12px;color:var(--mute);margin-bottom:4px}
+  .stat .v{font-size:20px;font-weight:700}
+  .stat .v.green{color:var(--opp)}
+  .source{margin-top:12px;font-size:12px;color:var(--faint)}
+  .source a{color:var(--warn);text-decoration:underline}
+
+  /* Grid */
+  .grid{max-width:1200px;margin:0 auto;padding:8px 24px 48px;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+
+  /* Card */
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:12px}
+  .card:hover{border-color:var(--warn);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .card-name{font-size:18px;font-weight:700}
+  .card-code{font-family:var(--mono);font-size:12px;color:var(--mute);background:var(--panel2);padding:2px 8px;border-radius:6px;border:1px solid var(--border2);white-space:nowrap}
+  .card-meta{display:flex;gap:16px;flex-wrap:wrap}
+  .meta-item{display:flex;flex-direction:column;gap:2px}
+  .meta-item .k{font-size:11px;color:var(--faint)}
+  .meta-item .v{font-size:14px;font-weight:600}
+  .meta-item .v.up{color:var(--opp)}
+  .meta-item .v.down{color:var(--risk)}
+  .card-areas{display:flex;flex-wrap:wrap;gap:6px}
+  .area{font-size:11px;padding:2px 10px;border-radius:999px;background:rgba(184,140,230,.12);color:var(--down);border:1px solid rgba(184,140,230,.25)}
+  .card-strategy{font-size:13px;color:var(--mute);line-height:1.5;border-top:1px solid var(--border2);padding-top:10px}
+  .card-strategy strong{color:var(--text);font-weight:600}
+  .card-arrow{display:flex;justify-content:flex-end;color:var(--faint);font-size:13px;transition:color .2s}
+  .card:hover .card-arrow{color:var(--warn)}
+
+  /* Loading */
+  .loading{text-align:center;padding:80px 24px;color:var(--mute)}
+  .loading .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--warn);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .err{text-align:center;padding:80px 24px;color:var(--risk)}
+
+  @media(max-width:600px){
+    .grid{grid-template-columns:1fr;padding:8px 16px 48px}
+    .header{padding:24px 16px 12px}
+    h1{font-size:22px}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back" href="industry.html">返回产业链</a>
+  <h1>全球创新药龙头 · JPM 2026</h1>
+  <div class="subtitle">2026 JPMorgan Healthcare Conference 23家全球药企战略摘要</div>
+  <div class="stats" id="stats"></div>
+  <div class="source">数据来源：<a href="https://liangchang.substack.com/p/i-summarized-23-global-pharma-presentations" target="_blank">liangchang.substack.com</a> · 市值截至 2026.01.15 · 营收为 2024 全年</div>
+</div>
+
+<div class="grid" id="grid">
+  <div class="loading"><div class="spinner"></div><div>加载中…</div></div>
+</div>
+
+<script>
+const SUPABASE_URL='https://vibfjrxwwncjmykilkxg.supabase.co';
+const SUPABASE_KEY='sb_publishable_qv2Si85HMvlbBV0vLjvVRQ_HPlGhHll';
+
+function esc(s){return s?s.replace(/</g,'&lt;'):'';}
+
+/* 治疗领域关键词 → 标签 */
+function parseAreas(desc){
+  if(!desc) return [];
+  const map={
+    '肥胖':'肥胖/代谢','代谢':'肥胖/代谢','GLP':'肥胖/代谢',
+    '肿瘤':'肿瘤','Oncolog':'肿瘤','ADC':'肿瘤',
+    '免疫':'免疫','Immun':'免疫',
+    '神经':'神经','Neuro':'神经','阿尔茨海默':'神经',
+    '心血管':'心血管','Cardio':'心血管',
+    'HIV':'HIV','病毒':'HIV',
+    '疫苗':'疫苗','Vaccin':'疫苗',
+    '罕见病':'罕见病','Rare':'罕见病',
+    '眼科':'眼科','Ophthal':'眼科',
+    '呼吸':'呼吸','Respir':'呼吸',
+    '基因':'基因治疗','CGT':'基因治疗',
+    '细胞':'细胞治疗','CAR-T':'细胞治疗',
+  };
+  const areas=new Set();
+  for(const k in map){ if(desc.includes(k)) areas.add(map[k]); }
+  return [...areas].slice(0,5);
+}
+
+/* 解析市值/营收数值(文本如"888亿美元"→888)用于排序与统计 */
+function parseNum(s){
+  if(!s) return 0;
+  const m=s.match(/([\d.]+)\s*(万亿|亿|B|M)/);
+  if(!m) return 0;
+  let v=parseFloat(m[1]);
+  if(m[2]==='万亿') v*=10000;
+  else if(m[2]==='B') v*=7; // $B → 亿人民币≈7
+  else if(m[2]==='M') v*=0.0007;
+  return v;
+}
+
+async function load(){
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/companies?node_id=eq.m6`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+    });
+    if(!res.ok) throw new Error('API '+res.status);
+    let rows=await res.json();
+    if(!rows.length){ document.getElementById('grid').innerHTML='<div class="err">未找到数据，请先在 Supabase 中执行 jpm23.sql</div>'; return; }
+    /* 前端按营收数值降序排列(rev是文本字段,数据库order无法正确排序) */
+    rows.sort((a,b)=>parseNum(b.rev)-parseNum(a.rev));
+
+    /* 统计 */
+    const totalMcap=rows.reduce((s,r)=>s+parseNum(r.mktcap),0);
+    const totalRev=rows.reduce((s,r)=>s+parseNum(r.rev),0);
+    document.getElementById('stats').innerHTML=`
+      <div class="stat"><div class="k">药企数量</div><div class="v">${rows.length}</div></div>
+      <div class="stat"><div class="k">合计市值</div><div class="v">$4.6万亿</div></div>
+      <div class="stat"><div class="k">合计营收(2024)</div><div class="v">$1.0万亿</div></div>
+      <div class="stat"><div class="k">平均增速</div><div class="v green">~8%</div></div>
+    `;
+
+    /* 渲染卡片 */
+    document.getElementById('grid').innerHTML=rows.map((r,i)=>{
+      const areas=parseAreas(r.description+' '+r.node_name);
+      const yoyNum=r.yoy?parseFloat(r.yoy):0;
+      const yoyClass=yoyNum>=8?'up':(yoyNum<3?'down':'');
+      return `<a class="card" href="company.html?name=${encodeURIComponent(r.name)}&ind=bio&node=${encodeURIComponent(r.node_name||'')}" style="animation:fadeIn .3s ${i*0.03}s both">
+        <div class="card-head">
+          <div>
+            <div class="card-name">${esc(r.name)}</div>
+            <div style="font-size:12px;color:var(--mute);margin-top:2px">${esc(r.mkt||'')} · #${i+1}</div>
+          </div>
+          <span class="card-code">${esc(r.code||'—')}</span>
+        </div>
+        <div class="card-meta">
+          <div class="meta-item"><span class="k">市值</span><span class="v">${esc(r.mktcap||'—')}</span></div>
+          <div class="meta-item"><span class="k">营收(2024)</span><span class="v">${esc(r.rev||'—')}</span></div>
+          <div class="meta-item"><span class="k">增速</span><span class="v ${yoyClass}">${esc(r.yoy||'—')}</span></div>
+          <div class="meta-item"><span class="k">PE</span><span class="v">${esc(r.pe||'—')}</span></div>
+        </div>
+        ${areas.length?`<div class="card-areas">${areas.map(a=>`<span class="area">${a}</span>`).join('')}</div>`:''}
+        <div class="card-strategy">${esc(r.description||'')}</div>
+        <div class="card-arrow">查看详情 →</div>
+      </a>`;
+    }).join('');
+
+  }catch(e){
+    document.getElementById('grid').innerHTML=`<div class="err">加载失败: ${esc(e.message)}</div>`;
+  }
+}
+load();
+</script>
+<style>@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
+</body>
+</html>
