@@ -80,12 +80,12 @@
   <h1>全球创新药龙头 · JPM 2026</h1>
   <div class="subtitle">2026 JPMorgan Healthcare Conference 23家全球药企战略摘要</div>
   <div class="stats" id="stats">
-    <div class="stat"><div class="k">药企数量</div><div class="v">23</div></div>
-    <div class="stat"><div class="k">合计市值</div><div class="v" id="total-mcap">加载中…</div></div>
-    <div class="stat"><div class="k">平均增速(TTM)</div><div class="v green" id="avg-growth">加载中…</div></div>
-    <div class="stat"><div class="k">平均PE(TTM)</div><div class="v" id="avg-pe">加载中…</div></div>
+    <div class="stat"><div class="k">Companies</div><div class="v">23</div></div>
+    <div class="stat"><div class="k">Total Market Cap</div><div class="v" id="total-mcap">Loading…</div></div>
+    <div class="stat"><div class="k">Avg Rev Growth (TTM)</div><div class="v green" id="avg-growth">Loading…</div></div>
+    <div class="stat"><div class="k">Avg P/E (TTM)</div><div class="v" id="avg-pe">Loading…</div></div>
   </div>
-  <div class="source">实时数据来源：Finnhub API · JPM战略摘要来源：<a href="https://liangchang.substack.com/p/i-summarized-23-global-pharma-presentations" target="_blank">liangchang.substack.com</a></div>
+  <div class="source">Real-time data: Finnhub API · JPM strategy summary: <a href="https://liangchang.substack.com/p/i-summarized-23-global-pharma-presentations" target="_blank">liangchang.substack.com</a></div>
 </div>
 
 <div class="grid" id="grid">
@@ -101,24 +101,26 @@ async function load(){
   document.getElementById('grid').innerHTML = COMPANIES.map((name, i) => {
     const meta = PHARMA_META[name] || { areas:[], strategy:'', moat:'', risks:'' };
     const ticker = TICKER_MAP[name];
+    const enName = meta.en || name;
+    const areasEn = meta.enAreas || meta.areas || [];
     return `<a class="card" href="company.html?name=${encodeURIComponent(name)}&ind=bio&node=全球创新药龙头(JPM 23)" style="animation:fadeIn .3s ${i*0.03}s both">
       <div class="card-head">
         <div>
-          <div class="card-name">${esc(name)}</div>
-          <div style="font-size:12px;color:var(--mute);margin-top:2px">${meta.areas.join(' · ') || ''}</div>
+          <div class="card-name">${esc(enName)}</div>
+          <div style="font-size:13px;color:var(--mute);margin-top:2px">${esc(name)}</div>
         </div>
         <span class="card-code">${ticker}</span>
       </div>
       <div class="card-meta">
-        <div class="meta-item"><span class="k">市值(实时)</span><span class="v" id="mc-${name}">—</span></div>
-        <div class="meta-item"><span class="k">PE(TTM)</span><span class="v" id="pe-${name}">—</span></div>
-        <div class="meta-item"><span class="k">营收增速</span><span class="v" id="rg-${name}">—</span></div>
-        <div class="meta-item"><span class="k">毛利率</span><span class="v" id="gm-${name}">—</span></div>
+        <div class="meta-item"><span class="k">Market Cap</span><span class="v" id="mc-${name}">—</span></div>
+        <div class="meta-item"><span class="k">P/E (TTM)</span><span class="v" id="pe-${name}">—</span></div>
+        <div class="meta-item"><span class="k">Rev Growth</span><span class="v" id="rg-${name}">—</span></div>
+        <div class="meta-item"><span class="k">Gross Margin</span><span class="v" id="gm-${name}">—</span></div>
       </div>
-      ${meta.areas.length?`<div class="card-areas">${meta.areas.map(a=>`<span class="area">${a}</span>`).join('')}</div>`:''}
-      <div class="card-strategy">${esc(meta.strategy)}</div>
-      <div class="rt-bar off" id="rt-${name}"><span class="rt-l">加载中</span><span class="rt-spacer"></span><span class="rt-c">—</span></div>
-      <div class="card-arrow">查看详情 →</div>
+      ${areasEn.length?`<div class="card-areas">${areasEn.map(a=>`<span class="area">${esc(a)}</span>`).join('')}</div>`:''}
+      <div class="card-strategy">${esc(meta.enStrategy || meta.strategy)}</div>
+      <div class="rt-bar off" id="rt-${name}"><span class="rt-l">Loading</span><span class="rt-spacer"></span><span class="rt-c">—</span></div>
+      <div class="card-arrow">View Details →</div>
     </a>`;
   }).join('');
 

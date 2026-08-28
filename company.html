@@ -260,19 +260,20 @@ async function renderFinnhubCompany(coName, ticker, meta, indLabel, node){
     const m = metrics || {};
     const mc = quote.marketCap;
     const pe = m.peTTM || quote.peTTM;
-    const rev = m.revenuePerShare ? '$' + (m.revenuePerShare * quote.price / 100).toFixed(0) + '亿' : '—';
     const eps = m.epsTTM ? '$' + m.epsTTM.toFixed(2) : '—';
     const gm = m.grossMargin ? fmtPct(m.grossMargin) : '—';
     const nm = m.netMargin ? fmtPct(m.netMargin) : '—';
     const rg = m.revenueGrowth ? fmtPct(m.revenueGrowth) : '—';
     const rgClass = m.revenueGrowth >= 10 ? 'yoy-up' : (m.revenueGrowth < 3 ? 'yoy-down' : '');
     const roe = m.roe ? fmtPct(m.roe) : '—';
+    const enName = meta ? meta.en : '';
+    const areasEn = meta ? (meta.enAreas || meta.areas || []) : [];
 
     /* 顶部栏 */
     let html = `<div class="topbar">
       <a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a>
       <div class="co-head">
-        <div class="nm">${esc(coName)}</div>
+        <div class="nm">${esc(enName || coName)} <span style="font-size:16px;color:var(--muted);font-weight:400">${esc(coName)}</span></div>
         <div class="code">${esc(ticker)} · ${esc(quote.exchange || '')} · ${esc(quote.industry || '')}</div>
       </div>
       <span class="ind-tag">${esc(indLabel)}${node ? ' · ' + esc(node) : ''}</span>
@@ -280,56 +281,56 @@ async function renderFinnhubCompany(coName, ticker, meta, indLabel, node){
 
     html += `<div class="wrap">`;
 
-    /* ===== Section 1: 实时行情 ===== */
+    /* ===== Section 1: Real-time Quotes ===== */
     html += `<div class="sec rt-sec">
-      <div class="sec-title"><span class="num">01</span>实时行情 <span class="rt-live">实时</span><span class="rt-ts">更新于 ${new Date().toLocaleTimeString('zh-CN',{hour12:false})}</span></div>
+      <div class="sec-title"><span class="num">01</span>Real-time Quotes 实时行情 <span class="rt-live">LIVE</span><span class="rt-ts">Updated ${new Date().toLocaleTimeString('en-US',{hour12:false})}</span></div>
       <div class="rt-grid">
         <div class="rt-card">
-          <div class="rt-k">实时股价</div>
+          <div class="rt-k">Stock Price 股价</div>
           <div class="rt-price">
             <span class="rt-v">${fmtPrice(quote.price)}</span>
             ${chg ? `<span class="rt-pct ${chg.cls}">${chg.text}</span>` : ''}
           </div>
           <div class="rt-sub">${esc(quote.exchange || '')} · ${esc(ticker)}</div>
         </div>
-        <div class="rt-card"><div class="rt-k">总市值</div><div class="rt-v">${fmtMcap(mc)}</div></div>
-        <div class="rt-card"><div class="rt-k">PE (TTM)</div><div class="rt-v">${pe ? pe.toFixed(1) : '—'}</div></div>
-        ${quote.high ? `<div class="rt-card"><div class="rt-k">今日最高</div><div class="rt-v">${fmtPrice(quote.high)}</div></div>` : ''}
-        ${quote.low ? `<div class="rt-card"><div class="rt-k">今日最低</div><div class="rt-v">${fmtPrice(quote.low)}</div></div>` : ''}
-        ${quote.prevClose ? `<div class="rt-card"><div class="rt-k">前收盘</div><div class="rt-v">${fmtPrice(quote.prevClose)}</div></div>` : ''}
-        ${m.high52w ? `<div class="rt-card"><div class="rt-k">52周高</div><div class="rt-v">$${m.high52w.toFixed(0)}</div></div>` : ''}
-        ${m.low52w ? `<div class="rt-card"><div class="rt-k">52周低</div><div class="rt-v">$${m.low52w.toFixed(0)}</div></div>` : ''}
+        <div class="rt-card"><div class="rt-k">Market Cap 市值</div><div class="rt-v">${fmtMcap(mc)}</div></div>
+        <div class="rt-card"><div class="rt-k">P/E (TTM)</div><div class="rt-v">${pe ? pe.toFixed(1) : '—'}</div></div>
+        ${quote.high ? `<div class="rt-card"><div class="rt-k">Day High 日高</div><div class="rt-v">${fmtPrice(quote.high)}</div></div>` : ''}
+        ${quote.low ? `<div class="rt-card"><div class="rt-k">Day Low 日低</div><div class="rt-v">${fmtPrice(quote.low)}</div></div>` : ''}
+        ${quote.prevClose ? `<div class="rt-card"><div class="rt-k">Prev Close 前收</div><div class="rt-v">${fmtPrice(quote.prevClose)}</div></div>` : ''}
+        ${m.high52w ? `<div class="rt-card"><div class="rt-k">52W High 52周高</div><div class="rt-v">$${m.high52w.toFixed(0)}</div></div>` : ''}
+        ${m.low52w ? `<div class="rt-card"><div class="rt-k">52W Low 52周低</div><div class="rt-v">$${m.low52w.toFixed(0)}</div></div>` : ''}
         ${m.beta ? `<div class="rt-card"><div class="rt-k">Beta</div><div class="rt-v">${m.beta.toFixed(2)}</div></div>` : ''}
-        ${quote.dividend ? `<div class="rt-card"><div class="rt-k">股息率</div><div class="rt-v">${quote.dividend.toFixed(2)}%</div></div>` : ''}
+        ${quote.dividend ? `<div class="rt-card"><div class="rt-k">Dividend 股息</div><div class="rt-v">${quote.dividend.toFixed(2)}%</div></div>` : ''}
       </div>
-      <div class="rt-source">数据来源: Finnhub API · 15分钟延迟</div>
+      <div class="rt-source">Source: Finnhub API · 15-min delay</div>
     </div>`;
 
-    /* ===== Section 2: 财务指标(全部实时) ===== */
+    /* ===== Section 2: Financial Metrics (TTM · Real-time) ===== */
     html += `<div class="sec">
-      <div class="sec-title"><span class="num">02</span>财务指标 (TTM · 实时)</div>
+      <div class="sec-title"><span class="num">02</span>Financial Metrics (TTM · Real-time)</div>
       <div class="fin-grid">
-        <div class="fin-card"><div class="fk">EPS 每股收益</div><div class="fv">${esc(eps)}</div><div class="fu">TTM · 实时</div></div>
-        <div class="fin-card"><div class="fk">PE 市盈率</div><div class="fv">${pe ? pe.toFixed(1) : '—'}</div><div class="fu">P/E TTM</div></div>
-        <div class="fin-card ${rgClass}"><div class="fk">营收增速</div><div class="fv">${esc(rg)}</div><div class="fu">YoY · TTM</div></div>
-        <div class="fin-card"><div class="fk">毛利率</div><div class="fv">${esc(gm)}</div><div class="fu">Gross Margin TTM</div></div>
-        <div class="fin-card"><div class="fk">净利率</div><div class="fv">${esc(nm)}</div><div class="fu">Net Margin TTM</div></div>
-        <div class="fin-card"><div class="fk">ROE</div><div class="fv">${esc(roe)}</div><div class="fu">Return on Equity</div></div>
-        ${m.forwardPE ? `<div class="fin-card"><div class="fk">前瞻PE</div><div class="fv">${m.forwardPE.toFixed(1)}</div><div class="fu">Forward P/E</div></div>` : ''}
+        <div class="fin-card"><div class="fk">EPS 每股收益</div><div class="fv">${esc(eps)}</div><div class="fu">TTM · Real-time</div></div>
+        <div class="fin-card"><div class="fk">P/E 市盈率</div><div class="fv">${pe ? pe.toFixed(1) : '—'}</div><div class="fu">P/E TTM</div></div>
+        <div class="fin-card ${rgClass}"><div class="fk">Revenue Growth 营收增速</div><div class="fv">${esc(rg)}</div><div class="fu">YoY · TTM</div></div>
+        <div class="fin-card"><div class="fk">Gross Margin 毛利率</div><div class="fv">${esc(gm)}</div><div class="fu">Gross Margin TTM</div></div>
+        <div class="fin-card"><div class="fk">Net Margin 净利率</div><div class="fv">${esc(nm)}</div><div class="fu">Net Margin TTM</div></div>
+        <div class="fin-card"><div class="fk">ROE 净资产收益率</div><div class="fv">${esc(roe)}</div><div class="fu">Return on Equity</div></div>
+        ${m.forwardPE ? `<div class="fin-card"><div class="fk">Forward P/E 前瞻市盈率</div><div class="fv">${m.forwardPE.toFixed(1)}</div><div class="fu">Forward P/E</div></div>` : ''}
         ${m.peg ? `<div class="fin-card"><div class="fk">PEG</div><div class="fv">${m.peg.toFixed(2)}</div><div class="fu">P/E to Growth</div></div>` : ''}
-        ${m.pb ? `<div class="fin-card"><div class="fk">P/B</div><div class="fv">${m.pb.toFixed(1)}</div><div class="fu">Price to Book</div></div>` : ''}
+        ${m.pb ? `<div class="fin-card"><div class="fk">P/B 市净率</div><div class="fv">${m.pb.toFixed(1)}</div><div class="fu">Price to Book</div></div>` : ''}
         ${m.evEbitda ? `<div class="fin-card"><div class="fk">EV/EBITDA</div><div class="fv">${m.evEbitda.toFixed(1)}</div><div class="fu">EV / EBITDA</div></div>` : ''}
-        ${m.ps ? `<div class="fin-card"><div class="fk">P/S</div><div class="fv">${m.ps.toFixed(1)}</div><div class="fu">Price to Sales</div></div>` : ''}
-        ${m.dividendYield != null ? `<div class="fin-card"><div class="fk">股息率</div><div class="fv">${m.dividendYield.toFixed(2)}%</div><div class="fu">Dividend Yield TTM</div></div>` : ''}
+        ${m.ps ? `<div class="fin-card"><div class="fk">P/S 市销率</div><div class="fv">${m.ps.toFixed(1)}</div><div class="fu">Price to Sales</div></div>` : ''}
+        ${m.dividendYield != null ? `<div class="fin-card"><div class="fk">Dividend Yield 股息率</div><div class="fv">${m.dividendYield.toFixed(2)}%</div><div class="fu">Dividend Yield TTM</div></div>` : ''}
       </div>
     </div>`;
 
-    /* ===== Section 3: 财报 EPS Surprise ===== */
+    /* ===== Section 3: Earnings EPS Surprise ===== */
     if(earnings && earnings.length){
       html += `<div class="sec">
-        <div class="sec-title"><span class="num">03</span>财报 EPS Surprise</div>
+        <div class="sec-title"><span class="num">03</span>Earnings EPS Surprise</div>
         <table class="rt-earn-tbl">
-          <thead><tr><th>季度</th><th>预期 EPS</th><th>实际 EPS</th><th>惊喜</th><th>营收预期</th></tr></thead>
+          <thead><tr><th>Quarter 季度</th><th>EPS Estimate 预期</th><th>EPS Actual 实际</th><th>Surprise 惊喜</th><th>Rev Estimate 营收预期</th></tr></thead>
           <tbody>`;
       earnings.slice(0, 4).forEach(e => {
         const cls = e.surprise != null ? (e.surprise >= 0 ? 'up' : 'down') : '';
@@ -342,34 +343,35 @@ async function renderFinnhubCompany(coName, ticker, meta, indLabel, node){
         </tr>`;
       });
       html += `</tbody></table>
-        <div class="rt-source">数据来源: Finnhub · 最近4个季度</div>
+        <div class="rt-source">Source: Finnhub · Last 4 quarters</div>
       </div>`;
     }
 
-    /* ===== Section 4: JPM 战略摘要 ===== */
+    /* ===== Section 4: JPM 2026 Strategy ===== */
     if(meta){
       html += `<div class="sec">
-        <div class="sec-title"><span class="num">04</span>JPM 2026 战略摘要</div>
-        <div class="logic-box"><div class="lb-title">战略要点</div><div class="lb-text">${esc(meta.strategy)}</div></div>`;
+        <div class="sec-title"><span class="num">04</span>JPM 2026 Strategy 战略摘要</div>
+        <div class="logic-box"><div class="lb-title">Strategy 战略要点</div><div class="lb-text">${esc(meta.enStrategy || meta.strategy)}</div></div>`;
 
-      if(meta.areas && meta.areas.length){
+      if(areasEn.length){
         html += `<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">
-          ${meta.areas.map(a => `<span style="font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(184,140,230,.12);color:var(--down);border:1px solid rgba(184,140,230,.25)">${esc(a)}</span>`).join('')}
+          ${areasEn.map(a => `<span style="font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(184,140,230,.12);color:var(--down);border:1px solid rgba(184,140,230,.25)">${esc(a)}</span>`).join('')}
         </div>`;
       }
 
-      if(meta.moat){
-        html += `<div class="logic-box" style="border-left-color:var(--mid)"><div class="lb-title">护城河</div><div class="lb-text">${esc(meta.moat)}</div></div>`;
+      if(meta.enMoat || meta.moat){
+        html += `<div class="logic-box" style="border-left-color:var(--mid)"><div class="lb-title">Moat 护城河</div><div class="lb-text">${esc(meta.enMoat || meta.moat)} <span style="font-size:13px;color:var(--muted);font-weight:400">${esc(meta.moat)}</span></div></div>`;
       }
       html += `</div>`;
 
-      /* ===== Section 5: 风险提示 ===== */
-      if(meta.risks){
-        const risks = meta.risks.split('|');
+      /* ===== Section 5: Risk Factors ===== */
+      if(meta.enRisks || meta.risks){
+        const risks = (meta.enRisks || meta.risks).split('|');
+        const cnRisks = meta.risks ? meta.risks.split('|') : [];
         html += `<div class="sec">
-          <div class="sec-title"><span class="num">05</span>风险提示</div>
+          <div class="sec-title"><span class="num">05</span>Risk Factors 风险提示</div>
           <div class="risk-list">
-            ${risks.map(r => `<div class="risk-item"><span class="ri-dot"></span><span>${esc(r)}</span></div>`).join('')}
+            ${risks.map((r, i) => `<div class="risk-item"><span class="ri-dot"></span><span>${esc(r)}${cnRisks[i] && cnRisks[i] !== r ? `<br><span style="font-size:12px;color:var(--muted)">${esc(cnRisks[i])}</span>` : ''}</span></div>`).join('')}
           </div>
         </div>`;
       }
