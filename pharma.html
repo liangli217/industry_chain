@@ -169,10 +169,10 @@ async function load(){
           <span class="card-code">${esc(r.code||'—')}</span>
         </div>
         <div class="card-meta">
-          <div class="meta-item"><span class="k">市值</span><span class="v">${esc(r.mktcap||'—')}</span></div>
+          <div class="meta-item"><span class="k">市值</span><span class="v" id="mc-${r.name}">${esc(r.mktcap||'—')}</span></div>
           <div class="meta-item"><span class="k">营收(2024)</span><span class="v">${esc(r.rev||'—')}</span></div>
           <div class="meta-item"><span class="k">增速</span><span class="v ${yoyClass}">${esc(r.yoy||'—')}</span></div>
-          <div class="meta-item"><span class="k">PE</span><span class="v">${esc(r.pe||'—')}</span></div>
+          <div class="meta-item"><span class="k">PE</span><span class="v" id="pe-${r.name}">${esc(r.pe||'—')}</span></div>
         </div>
         ${areas.length?`<div class="card-areas">${areas.map(a=>`<span class="area">${a}</span>`).join('')}</div>`:''}
         <div class="card-strategy">${esc(r.description||'')}</div>
@@ -207,7 +207,13 @@ async function loadRealtimePrices(rows){
       <span class="rt-p ${chg.cls}">${fmtPrice(q.price)}</span>
       <span class="rt-c ${chg.cls}">${chg.text}</span>
       <span class="rt-spacer"></span>
-      <span class="rt-c">PE ${q.peTTM ? q.peTTM.toFixed(1) : '—'} · ${fmtMcap(q.marketCap)}</span>`;
+      <span class="rt-c">${q.exchange || ''} · ${ticker}</span>`;
+
+    /* 同步更新卡片meta中的市值和PE为实时值 */
+    const mcEl = document.getElementById('mc-' + r.name);
+    const peEl = document.getElementById('pe-' + r.name);
+    if(mcEl && q.marketCap) mcEl.textContent = fmtMcap(q.marketCap);
+    if(peEl && q.peTTM) peEl.textContent = q.peTTM.toFixed(1);
   });
 }
 load();

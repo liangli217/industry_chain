@@ -557,8 +557,8 @@ function renderPage(row){
       <div class="fin-card"><div class="fk">营业收入</div><div class="fv">${esc(row.rev)}</div><div class="fu">2024 年</div></div>
       <div class="fin-card"><div class="fk">净利润</div><div class="fv">${esc(row.profit)}</div><div class="fu">2024 年</div></div>
       <div class="fin-card"><div class="fk">毛利率</div><div class="fv">${esc(row.margin)}</div><div class="fu">Gross Margin</div></div>
-      <div class="fin-card"><div class="fk">总市值</div><div class="fv">${esc(row.mktcap)}</div><div class="fu">Market Cap</div></div>
-      <div class="fin-card"><div class="fk">市盈率 PE</div><div class="fv">${esc(row.pe)}</div><div class="fu">P/E Ratio</div></div>
+      <div class="fin-card" id="fin-mktcap"><div class="fk">总市值</div><div class="fv">${esc(row.mktcap)}</div><div class="fu">截至 2026.01.15</div></div>
+      <div class="fin-card" id="fin-pe"><div class="fk">市盈率 PE</div><div class="fv">${esc(row.pe)}</div><div class="fu">P/E Ratio</div></div>
       <div class="fin-card ${yoyClass}"><div class="fk">同比增速</div><div class="fv">${esc(row.yoy)}</div><div class="fu">YoY Growth</div></div>
     </div>
     <div class="fin-desc">${esc(row.description)}</div>`;
@@ -703,6 +703,18 @@ async function loadRealtimeData(coName, ticker){
     if(badge){ badge.textContent = '实时'; badge.className = 'rt-live'; }
     if(ts){ ts.textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN', {hour12:false}); }
 
+    /* 用实时数据更新财务摘要中的市值和PE */
+    const finMk = document.getElementById('fin-mktcap');
+    const finPe = document.getElementById('fin-pe');
+    if(finMk && quote.marketCap){
+      finMk.querySelector('.fv').textContent = fmtMcap(quote.marketCap);
+      finMk.querySelector('.fu').textContent = '实时 · Finnhub';
+    }
+    if(finPe && quote.peTTM){
+      finPe.querySelector('.fv').textContent = quote.peTTM.toFixed(1);
+      finPe.querySelector('.fu').textContent = 'PE (TTM) · 实时';
+    }
+
     const chg = fmtChange(quote.changePct);
     let html = `<div class="rt-grid">
       <div class="rt-card">
@@ -714,8 +726,6 @@ async function loadRealtimeData(coName, ticker){
         <div class="rt-sub">${quote.exchange || ''} · ${ticker}</div>
       </div>`;
 
-    if(quote.marketCap) html += `<div class="rt-card"><div class="rt-k">市值(实时)</div><div class="rt-v">${fmtMcap(quote.marketCap)}</div><div class="rt-sub">Market Cap</div></div>`;
-    if(quote.peTTM) html += `<div class="rt-card"><div class="rt-k">PE (TTM)</div><div class="rt-v">${quote.peTTM.toFixed(1)}</div><div class="rt-sub">滚动市盈率</div></div>`;
     if(quote.high) html += `<div class="rt-card"><div class="rt-k">今日最高</div><div class="rt-v">${fmtPrice(quote.high)}</div></div>`;
     if(quote.low) html += `<div class="rt-card"><div class="rt-k">今日最低</div><div class="rt-v">${fmtPrice(quote.low)}</div></div>`;
     if(quote.prevClose) html += `<div class="rt-card"><div class="rt-k">前收盘</div><div class="rt-v">${fmtPrice(quote.prevClose)}</div></div>`;
