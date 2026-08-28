@@ -4,7 +4,7 @@
  * 注册: https://finnhub.io/register
  * ============================================================ */
 
-const FINNHUB_API_KEY = 'd1r8v9pr01qsq6m7nfp0'; // ← 替换为你的API Key
+const FINNHUB_API_KEY = 'da8k5ghr01qo86chau50da8k5ghr01qo86chau5g'; // ← 替换为你的API Key
 const FINNHUB_BASE = 'https://finnhub.io/api/v1';
 
 /* 公司名 → 股票代码映射 (23家JPM药企 + 其他) */
