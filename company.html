@@ -13,8 +13,7 @@
     --line:#22344a; --border:#233852; --border2:#2e4763;
     --text:#e9eff6; --muted:#94a6bb; --faint:#63768c;
     --up:#4fc9bd; --mid:#e8a44c; --down:#b98ce6;
-    --risk:#e87a6c;
-    --warn:#e8a44c;
+    --risk:#e87a6c; --warn:#e8a44c;
     --sans:'Sora',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
     --cn:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
     --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -30,7 +29,6 @@
     min-height:100vh;
   }
 
-  /* 顶部导航栏 */
   .topbar{
     position:sticky; top:0; z-index:10;
     display:flex; align-items:center; gap:18px; flex-wrap:wrap;
@@ -54,10 +52,7 @@
     padding:6px 13px; white-space:nowrap; font-weight:500;
   }
 
-  /* 主体内容 */
-  .wrap{
-    max-width:880px; margin:0 auto; padding:30px 26px 60px;
-  }
+  .wrap{ max-width:880px; margin:0 auto; padding:30px 26px 60px; }
   .loading{ text-align:center; padding:80px 20px; color:var(--muted); font-size:15px; }
   .loading .spinner{ display:inline-block; width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--up); border-radius:50%; animation:spin .8s linear infinite; margin-bottom:14px; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
@@ -74,7 +69,6 @@
   .hint-box a{color:var(--up); text-decoration:none}
   .hint-box a:hover{text-decoration:underline}
 
-  /* 通用 section */
   .sec{margin-bottom:34px}
   .sec-title{
     font-family:var(--mono); font-size:11px; letter-spacing:2.5px; text-transform:uppercase;
@@ -86,7 +80,6 @@
     border:1px solid var(--up); border-radius:4px; padding:1px 6px; letter-spacing:1px;
   }
 
-  /* 面包屑 */
   .crumb{
     display:flex; align-items:center; gap:11px; flex-wrap:wrap; margin-bottom:18px;
     font-size:13px;
@@ -94,44 +87,7 @@
   .crumb .item{color:var(--muted)}
   .crumb .item.cur{color:var(--text); font-weight:500}
   .crumb .sep{color:var(--faint); font-family:var(--mono); font-size:11px}
-  .tier-chip{
-    font-family:var(--cn); font-size:11px; font-weight:600; padding:3px 10px;
-    border-radius:999px; border:1px solid; letter-spacing:.5px;
-  }
 
-  /* 市场份额条形图 */
-  .share-block{margin-top:18px}
-  .share-block .sb-label{
-    font-size:12px; color:var(--muted); margin-bottom:11px; letter-spacing:.3px;
-  }
-  .share-row{display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:12.5px}
-  .share-row .sr-name{
-    flex-shrink:0; width:110px; color:var(--muted); white-space:nowrap;
-    overflow:hidden; text-overflow:ellipsis;
-  }
-  .share-row .sr-name.me{color:var(--up); font-weight:600}
-  .share-row .sr-track{flex:1; height:14px; background:var(--bg2); border-radius:4px; overflow:hidden}
-  .share-row .sr-fill{height:100%; border-radius:4px; opacity:.85}
-  .share-row .sr-fill.me{opacity:1}
-  .share-row .sr-val{
-    flex-shrink:0; font-family:var(--mono); font-size:11px; color:var(--text);
-    min-width:42px; text-align:right;
-  }
-
-  /* 竞争对手 chips */
-  .rivals{margin-top:18px}
-  .rivals .rl-label{font-size:12px; color:var(--muted); margin-bottom:10px}
-  .rivals .rl-chips{display:flex; flex-wrap:wrap; gap:7px}
-  .rivals .rl-chip{
-    font-family:var(--mono); font-size:11px; color:var(--muted);
-    background:var(--panel); border:1px solid var(--border); border-radius:6px;
-    padding:5px 10px; letter-spacing:.3px; transition:all .15s;
-    text-decoration:none;
-  }
-  .rivals .rl-chip:hover{color:var(--text); border-color:var(--border2)}
-  .rivals .rl-chip.me{color:var(--up); border-color:var(--up); background:rgba(79,201,189,.08)}
-
-  /* 财务指标卡片网格 */
   .fin-grid{
     display:grid; grid-template-columns:repeat(3,1fr); gap:11px;
   }
@@ -148,43 +104,7 @@
   .fin-card .fu{font-size:11px; color:var(--muted); margin-top:4px; letter-spacing:.3px}
   .fin-card.yoy-up .fv{color:var(--up)}
   .fin-card.yoy-down .fv{color:var(--risk)}
-  .fin-empty{
-    grid-column:1/-1; text-align:center; padding:36px 20px;
-    color:var(--faint); font-size:13px; font-style:italic;
-    background:var(--panel); border:1px dashed var(--border2); border-radius:11px;
-  }
-  .fin-desc{
-    margin-top:14px; font-size:13px; color:var(--muted); line-height:1.6;
-    background:var(--panel); border-left:2px solid var(--up);
-    border-radius:0 8px 8px 0; padding:11px 14px;
-  }
 
-  /* 环节投资指标双卡 */
-  .inv-pair{display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:16px}
-  .inv-pair .ip-cell{
-    background:var(--panel); border:1px solid var(--border); border-radius:11px;
-    padding:16px 15px;
-  }
-  .inv-pair .ip-k{font-size:11px; color:var(--faint); letter-spacing:.5px; margin-bottom:8px}
-  .inv-pair .ip-v{font-family:var(--mono); font-size:22px; font-weight:600; line-height:1.1}
-  .inv-pair .ip-cell.size .ip-v{color:var(--mid)}
-  .inv-pair .ip-cell.growth .ip-v{color:var(--up)}
-
-  /* 护城河评级 */
-  .moat-box{
-    background:var(--panel); border:1px solid var(--border); border-radius:11px;
-    padding:14px 16px; margin-bottom:14px;
-  }
-  .moat-row{display:flex; align-items:center; gap:14px; font-size:13px; margin-bottom:9px}
-  .moat-row:last-child{margin-bottom:0}
-  .moat-k{font-family:var(--mono); font-size:10px; letter-spacing:1px; color:var(--faint); width:64px; flex-shrink:0}
-  .stars{font-size:16px; letter-spacing:2px; color:#e8c14a}
-  .stars .off{color:var(--border2)}
-  .sup{font-family:var(--mono); font-weight:600; letter-spacing:.2px; font-size:12px}
-  .sup.cn{color:#54cf8b} .sup.risk{color:#ec6d5f} .sup.race{color:#e0a94b} .sup.neutral{color:var(--faint)}
-  .moat-txt{font-size:12px; color:var(--muted); margin-left:8px}
-
-  /* 投资逻辑卡 */
   .logic-box{
     background:var(--panel); border:1px solid var(--border);
     border-left:3px solid var(--up); border-radius:0 8px 8px 0;
@@ -196,14 +116,6 @@
   }
   .logic-box .lb-text{font-size:14px; line-height:1.65; color:var(--text); font-weight:500}
 
-  /* 供给格局说明 */
-  .why-box{
-    font-size:13px; line-height:1.7; color:var(--muted);
-    background:var(--panel); border-left:2px solid var(--mid);
-    border-radius:0 8px 8px 0; padding:12px 15px; margin-bottom:14px;
-  }
-
-  /* 风险卡片 */
   .risk-card{
     background:rgba(232,122,108,.07); border:1px solid rgba(232,122,108,.25);
     border-left:3px solid var(--risk); border-radius:0 8px 8px 0;
@@ -237,45 +149,12 @@
 
   @media (max-width:680px){
     .fin-grid{grid-template-columns:repeat(2,1fr)}
-    .inv-pair{grid-template-columns:1fr}
     .topbar{padding:14px 18px}
     .wrap{padding:24px 18px 50px}
     .co-head .nm{font-size:20px}
   }
-  .info-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;overflow:hidden}
-  .info-row{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
-  .info-row:last-child{border-bottom:none}
-  .info-row .k{color:var(--mute);font-size:13px}
-  .info-row .v{font-weight:600}
-  /* 财报预期 vs 实际 */
-  .earn-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-  .earn-card{background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:14px 16px}
-  .earn-card.beat{border-color:var(--up);background:rgba(84,207,139,.05)}
-  .earn-card.miss{border-color:#e87a6c;background:rgba(232,122,108,.05)}
-  .ec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-  .ec-k{font-size:13px;color:var(--mute);font-weight:500}
-  .ec-surp{font-size:16px;font-weight:700}
-  .ec-surp.up{color:var(--up)}
-  .ec-surp.down{color:#e87a6c}
-  .ec-body{display:flex;flex-direction:column;gap:6px}
-  .ec-row{display:flex;justify-content:space-between;align-items:center}
-  .ec-label{font-size:12px;color:var(--mute)}
-  .ec-val{font-size:18px;font-weight:600;font-family:'SF Mono','Cascadia Code',monospace}
-  .ec-val.est{color:var(--mute);text-decoration:line-through;font-size:14px}
-  .ec-val.act{color:var(--text)}
-  .earn-card.beat .ec-val.act{color:var(--up)}
-  .earn-card.miss .ec-val.act{color:#e87a6c}
-  .ec-arrow{text-align:center;font-size:16px;margin:4px 0}
-  .ec-arrow.up{color:var(--up)}
-  .ec-arrow.down{color:#e87a6c}
-  .earn-summary{margin-top:14px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;text-align:center}
-  .earn-summary.beat{background:rgba(84,207,139,.1);color:var(--up);border:1px solid rgba(84,207,139,.3)}
-  .earn-summary.miss{background:rgba(232,122,108,.1);color:#e87a6c;border:1px solid rgba(232,122,108,.3)}
-  .earn-summary.mixed{background:rgba(224,169,75,.1);color:#e0a94b;border:1px solid rgba(224,169,75,.3)}
-  .qd{margin-left:auto;font-size:11px;color:var(--mute);font-weight:400}
-  @media(max-width:520px){.earn-grid{grid-template-columns:1fr}}
 
-  /* 实时行情(Finnhub) */
+  /* 实时行情 */
   .rt-sec{margin-bottom:24px}
   .rt-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
   .rt-live{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:#54cf8b;background:rgba(84,207,139,.1);border:1px solid rgba(84,207,139,.3);border-radius:999px;padding:2px 8px}
@@ -312,78 +191,9 @@
 
 <script src="finnhub.js"></script>
 <script>
-/* ============ Supabase 配置(直接 fetch REST API) ============ */
-const SUPABASE_URL = 'https://vibfjrxwwncjmykilkxg.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_qv2Si85HMvlbBV0vLjvVRQ_HPlGhHll';
-
-/* ============ 产业层级配置(与 industry.html 一致) ============ */
-const TIERS = {
-  up:  {label:'上游', en:'UPSTREAM',   c:'#4fc9bd'},
-  mid: {label:'中游', en:'MIDSTREAM',  c:'#e8a44c'},
-  down:{label:'下游', en:'DOWNSTREAM', c:'#b98ce6'}
-};
-const SUPC={cn:'#54cf8b',risk:'#ec6d5f',race:'#e0a94b',neutral:'#63768c'};
-const MOATTXT={0:'—',1:'弱 · 竞争充分',2:'较强',3:'极强 · 定价权 / 卡点'};
-function stars(m){ let s=''; for(let i=0;i<3;i++){ s+= i<m?'★':'<span class="off">☆</span>'; } return s; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 
-/* ============ 主流程:从 Supabase 查询公司数据 ============ */
-async function init(){
-  const params = new URLSearchParams(location.search);
-  const coName = params.get('name');
-
-  /* URL 无 name 参数 */
-  if(!coName){
-    renderHint('请从产业链页面进入', '点击下方按钮返回产业链图谱,选择企业与环节查看分析。');
-    return;
-  }
-
-  try{
-    const url = `${SUPABASE_URL}/rest/v1/companies?name=eq.${encodeURIComponent(coName)}&select=*`;
-    const resp = await fetch(url, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Accept': 'application/json'
-      }
-    });
-    if(!resp.ok){
-      const errText = await resp.text();
-      renderError('查询失败', `HTTP ${resp.status}: ${errText}`);
-      return;
-    }
-    const rows = await resp.json();
-    if(!rows || rows.length === 0){
-      renderFallback(coName, params.get('ind'), params.get('node'));
-      return;
-    }
-    renderPage(rows[0]);
-  }catch(e){
-    renderError('加载异常', (e && e.message) ? e.message : String(e));
-  }
-}
-
-/* ============ 友好提示(无 name 参数) ============ */
-function renderHint(title, msg){
-  const root = document.getElementById('root');
-  root.innerHTML = `<div class="wrap"><div class="hint-box">
-    <div class="big">${esc(title)}</div>
-    <div class="small">${esc(msg)}</div>
-    <div style="margin-top:18px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
-  </div></div>`;
-}
-
-/* ============ 错误提示(Supabase 未配置 / 查询失败) ============ */
-function renderError(title, msg){
-  const root = document.getElementById('root');
-  root.innerHTML = `<div class="wrap"><div class="error-box">
-    <div class="title">${esc(title)}</div>
-    <div class="msg">${esc(msg)}</div>
-    <div style="margin-top:20px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
-  </div></div>`;
-}
-
-/* ============ 未收录公司兜底页(带产业链上下文) ============ */
+/* 产业标签 */
 const IND_LABELS = {robot:'机器人产业链', ev:'新能源汽车产业链', chip:'半导体产业链', solar:'光伏产业链', bio:'生物医药产业链'};
 
 /* 生物医药产业链节点数据(用于兜底页展示环节级投资逻辑) */
@@ -404,365 +214,224 @@ const BIO_NODES = {
   '创新支付':{size:'约9000亿',growth:'~20%',logic:'商保+惠民保缓解创新药支付压力,高增长',bottleneck:'',share:[]},
 };
 
-function renderFallback(coName, ind, node){
-  const root = document.getElementById('root');
-  const indLabel = IND_LABELS[ind] || '产业链';
-  const nodeData = (ind === 'bio' && node) ? BIO_NODES[node] : null;
-  const maxShare = nodeData && nodeData.share ? Math.max(...nodeData.share.map(s=>s.v)) : 0;
-
-  root.innerHTML = `<div class="wrap">
-    <div class="topbar"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
-    <div class="co-head">
-      <div class="nm">${esc(coName)}</div>
-      <div class="sub">${esc(indLabel)}${node ? ' · ' + esc(node) : ''}</div>
-    </div>
-
-    ${nodeData ? `
-    <!-- 环节投资指标 -->
-    <div class="sec">
-      <div class="sec-title"><span class="num">01</span>环节概览</div>
-      <div class="metrics">
-        ${nodeData.size ? `<div class="metric"><div class="mv">${esc(nodeData.size)}</div><div class="mk">市场规模</div></div>` : ''}
-        ${nodeData.growth ? `<div class="metric"><div class="mv" style="color:var(--up)">${esc(nodeData.growth)}</div><div class="mk">增速</div></div>` : ''}
-      </div>
-    </div>
-
-    <!-- 投资逻辑 -->
-    ${nodeData.logic ? `
-    <div class="sec">
-      <div class="sec-title"><span class="num">02</span>投资逻辑</div>
-      <div class="logic-card"><div class="lc-text">${esc(nodeData.logic)}</div></div>
-    </div>` : ''}
-
-    <!-- 竞争格局 -->
-    ${nodeData.share && nodeData.share.length ? `
-    <div class="sec">
-      <div class="sec-title"><span class="num">03</span>竞争格局</div>
-      <div class="share-chart">
-        ${nodeData.share.map(s=>`
-        <div class="share-row">
-          <span class="sr-name">${esc(s.co)}</span>
-          <div class="sr-track"><div class="sr-fill" style="width:${(s.v/maxShare*100).toFixed(0)}%;background:var(--down)"></div></div>
-          <span class="sr-val">${s.v}%</span>
-        </div>`).join('')}
-      </div>
-    </div>` : ''}
-
-    <!-- 卡点风险 -->
-    ${nodeData.bottleneck ? `
-    <div class="sec">
-      <div class="sec-title"><span class="num">04</span>核心卡点</div>
-      <div class="risk-card"><div class="rc-text">${esc(nodeData.bottleneck)}</div></div>
-    </div>` : ''}
-
-    <!-- 同环节公司 -->
-    <div class="sec">
-      <div class="sec-title"><span class="num">05</span>同环节其他公司</div>
-      <div class="note-box">该公司暂无独立财务数据。返回产业链图谱可查看该环节的完整公司列表与投资逻辑。</div>
-    </div>
-    ` : `
-    <div class="hint-box" style="margin:24px 0">
-      <div class="big">暂无详细财务数据</div>
-      <div class="small">该公司暂未收录在数据库中,可能为未上市公司、外资企业或非 A股标的。你可以在产业链图谱中查看该环节的投资逻辑与竞争格局。</div>
-    </div>
-    <div class="d-sec">产业链定位</div>
-    <div class="info-card">
-      <div class="info-row"><span class="k">所属产业</span><span class="v">${esc(indLabel)}</span></div>
-      ${node ? `<div class="info-row"><span class="k">所处环节</span><span class="v">${esc(node)}</span></div>` : ''}
-    </div>
-    `}
-
-    <div style="margin-top:24px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链图谱</a></div>
-  </div>`;
-}
-
-function renderPage(row){
-  const root = document.getElementById('root');
-  const coName = row.name;
-
-  const tierInfo = row.tier ? TIERS[row.tier] : null;
-  const indName = row.industry_name || '产业链';
-  const nodeName = row.node_name || '';
-
-  /* 顶部栏 */
-  let html = `<div class="topbar">
-    <a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a>
-    <div class="co-head">
-      <div class="nm">${esc(coName)}</div>
-      <div class="code">${row.code ? esc(row.code + (row.mkt ? ' · ' + row.mkt : '')) : '—'}</div>
-    </div>
-    <span class="ind-tag">${esc(indName)}${nodeName ? ' · ' + esc(nodeName) : ''}</span>
-  </div>`;
-
-  html += `<div class="wrap">`;
-
-  /* ===== Section 1: 供应链定位 ===== */
-  if(tierInfo && nodeName){
-    html += `<div class="sec">
-      <div class="sec-title"><span class="num">01</span>供应链定位</div>
-      <div class="crumb">
-        <span class="item">${esc(indName)}</span>
-        <span class="sep">›</span>
-        <span class="item">${esc(nodeName)}</span>
-        <span class="sep">›</span>
-        <span class="tier-chip" style="color:${tierInfo.c};background:rgba(${parseInt(tierInfo.c.slice(1,3),16)},${parseInt(tierInfo.c.slice(3,5),16)},${parseInt(tierInfo.c.slice(5,7),16)},.12);border-color:${tierInfo.c}">${tierInfo.label} · ${tierInfo.en}</span>
-      </div>`;
-
-    /* 市场份额条形图(share 字段格式:[{n, s}]) */
-    const share = Array.isArray(row.share) ? row.share : [];
-    if(share.length){
-      const maxV = Math.max(...share.map(s => s.s));
-      html += `<div class="share-block">
-        <div class="sb-label">环节竞争格局 · 市场份额</div>`;
-      share.forEach(sh => {
-        const isMe = sh.n === coName;
-        const w = maxV > 0 ? (sh.s / maxV) * 100 : 0;
-        const color = isMe ? 'var(--up)' : tierInfo.c;
-        html += `<div class="share-row">
-          <span class="sr-name ${isMe ? 'me' : ''}" title="${esc(sh.n)}">${esc(sh.n)}${isMe ? ' (本企业)' : ''}</span>
-          <span class="sr-track"><span class="sr-fill ${isMe ? 'me' : ''}" style="width:${w}%;background:${color}"></span></span>
-          <span class="sr-val">${sh.s}%</span>
-        </div>`;
-      });
-      html += `</div>`;
-    }
-
-    /* 竞争对手 chips(peers 字段为公司名数组) */
-    const peers = Array.isArray(row.peers) ? row.peers : [];
-    const rivals = peers.filter(c => c !== coName && !/\(.*\)/.test(c) && !/未上市/.test(c));
-    if(rivals.length){
-      html += `<div class="rivals">
-        <div class="rl-label">同环节代表企业</div>
-        <div class="rl-chips">
-          <span class="rl-chip me">${esc(coName)} (当前)</span>
-          ${rivals.map(c => `<a class="rl-chip" href="company.html?name=${encodeURIComponent(c)}">${esc(c)}</a>`).join('')}
-        </div>
-      </div>`;
-    }
-    html += `</div>`;
-  } else {
-    html += `<div class="sec">
-      <div class="sec-title"><span class="num">01</span>供应链定位</div>
-      <div style="font-size:13px;color:var(--faint);font-style:italic;padding:18px;background:var(--panel);border:1px dashed var(--border2);border-radius:11px">未获取到环节上下文,无法显示供应链定位。请从产业链页面进入。</div>
-    </div>`;
+async function init(){
+  const params = new URLSearchParams(location.search);
+  const coName = params.get('name');
+  if(!coName){
+    renderHint('请从产业链页面进入', '点击下方按钮返回产业链图谱,选择企业与环节查看分析。');
+    return;
   }
 
-  /* ===== Section 2: 财务摘要 ===== */
-  html += `<div class="sec">
-    <div class="sec-title"><span class="num">02</span>财务摘要</div>`;
-  if(row.rev || row.profit || row.mktcap){
-    const yoyNum = parseFloat(row.yoy);
-    const yoyClass = isNaN(yoyNum) ? '' : (yoyNum >= 0 ? 'yoy-up' : 'yoy-down');
-    html += `<div class="fin-grid">
-      <div class="fin-card"><div class="fk">营业收入</div><div class="fv">${esc(row.rev)}</div><div class="fu">2024 年</div></div>
-      <div class="fin-card"><div class="fk">净利润</div><div class="fv">${esc(row.profit)}</div><div class="fu">2024 年</div></div>
-      <div class="fin-card"><div class="fk">毛利率</div><div class="fv">${esc(row.margin)}</div><div class="fu">Gross Margin</div></div>
-      <div class="fin-card" id="fin-mktcap"><div class="fk">总市值</div><div class="fv">${esc(row.mktcap)}</div><div class="fu">截至 2026.01.15</div></div>
-      <div class="fin-card" id="fin-pe"><div class="fk">市盈率 PE</div><div class="fv">${esc(row.pe)}</div><div class="fu">P/E Ratio</div></div>
-      <div class="fin-card ${yoyClass}"><div class="fk">同比增速</div><div class="fv">${esc(row.yoy)}</div><div class="fu">YoY Growth</div></div>
-    </div>
-    <div class="fin-desc">${esc(row.description)}</div>`;
-  } else {
-    html += `<div class="fin-empty">暂无财务数据 · 该公司未纳入财务数据库</div>`;
-  }
-  html += `</div>`;
-
-  /* ===== Section 2.5: 实时行情 (Finnhub) ===== */
   const ticker = getTicker(coName);
-  html += `<div class="sec rt-sec" id="rt-sec">
-    <div class="sec-title"><span class="num">02.5</span>实时行情 <span class="rt-live off" id="rt-badge">等待加载</span><span class="rt-ts" id="rt-ts"></span></div>
-    <div id="rt-body"><div class="rt-loading">正在获取实时数据…</div></div>
-  </div>`;
+  const meta = PHARMA_META[coName];
+  const ind = params.get('ind');
+  const node = params.get('node');
+  const indLabel = IND_LABELS[ind] || '产业链';
 
-  /* ===== Section 2.6: 财报预期 vs 实际 ===== */
-  if(row.eps || row.eps_est){
-    const epsSurp = row.eps_surp ? parseFloat(row.eps_surp) : null;
-    const revSurp = row.rev_surp ? parseFloat(row.rev_surp) : null;
-    const epsBeat = epsSurp !== null && epsSurp >= 0;
-    const revBeat = revSurp !== null && revSurp >= 0;
-    const beatAll = epsBeat && revBeat;
-    const missAll = !epsBeat && !revBeat;
-
-    html += `<div class="sec">
-      <div class="sec-title"><span class="num">02.5</span>财报预期 vs 实际${row.q_date ? `<span class="qd">${esc(row.q_date)}</span>` : ''}</div>
-      <div class="earn-grid">
-        <div class="earn-card ${epsBeat ? 'beat' : (epsSurp !== null ? 'miss' : '')}">
-          <div class="ec-head"><span class="ec-k">EPS 每股收益</span><span class="ec-surp ${epsBeat ? 'up' : 'down'}">${esc(row.eps_surp || '—')}</span></div>
-          <div class="ec-body">
-            <div class="ec-row"><span class="ec-label">预期</span><span class="ec-val est">${esc(row.eps_est || '—')}</span></div>
-            <div class="ec-arrow ${epsBeat ? 'up' : 'down'}">${epsBeat ? '▲' : '▼'}</div>
-            <div class="ec-row"><span class="ec-label">实际</span><span class="ec-val act">${esc(row.eps || '—')}</span></div>
-          </div>
-        </div>
-        <div class="earn-card ${revBeat ? 'beat' : (revSurp !== null ? 'miss' : '')}">
-          <div class="ec-head"><span class="ec-k">Revenue 营收</span><span class="ec-surp ${revBeat ? 'up' : 'down'}">${esc(row.rev_surp || '—')}</span></div>
-          <div class="ec-body">
-            <div class="ec-row"><span class="ec-label">预期</span><span class="ec-val est">${esc(row.rev_est || '—')}</span></div>
-            <div class="ec-arrow ${revBeat ? 'up' : 'down'}">${revBeat ? '▲' : '▼'}</div>
-            <div class="ec-row"><span class="ec-label">实际</span><span class="ec-val act">${esc(row.rev || '—')}</span></div>
-          </div>
-        </div>
-      </div>
-      ${beatAll ? '<div class="earn-summary beat">✓ EPS & Revenue 双超预期</div>' : (missAll ? '<div class="earn-summary miss">✗ EPS & Revenue 双不及预期</div>' : '<div class="earn-summary mixed">△ 预期与实际参差</div>')}
-    </div>`;
-  }
-
-  /* ===== Section 3: 环节投资逻辑 ===== */
-  if(tierInfo && nodeName){
-    html += `<div class="sec">
-      <div class="sec-title"><span class="num">03</span>环节投资逻辑</div>`;
-
-    /* 环节市场规模 + 增速 双卡 */
-    if(row.size || row.growth){
-      html += `<div class="inv-pair">`;
-      if(row.size)   html += `<div class="ip-cell size"><div class="ip-k">环节市场规模</div><div class="ip-v">${esc(row.size)}</div></div>`;
-      if(row.growth) html += `<div class="ip-cell growth"><div class="ip-k">环节年增速</div><div class="ip-v">${esc(row.growth)}</div></div>`;
-      html += `</div>`;
-    }
-
-    /* 护城河评级 */
-    if(row.moat != null && row.moat > 0){
-      html += `<div class="moat-box">`;
-      if(row.sup){
-        html += `<div class="moat-row"><span class="moat-k">供给格局</span><span class="sup ${row.supc || 'neutral'}">${esc(row.sup)}</span></div>`;
-      }
-      html += `<div class="moat-row"><span class="moat-k">护城河</span><span class="stars">${stars(row.moat)}</span><span class="moat-txt">${MOATTXT[row.moat] || ''}</span></div>`;
-      html += `</div>`;
-    }
-
-    /* 投资逻辑文本 */
-    if(row.logic){
-      html += `<div class="logic-box"><div class="lb-title">投资逻辑</div><div class="lb-text">${esc(row.logic)}</div></div>`;
-    }
-
-    /* 供给格局说明 */
-    if(row.why){
-      html += `<div class="why-box">${esc(row.why)}</div>`;
-    }
-    html += `</div>`;
-  }
-
-  /* ===== Section 4: 风险提示 ===== */
-  html += `<div class="sec">
-    <div class="sec-title"><span class="num">04</span>风险提示</div>`;
-
-  let hasRisk = false;
-  /* 环节卡点 */
-  if(row.bottleneck){
-    hasRisk = true;
-    html += `<div class="risk-card"><div class="rc-title">环节卡点</div><div class="rc-text">${esc(row.bottleneck)}</div></div>`;
-  }
-  /* 公司特定风险(risks 字段为字符串数组) */
-  const risks = Array.isArray(row.risks) ? row.risks : [];
-  if(risks.length){
-    hasRisk = true;
-    html += `<div class="risk-list">`;
-    risks.forEach(r => {
-      html += `<div class="risk-item"><span class="ri-dot"></span><span>${esc(r)}</span></div>`;
-    });
-    html += `</div>`;
-  }
-  if(!hasRisk){
-    html += `<div class="risk-empty">暂无风险提示</div>`;
-  }
-  html += `</div>`;
-
-  html += `</div>`; /* .wrap */
-
-  root.innerHTML = html;
-
-  /* 异步加载 Finnhub 实时行情 */
   if(ticker){
-    loadRealtimeData(coName, ticker);
+    /* JPM 药企: 从 Finnhub 加载全部实时数据 */
+    await renderFinnhubCompany(coName, ticker, meta, indLabel, node);
+  } else if(meta){
+    /* 有元数据但无 ticker */
+    renderFallback(coName, indLabel, node);
   } else {
-    const rtBody = document.getElementById('rt-body');
-    const rtSec = document.getElementById('rt-sec');
-    if(rtSec) rtSec.style.display = 'none';
+    /* 非药企: 兜底页 */
+    renderFallback(coName, indLabel, node);
   }
 }
 
-/* 加载实时行情数据 */
-async function loadRealtimeData(coName, ticker){
-  const badge = document.getElementById('rt-badge');
-  const ts = document.getElementById('rt-ts');
-  const body = document.getElementById('rt-body');
-  if(!body) return;
+async function renderFinnhubCompany(coName, ticker, meta, indLabel, node){
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading"><div class="spinner"></div>正在从 Finnhub 加载实时数据…</div>`;
 
-  try{
-    const [quote, earnings] = await Promise.all([
+  try {
+    const [quote, metrics, earnings] = await Promise.all([
       fetchQuote(ticker),
+      fetchMetrics(ticker),
       fetchEarnings(ticker)
     ]);
 
     if(!quote || !quote.price){
-      body.innerHTML = `<div class="rt-err">暂无实时行情数据 (该股票可能不在 Finnhub 免费版覆盖范围)</div>`;
-      if(badge){ badge.textContent = '无数据'; badge.className = 'rt-live off'; }
+      renderFallback(coName, indLabel, node);
       return;
     }
 
-    if(badge){ badge.textContent = '实时'; badge.className = 'rt-live'; }
-    if(ts){ ts.textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN', {hour12:false}); }
-
-    /* 用实时数据更新财务摘要中的市值和PE */
-    const finMk = document.getElementById('fin-mktcap');
-    const finPe = document.getElementById('fin-pe');
-    if(finMk && quote.marketCap){
-      finMk.querySelector('.fv').textContent = fmtMcap(quote.marketCap);
-      finMk.querySelector('.fu').textContent = '实时 · Finnhub';
-    }
-    if(finPe && quote.peTTM){
-      finPe.querySelector('.fv').textContent = quote.peTTM.toFixed(1);
-      finPe.querySelector('.fu').textContent = 'PE (TTM) · 实时';
-    }
-
     const chg = fmtChange(quote.changePct);
-    let html = `<div class="rt-grid">
-      <div class="rt-card">
-        <div class="rt-k">实时股价</div>
-        <div class="rt-price">
-          <span class="rt-v">${fmtPrice(quote.price)}</span>
-          ${chg ? `<span class="rt-pct ${chg.cls}">${chg.text}</span>` : ''}
+    const m = metrics || {};
+    const mc = quote.marketCap;
+    const pe = m.peTTM || quote.peTTM;
+    const rev = m.revenuePerShare ? '$' + (m.revenuePerShare * quote.price / 100).toFixed(0) + '亿' : '—';
+    const eps = m.epsTTM ? '$' + m.epsTTM.toFixed(2) : '—';
+    const gm = m.grossMargin ? fmtPct(m.grossMargin) : '—';
+    const nm = m.netMargin ? fmtPct(m.netMargin) : '—';
+    const rg = m.revenueGrowth ? fmtPct(m.revenueGrowth) : '—';
+    const rgClass = m.revenueGrowth >= 10 ? 'yoy-up' : (m.revenueGrowth < 3 ? 'yoy-down' : '');
+    const roe = m.roe ? fmtPct(m.roe) : '—';
+
+    /* 顶部栏 */
+    let html = `<div class="topbar">
+      <a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a>
+      <div class="co-head">
+        <div class="nm">${esc(coName)}</div>
+        <div class="code">${esc(ticker)} · ${esc(quote.exchange || '')} · ${esc(quote.industry || '')}</div>
+      </div>
+      <span class="ind-tag">${esc(indLabel)}${node ? ' · ' + esc(node) : ''}</span>
+    </div>`;
+
+    html += `<div class="wrap">`;
+
+    /* ===== Section 1: 实时行情 ===== */
+    html += `<div class="sec rt-sec">
+      <div class="sec-title"><span class="num">01</span>实时行情 <span class="rt-live">实时</span><span class="rt-ts">更新于 ${new Date().toLocaleTimeString('zh-CN',{hour12:false})}</span></div>
+      <div class="rt-grid">
+        <div class="rt-card">
+          <div class="rt-k">实时股价</div>
+          <div class="rt-price">
+            <span class="rt-v">${fmtPrice(quote.price)}</span>
+            ${chg ? `<span class="rt-pct ${chg.cls}">${chg.text}</span>` : ''}
+          </div>
+          <div class="rt-sub">${esc(quote.exchange || '')} · ${esc(ticker)}</div>
         </div>
-        <div class="rt-sub">${quote.exchange || ''} · ${ticker}</div>
-      </div>`;
+        <div class="rt-card"><div class="rt-k">总市值</div><div class="rt-v">${fmtMcap(mc)}</div></div>
+        <div class="rt-card"><div class="rt-k">PE (TTM)</div><div class="rt-v">${pe ? pe.toFixed(1) : '—'}</div></div>
+        ${quote.high ? `<div class="rt-card"><div class="rt-k">今日最高</div><div class="rt-v">${fmtPrice(quote.high)}</div></div>` : ''}
+        ${quote.low ? `<div class="rt-card"><div class="rt-k">今日最低</div><div class="rt-v">${fmtPrice(quote.low)}</div></div>` : ''}
+        ${quote.prevClose ? `<div class="rt-card"><div class="rt-k">前收盘</div><div class="rt-v">${fmtPrice(quote.prevClose)}</div></div>` : ''}
+        ${m.high52w ? `<div class="rt-card"><div class="rt-k">52周高</div><div class="rt-v">$${m.high52w.toFixed(0)}</div></div>` : ''}
+        ${m.low52w ? `<div class="rt-card"><div class="rt-k">52周低</div><div class="rt-v">$${m.low52w.toFixed(0)}</div></div>` : ''}
+        ${m.beta ? `<div class="rt-card"><div class="rt-k">Beta</div><div class="rt-v">${m.beta.toFixed(2)}</div></div>` : ''}
+        ${quote.dividend ? `<div class="rt-card"><div class="rt-k">股息率</div><div class="rt-v">${quote.dividend.toFixed(2)}%</div></div>` : ''}
+      </div>
+      <div class="rt-source">数据来源: Finnhub API · 15分钟延迟</div>
+    </div>`;
 
-    if(quote.high) html += `<div class="rt-card"><div class="rt-k">今日最高</div><div class="rt-v">${fmtPrice(quote.high)}</div></div>`;
-    if(quote.low) html += `<div class="rt-card"><div class="rt-k">今日最低</div><div class="rt-v">${fmtPrice(quote.low)}</div></div>`;
-    if(quote.prevClose) html += `<div class="rt-card"><div class="rt-k">前收盘</div><div class="rt-v">${fmtPrice(quote.prevClose)}</div></div>`;
-    if(quote.dividend) html += `<div class="rt-card"><div class="rt-k">股息率</div><div class="rt-v">${quote.dividend.toFixed(2)}%</div></div>`;
+    /* ===== Section 2: 财务指标(全部实时) ===== */
+    html += `<div class="sec">
+      <div class="sec-title"><span class="num">02</span>财务指标 (TTM · 实时)</div>
+      <div class="fin-grid">
+        <div class="fin-card"><div class="fk">EPS 每股收益</div><div class="fv">${esc(eps)}</div><div class="fu">TTM · 实时</div></div>
+        <div class="fin-card"><div class="fk">PE 市盈率</div><div class="fv">${pe ? pe.toFixed(1) : '—'}</div><div class="fu">P/E TTM</div></div>
+        <div class="fin-card ${rgClass}"><div class="fk">营收增速</div><div class="fv">${esc(rg)}</div><div class="fu">YoY · TTM</div></div>
+        <div class="fin-card"><div class="fk">毛利率</div><div class="fv">${esc(gm)}</div><div class="fu">Gross Margin TTM</div></div>
+        <div class="fin-card"><div class="fk">净利率</div><div class="fv">${esc(nm)}</div><div class="fu">Net Margin TTM</div></div>
+        <div class="fin-card"><div class="fk">ROE</div><div class="fv">${esc(roe)}</div><div class="fu">Return on Equity</div></div>
+        ${m.forwardPE ? `<div class="fin-card"><div class="fk">前瞻PE</div><div class="fv">${m.forwardPE.toFixed(1)}</div><div class="fu">Forward P/E</div></div>` : ''}
+        ${m.peg ? `<div class="fin-card"><div class="fk">PEG</div><div class="fv">${m.peg.toFixed(2)}</div><div class="fu">P/E to Growth</div></div>` : ''}
+        ${m.pb ? `<div class="fin-card"><div class="fk">P/B</div><div class="fv">${m.pb.toFixed(1)}</div><div class="fu">Price to Book</div></div>` : ''}
+        ${m.evEbitda ? `<div class="fin-card"><div class="fk">EV/EBITDA</div><div class="fv">${m.evEbitda.toFixed(1)}</div><div class="fu">EV / EBITDA</div></div>` : ''}
+        ${m.ps ? `<div class="fin-card"><div class="fk">P/S</div><div class="fv">${m.ps.toFixed(1)}</div><div class="fu">Price to Sales</div></div>` : ''}
+        ${m.dividendYield != null ? `<div class="fin-card"><div class="fk">股息率</div><div class="fv">${m.dividendYield.toFixed(2)}%</div><div class="fu">Dividend Yield TTM</div></div>` : ''}
+      </div>
+    </div>`;
 
-    html += `</div>`;
-
-    /* 最近4季度财报surprise */
+    /* ===== Section 3: 财报 EPS Surprise ===== */
     if(earnings && earnings.length){
-      html += `<div class="rt-earn">
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px">最近财报 (EPS Surprise)</div>
+      html += `<div class="sec">
+        <div class="sec-title"><span class="num">03</span>财报 EPS Surprise</div>
         <table class="rt-earn-tbl">
-          <thead><tr><th>季度</th><th>预期 EPS</th><th>实际 EPS</th><th>惊喜</th><th>营收惊喜</th></tr></thead>
+          <thead><tr><th>季度</th><th>预期 EPS</th><th>实际 EPS</th><th>惊喜</th><th>营收预期</th></tr></thead>
           <tbody>`;
       earnings.slice(0, 4).forEach(e => {
-        const epsSurprise = e.surprise != null ? (e.surprise >= 0 ? 'up' : 'down') : '';
+        const cls = e.surprise != null ? (e.surprise >= 0 ? 'up' : 'down') : '';
         html += `<tr>
-          <td>${e.period || '—'}</td>
+          <td>${esc(e.period || '—')}</td>
           <td>$${e.epsEstimate != null ? e.epsEstimate.toFixed(2) : '—'}</td>
           <td>$${e.actual != null ? e.actual.toFixed(2) : '—'}</td>
-          <td class="${epsSurprise}">${e.surprise != null ? (e.surprise >= 0 ? '+' : '') + e.surprise.toFixed(2) : '—'}</td>
+          <td class="${cls}">${e.surprise != null ? (e.surprise >= 0 ? '+' : '') + e.surprise.toFixed(2) : '—'}</td>
           <td>${e.revenueEstimate != null ? '$' + (e.revenueEstimate/1e9).toFixed(1) + 'B' : '—'}</td>
         </tr>`;
       });
-      html += `</tbody></table>`;
+      html += `</tbody></table>
+        <div class="rt-source">数据来源: Finnhub · 最近4个季度</div>
+      </div>`;
     }
 
-    html += `<div class="rt-source">数据来源: Finnhub (15分钟延迟) · ${quote.industry || ''}</div>`;
-    body.innerHTML = html;
+    /* ===== Section 4: JPM 战略摘要 ===== */
+    if(meta){
+      html += `<div class="sec">
+        <div class="sec-title"><span class="num">04</span>JPM 2026 战略摘要</div>
+        <div class="logic-box"><div class="lb-title">战略要点</div><div class="lb-text">${esc(meta.strategy)}</div></div>`;
 
-  }catch(e){
-    body.innerHTML = `<div class="rt-err">行情加载失败: ${e.message || e}</div>`;
-    if(badge){ badge.textContent = '失败'; badge.className = 'rt-live off'; }
+      if(meta.areas && meta.areas.length){
+        html += `<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">
+          ${meta.areas.map(a => `<span style="font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(184,140,230,.12);color:var(--down);border:1px solid rgba(184,140,230,.25)">${esc(a)}</span>`).join('')}
+        </div>`;
+      }
+
+      if(meta.moat){
+        html += `<div class="logic-box" style="border-left-color:var(--mid)"><div class="lb-title">护城河</div><div class="lb-text">${esc(meta.moat)}</div></div>`;
+      }
+      html += `</div>`;
+
+      /* ===== Section 5: 风险提示 ===== */
+      if(meta.risks){
+        const risks = meta.risks.split('|');
+        html += `<div class="sec">
+          <div class="sec-title"><span class="num">05</span>风险提示</div>
+          <div class="risk-list">
+            ${risks.map(r => `<div class="risk-item"><span class="ri-dot"></span><span>${esc(r)}</span></div>`).join('')}
+          </div>
+        </div>`;
+      }
+    }
+
+    html += `</div>`;
+    root.innerHTML = html;
+
+  } catch(e) {
+    root.innerHTML = `<div class="wrap"><div class="error-box">
+      <div class="title">加载失败</div>
+      <div class="msg">${esc(e.message || String(e))}</div>
+      <div style="margin-top:20px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
+    </div></div>`;
   }
 }
 
-/* ============ 启动 ============ */
+function renderHint(title, msg){
+  document.getElementById('root').innerHTML = `<div class="wrap"><div class="hint-box">
+    <div class="big">${esc(title)}</div>
+    <div class="small">${esc(msg)}</div>
+    <div style="margin-top:18px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
+  </div></div>`;
+}
+
+function renderFallback(coName, indLabel, node){
+  const nodeData = (indLabel.includes('生物') && node) ? BIO_NODES[node] : null;
+  const maxShare = nodeData && nodeData.share ? Math.max(...nodeData.share.map(s=>s.v)) : 0;
+
+  let html = `<div class="wrap">
+    <div class="topbar"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
+    <div class="co-head">
+      <div class="nm">${esc(coName)}</div>
+      <div class="sub">${esc(indLabel)}${node ? ' · ' + esc(node) : ''}</div>
+    </div>`;
+
+  if(nodeData){
+    html += `
+    <div class="sec">
+      <div class="sec-title"><span class="num">01</span>环节概览</div>
+      <div class="fin-grid">
+        ${nodeData.size ? `<div class="fin-card"><div class="fk">市场规模</div><div class="fv">${esc(nodeData.size)}</div></div>` : ''}
+        ${nodeData.growth ? `<div class="fin-card yoy-up"><div class="fk">增速</div><div class="fv">${esc(nodeData.growth)}</div></div>` : ''}
+      </div>
+    </div>
+    ${nodeData.logic ? `<div class="sec"><div class="sec-title"><span class="num">02</span>投资逻辑</div><div class="logic-box"><div class="lb-text">${esc(nodeData.logic)}</div></div></div>` : ''}
+    ${nodeData.share && nodeData.share.length ? `<div class="sec"><div class="sec-title"><span class="num">03</span>竞争格局</div>
+      ${nodeData.share.map(s => `<div class="risk-item" style="background:var(--panel);border-color:var(--border)"><span class="sr-name" style="width:110px;color:var(--muted)">${esc(s.co)}</span><span style="flex:1;height:14px;background:var(--bg2);border-radius:4px;overflow:hidden"><span style="display:block;height:100%;width:${(s.v/maxShare*100).toFixed(0)}%;background:var(--down);border-radius:4px"></span></span><span class="rt-v" style="font-size:11px;min-width:42px;text-align:right">${s.v}%</span></div>`).join('')}
+    </div>` : ''}
+    ${nodeData.bottleneck ? `<div class="sec"><div class="sec-title"><span class="num">04</span>核心卡点</div><div class="risk-card"><div class="rc-text">${esc(nodeData.bottleneck)}</div></div></div>` : ''}
+    <div class="sec"><div class="sec-title"><span class="num">05</span>同环节其他公司</div><div class="risk-empty">该公司暂无独立财务数据。返回产业链图谱可查看该环节的完整公司列表与投资逻辑。</div></div>`;
+  } else {
+    html += `<div class="hint-box" style="margin:24px 0">
+      <div class="big">暂无详细财务数据</div>
+      <div class="small">该公司暂未收录在数据库中,可能为未上市公司或非美股标的。</div>
+    </div>`;
+  }
+
+  html += `<div style="margin-top:24px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链图谱</a></div></div>`;
+  document.getElementById('root').innerHTML = html;
+}
+
 init();
 </script>
 </body>

@@ -17,7 +17,6 @@
   body{background:var(--bg);color:var(--text);font-family:'Sora',var(--cn);line-height:1.6;min-height:100vh}
   a{color:inherit;text-decoration:none}
 
-  /* Header */
   .header{max-width:1200px;margin:0 auto;padding:32px 24px 16px}
   .back{display:inline-flex;align-items:center;gap:6px;color:var(--mute);font-size:13px;margin-bottom:16px;transition:color .2s}
   .back:hover{color:var(--text)}
@@ -32,10 +31,8 @@
   .source{margin-top:12px;font-size:12px;color:var(--faint)}
   .source a{color:var(--warn);text-decoration:underline}
 
-  /* Grid */
   .grid{max-width:1200px;margin:0 auto;padding:8px 24px 48px;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
 
-  /* Card */
   .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:12px}
   .card:hover{border-color:var(--warn);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
   .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
@@ -50,11 +47,9 @@
   .card-areas{display:flex;flex-wrap:wrap;gap:6px}
   .area{font-size:11px;padding:2px 10px;border-radius:999px;background:rgba(184,140,230,.12);color:var(--down);border:1px solid rgba(184,140,230,.25)}
   .card-strategy{font-size:13px;color:var(--mute);line-height:1.5;border-top:1px solid var(--border2);padding-top:10px}
-  .card-strategy strong{color:var(--text);font-weight:600}
   .card-arrow{display:flex;justify-content:flex-end;color:var(--faint);font-size:13px;transition:color .2s}
   .card:hover .card-arrow{color:var(--warn)}
 
-  /* 实时行情条 */
   .rt-bar{display:flex;align-items:center;gap:8px;border-top:1px solid var(--border2);padding-top:10px;font-size:12px}
   .rt-bar .rt-l{font-size:10px;color:var(--faint);display:flex;align-items:center;gap:4px}
   .rt-bar .rt-l::before{content:'';width:6px;height:6px;border-radius:50%;background:#54cf8b;animation:blink 2s infinite}
@@ -66,7 +61,6 @@
   .rt-bar .rt-c{font-size:11px;color:var(--mute)}
   .rt-bar .rt-spacer{flex:1}
 
-  /* Loading */
   .loading{text-align:center;padding:80px 24px;color:var(--mute)}
   .loading .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--warn);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
   @keyframes spin{to{transform:rotate(360deg)}}
@@ -85,137 +79,111 @@
   <a class="back" href="industry.html">返回产业链</a>
   <h1>全球创新药龙头 · JPM 2026</h1>
   <div class="subtitle">2026 JPMorgan Healthcare Conference 23家全球药企战略摘要</div>
-  <div class="stats" id="stats"></div>
-  <div class="source">数据来源：<a href="https://liangchang.substack.com/p/i-summarized-23-global-pharma-presentations" target="_blank">liangchang.substack.com</a> · 市值截至 2026.01.15 · 营收为 2024 全年</div>
+  <div class="stats" id="stats">
+    <div class="stat"><div class="k">药企数量</div><div class="v">23</div></div>
+    <div class="stat"><div class="k">合计市值</div><div class="v" id="total-mcap">加载中…</div></div>
+    <div class="stat"><div class="k">平均增速(TTM)</div><div class="v green" id="avg-growth">加载中…</div></div>
+    <div class="stat"><div class="k">平均PE(TTM)</div><div class="v" id="avg-pe">加载中…</div></div>
+  </div>
+  <div class="source">实时数据来源：Finnhub API · JPM战略摘要来源：<a href="https://liangchang.substack.com/p/i-summarized-23-global-pharma-presentations" target="_blank">liangchang.substack.com</a></div>
 </div>
 
 <div class="grid" id="grid">
-  <div class="loading"><div class="spinner"></div><div>加载中…</div></div>
+  <div class="loading"><div class="spinner"></div><div>加载实时数据中…</div></div>
 </div>
 
 <script src="finnhub.js"></script>
 <script>
-const SUPABASE_URL='https://vibfjrxwwncjmykilkxg.supabase.co';
-const SUPABASE_KEY='sb_publishable_qv2Si85HMvlbBV0vLjvVRQ_HPlGhHll';
-
-function esc(s){return s?s.replace(/</g,'&lt;'):'';}
-
-/* 治疗领域关键词 → 标签 */
-function parseAreas(desc){
-  if(!desc) return [];
-  const map={
-    '肥胖':'肥胖/代谢','代谢':'肥胖/代谢','GLP':'肥胖/代谢',
-    '肿瘤':'肿瘤','Oncolog':'肿瘤','ADC':'肿瘤',
-    '免疫':'免疫','Immun':'免疫',
-    '神经':'神经','Neuro':'神经','阿尔茨海默':'神经',
-    '心血管':'心血管','Cardio':'心血管',
-    'HIV':'HIV','病毒':'HIV',
-    '疫苗':'疫苗','Vaccin':'疫苗',
-    '罕见病':'罕见病','Rare':'罕见病',
-    '眼科':'眼科','Ophthal':'眼科',
-    '呼吸':'呼吸','Respir':'呼吸',
-    '基因':'基因治疗','CGT':'基因治疗',
-    '细胞':'细胞治疗','CAR-T':'细胞治疗',
-  };
-  const areas=new Set();
-  for(const k in map){ if(desc.includes(k)) areas.add(map[k]); }
-  return [...areas].slice(0,5);
-}
-
-/* 解析市值/营收数值(文本如"888亿美元"→888)用于排序与统计 */
-function parseNum(s){
-  if(!s) return 0;
-  const m=s.match(/([\d.]+)\s*(万亿|亿|B|M)/);
-  if(!m) return 0;
-  let v=parseFloat(m[1]);
-  if(m[2]==='万亿') v*=10000;
-  else if(m[2]==='B') v*=7; // $B → 亿人民币≈7
-  else if(m[2]==='M') v*=0.0007;
-  return v;
-}
+const COMPANIES = Object.keys(TICKER_MAP);
 
 async function load(){
-  try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/companies?node_id=eq.m6`,{
-      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
-    });
-    if(!res.ok) throw new Error('API '+res.status);
-    let rows=await res.json();
-    if(!rows.length){ document.getElementById('grid').innerHTML='<div class="err">未找到数据，请先在 Supabase 中执行 jpm23.sql</div>'; return; }
-    /* 前端按营收数值降序排列(rev是文本字段,数据库order无法正确排序) */
-    rows.sort((a,b)=>parseNum(b.rev)-parseNum(a.rev));
-
-    /* 统计 */
-    const totalMcap=rows.reduce((s,r)=>s+parseNum(r.mktcap),0);
-    const totalRev=rows.reduce((s,r)=>s+parseNum(r.rev),0);
-    document.getElementById('stats').innerHTML=`
-      <div class="stat"><div class="k">药企数量</div><div class="v">${rows.length}</div></div>
-      <div class="stat"><div class="k">合计市值</div><div class="v">$4.6万亿</div></div>
-      <div class="stat"><div class="k">合计营收(2024)</div><div class="v">$1.0万亿</div></div>
-      <div class="stat"><div class="k">平均增速</div><div class="v green">~8%</div></div>
-    `;
-
-    /* 渲染卡片 */
-    document.getElementById('grid').innerHTML=rows.map((r,i)=>{
-      const areas=parseAreas(r.description+' '+r.node_name);
-      const yoyNum=r.yoy?parseFloat(r.yoy):0;
-      const yoyClass=yoyNum>=8?'up':(yoyNum<3?'down':'');
-      return `<a class="card" href="company.html?name=${encodeURIComponent(r.name)}&ind=bio&node=${encodeURIComponent(r.node_name||'')}" style="animation:fadeIn .3s ${i*0.03}s both">
-        <div class="card-head">
-          <div>
-            <div class="card-name">${esc(r.name)}</div>
-            <div style="font-size:12px;color:var(--mute);margin-top:2px">${esc(r.mkt||'')} · #${i+1}</div>
-          </div>
-          <span class="card-code">${esc(r.code||'—')}</span>
+  /* 先渲染卡片骨架(从 PHARMA_META 获取静态分析数据) */
+  document.getElementById('grid').innerHTML = COMPANIES.map((name, i) => {
+    const meta = PHARMA_META[name] || { areas:[], strategy:'', moat:'', risks:'' };
+    const ticker = TICKER_MAP[name];
+    return `<a class="card" href="company.html?name=${encodeURIComponent(name)}&ind=bio&node=全球创新药龙头(JPM 23)" style="animation:fadeIn .3s ${i*0.03}s both">
+      <div class="card-head">
+        <div>
+          <div class="card-name">${esc(name)}</div>
+          <div style="font-size:12px;color:var(--mute);margin-top:2px">${meta.areas.join(' · ') || ''}</div>
         </div>
-        <div class="card-meta">
-          <div class="meta-item"><span class="k">市值</span><span class="v" id="mc-${r.name}">${esc(r.mktcap||'—')}</span></div>
-          <div class="meta-item"><span class="k">营收(2024)</span><span class="v">${esc(r.rev||'—')}</span></div>
-          <div class="meta-item"><span class="k">增速</span><span class="v ${yoyClass}">${esc(r.yoy||'—')}</span></div>
-          <div class="meta-item"><span class="k">PE</span><span class="v" id="pe-${r.name}">${esc(r.pe||'—')}</span></div>
-        </div>
-        ${areas.length?`<div class="card-areas">${areas.map(a=>`<span class="area">${a}</span>`).join('')}</div>`:''}
-        <div class="card-strategy">${esc(r.description||'')}</div>
-        <div class="rt-bar off" id="rt-${r.name}"><span class="rt-l">实时</span><span class="rt-spacer"></span><span class="rt-c">加载中…</span></div>
-        <div class="card-arrow">查看详情 →</div>
-      </a>`;
-    }).join('');
+        <span class="card-code">${ticker}</span>
+      </div>
+      <div class="card-meta">
+        <div class="meta-item"><span class="k">市值(实时)</span><span class="v" id="mc-${name}">—</span></div>
+        <div class="meta-item"><span class="k">PE(TTM)</span><span class="v" id="pe-${name}">—</span></div>
+        <div class="meta-item"><span class="k">营收增速</span><span class="v" id="rg-${name}">—</span></div>
+        <div class="meta-item"><span class="k">毛利率</span><span class="v" id="gm-${name}">—</span></div>
+      </div>
+      ${meta.areas.length?`<div class="card-areas">${meta.areas.map(a=>`<span class="area">${a}</span>`).join('')}</div>`:''}
+      <div class="card-strategy">${esc(meta.strategy)}</div>
+      <div class="rt-bar off" id="rt-${name}"><span class="rt-l">加载中</span><span class="rt-spacer"></span><span class="rt-c">—</span></div>
+      <div class="card-arrow">查看详情 →</div>
+    </a>`;
+  }).join('');
 
-    /* 异步加载实时股价 */
-    loadRealtimePrices(rows);
+  /* 批量加载实时数据(quote + metrics) */
+  await loadRealtimeData();
+}
 
-  }catch(e){
-    document.getElementById('grid').innerHTML=`<div class="err">加载失败: ${esc(e.message)}</div>`;
+async function loadRealtimeData(){
+  let totalMcap = 0, totalGrowth = 0, totalPE = 0, count = 0;
+  const batches = [];
+  for(let i=0; i<COMPANIES.length; i+=6){
+    batches.push(COMPANIES.slice(i, i+6));
   }
+
+  for(const batch of batches){
+    await Promise.all(batch.map(async (name) => {
+      const ticker = getTicker(name);
+      if(!ticker) return;
+      try {
+        const [q, m] = await Promise.all([fetchQuote(ticker), fetchMetrics(ticker)]);
+        if(!q) return;
+        count++;
+        totalMcap += q.marketCap || 0;
+        totalGrowth += (m && m.revenueGrowth) || 0;
+        totalPE += (m && m.peTTM) || (q && q.peTTM) || 0;
+
+        /* 更新市值/PE/增速/毛利率 */
+        const mcEl = document.getElementById('mc-'+name);
+        const peEl = document.getElementById('pe-'+name);
+        const rgEl = document.getElementById('rg-'+name);
+        const gmEl = document.getElementById('gm-'+name);
+        if(mcEl && q.marketCap) mcEl.textContent = fmtMcap(q.marketCap);
+        if(peEl && m && m.peTTM) peEl.textContent = m.peTTM.toFixed(1);
+        else if(peEl && q.peTTM) peEl.textContent = q.peTTM.toFixed(1);
+        if(rgEl && m && m.revenueGrowth) {
+          rgEl.textContent = fmtPct(m.revenueGrowth);
+          rgEl.className = 'v ' + (m.revenueGrowth >= 10 ? 'up' : (m.revenueGrowth < 3 ? 'down' : ''));
+        }
+        if(gmEl && m && m.grossMargin) gmEl.textContent = fmtPct(m.grossMargin);
+
+        /* 更新行情条 */
+        const bar = document.getElementById('rt-'+name);
+        if(bar && q.price){
+          bar.classList.remove('off');
+          const chg = fmtChange(q.changePct);
+          bar.innerHTML = `<span class="rt-l">实时</span>
+            <span class="rt-p ${chg.cls}">${fmtPrice(q.price)}</span>
+            <span class="rt-c ${chg.cls}">${chg.text}</span>
+            <span class="rt-spacer"></span>
+            <span class="rt-c">${q.exchange || ''} · ${ticker}</span>`;
+        }
+      } catch(e) { console.warn(name, e); }
+    }));
+  }
+
+  /* 更新顶部统计 */
+  const mcStat = document.getElementById('total-mcap');
+  const gStat = document.getElementById('avg-growth');
+  const peStat = document.getElementById('avg-pe');
+  if(mcStat) mcStat.textContent = fmtMcap(totalMcap);
+  if(gStat) gStat.textContent = count ? fmtPct(totalGrowth/count) : '—';
+  if(peStat) peStat.textContent = count ? (totalPE/count).toFixed(1) : '—';
 }
 
-/* 批量加载实时股价 */
-async function loadRealtimePrices(rows){
-  const quotes = await fetchQuotesBatch(rows.map(r=>r.name));
-  rows.forEach(r => {
-    const bar = document.getElementById('rt-' + r.name);
-    if(!bar) return;
-    const q = quotes[r.name];
-    if(!q || !q.price){
-      bar.classList.add('off');
-      bar.innerHTML = '<span class="rt-l">离线</span><span class="rt-spacer"></span><span class="rt-c">无实时数据</span>';
-      return;
-    }
-    bar.classList.remove('off');
-    const chg = fmtChange(q.changePct);
-    bar.innerHTML = `<span class="rt-l">实时</span>
-      <span class="rt-p ${chg.cls}">${fmtPrice(q.price)}</span>
-      <span class="rt-c ${chg.cls}">${chg.text}</span>
-      <span class="rt-spacer"></span>
-      <span class="rt-c">${q.exchange || ''} · ${ticker}</span>`;
-
-    /* 同步更新卡片meta中的市值和PE为实时值 */
-    const mcEl = document.getElementById('mc-' + r.name);
-    const peEl = document.getElementById('pe-' + r.name);
-    if(mcEl && q.marketCap) mcEl.textContent = fmtMcap(q.marketCap);
-    if(peEl && q.peTTM) peEl.textContent = q.peTTM.toFixed(1);
-  });
-}
+function esc(s){return s?s.replace(/</g,'&lt;'):'';}
 load();
 </script>
 <style>@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
