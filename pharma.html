@@ -54,6 +54,18 @@
   .card-arrow{display:flex;justify-content:flex-end;color:var(--faint);font-size:13px;transition:color .2s}
   .card:hover .card-arrow{color:var(--warn)}
 
+  /* 实时行情条 */
+  .rt-bar{display:flex;align-items:center;gap:8px;border-top:1px solid var(--border2);padding-top:10px;font-size:12px}
+  .rt-bar .rt-l{font-size:10px;color:var(--faint);display:flex;align-items:center;gap:4px}
+  .rt-bar .rt-l::before{content:'';width:6px;height:6px;border-radius:50%;background:#54cf8b;animation:blink 2s infinite}
+  .rt-bar.off .rt-l::before{background:var(--faint);animation:none}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .rt-bar .rt-p{font-family:var(--mono);font-weight:600;font-size:14px}
+  .rt-bar .rt-p.up{color:var(--opp)}
+  .rt-bar .rt-p.down{color:var(--risk)}
+  .rt-bar .rt-c{font-size:11px;color:var(--mute)}
+  .rt-bar .rt-spacer{flex:1}
+
   /* Loading */
   .loading{text-align:center;padding:80px 24px;color:var(--mute)}
   .loading .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--warn);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
@@ -81,6 +93,7 @@
   <div class="loading"><div class="spinner"></div><div>加载中…</div></div>
 </div>
 
+<script src="finnhub.js"></script>
 <script>
 const SUPABASE_URL='https://vibfjrxwwncjmykilkxg.supabase.co';
 const SUPABASE_KEY='sb_publishable_qv2Si85HMvlbBV0vLjvVRQ_HPlGhHll';
@@ -163,13 +176,39 @@ async function load(){
         </div>
         ${areas.length?`<div class="card-areas">${areas.map(a=>`<span class="area">${a}</span>`).join('')}</div>`:''}
         <div class="card-strategy">${esc(r.description||'')}</div>
+        <div class="rt-bar off" id="rt-${r.name}"><span class="rt-l">实时</span><span class="rt-spacer"></span><span class="rt-c">加载中…</span></div>
         <div class="card-arrow">查看详情 →</div>
       </a>`;
     }).join('');
 
+    /* 异步加载实时股价 */
+    loadRealtimePrices(rows);
+
   }catch(e){
     document.getElementById('grid').innerHTML=`<div class="err">加载失败: ${esc(e.message)}</div>`;
   }
+}
+
+/* 批量加载实时股价 */
+async function loadRealtimePrices(rows){
+  const quotes = await fetchQuotesBatch(rows.map(r=>r.name));
+  rows.forEach(r => {
+    const bar = document.getElementById('rt-' + r.name);
+    if(!bar) return;
+    const q = quotes[r.name];
+    if(!q || !q.price){
+      bar.classList.add('off');
+      bar.innerHTML = '<span class="rt-l">离线</span><span class="rt-spacer"></span><span class="rt-c">无实时数据</span>';
+      return;
+    }
+    bar.classList.remove('off');
+    const chg = fmtChange(q.changePct);
+    bar.innerHTML = `<span class="rt-l">实时</span>
+      <span class="rt-p ${chg.cls}">${fmtPrice(q.price)}</span>
+      <span class="rt-c ${chg.cls}">${chg.text}</span>
+      <span class="rt-spacer"></span>
+      <span class="rt-c">PE ${q.peTTM ? q.peTTM.toFixed(1) : '—'} · ${fmtMcap(q.marketCap)}</span>`;
+  });
 }
 load();
 </script>

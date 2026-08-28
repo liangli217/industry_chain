@@ -274,6 +274,34 @@
   .earn-summary.mixed{background:rgba(224,169,75,.1);color:#e0a94b;border:1px solid rgba(224,169,75,.3)}
   .qd{margin-left:auto;font-size:11px;color:var(--mute);font-weight:400}
   @media(max-width:520px){.earn-grid{grid-template-columns:1fr}}
+
+  /* 实时行情(Finnhub) */
+  .rt-sec{margin-bottom:24px}
+  .rt-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .rt-live{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:#54cf8b;background:rgba(84,207,139,.1);border:1px solid rgba(84,207,139,.3);border-radius:999px;padding:2px 8px}
+  .rt-live::before{content:'';width:6px;height:6px;border-radius:50%;background:#54cf8b;animation:pulse 2s infinite}
+  .rt-live.off{color:var(--faint);background:var(--panel);border-color:var(--border2)}
+  .rt-live.off::before{background:var(--faint);animation:none}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .rt-ts{font-size:11px;color:var(--faint);margin-left:auto}
+  .rt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .rt-card{background:var(--panel);border:1px solid var(--border2);border-radius:11px;padding:12px 14px}
+  .rt-card .rt-k{font-size:11px;color:var(--mute);margin-bottom:4px}
+  .rt-card .rt-v{font-size:17px;font-weight:700;font-family:'SF Mono','Cascadia Code',monospace}
+  .rt-card .rt-v.up{color:#54cf8b}
+  .rt-card .rt-v.down{color:#ec6d5f}
+  .rt-card .rt-sub{font-size:10px;color:var(--faint);margin-top:3px}
+  .rt-price{display:flex;align-items:baseline;gap:8px}
+  .rt-price .rt-pct{font-size:13px;font-weight:600}
+  .rt-loading{padding:20px;text-align:center;color:var(--faint);font-size:13px}
+  .rt-err{padding:16px;text-align:center;color:var(--mute);font-size:13px;background:var(--panel);border-radius:11px;border:1px solid var(--border2)}
+  .rt-earn{margin-top:16px}
+  .rt-earn-tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .rt-earn-tbl th{text-align:left;color:var(--mute);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border2)}
+  .rt-earn-tbl td{padding:6px 8px;border-bottom:1px solid var(--border2)}
+  .rt-earn-tbl td.up{color:#54cf8b}
+  .rt-earn-tbl td.down{color:#ec6d5f}
+  .rt-source{margin-top:12px;font-size:11px;color:var(--faint)}
 </style>
 </head>
 <body>
@@ -282,6 +310,7 @@
   <div class="loading"><div class="spinner"></div>加载中…</div>
 </div>
 
+<script src="finnhub.js"></script>
 <script>
 /* ============ Supabase 配置(直接 fetch REST API) ============ */
 const SUPABASE_URL = 'https://vibfjrxwwncjmykilkxg.supabase.co';
@@ -355,16 +384,83 @@ function renderError(title, msg){
 }
 
 /* ============ 未收录公司兜底页(带产业链上下文) ============ */
-const IND_LABELS = {robot:'机器人产业链', ev:'新能源汽车产业链', chip:'半导体产业链', solar:'光伏产业链'};
+const IND_LABELS = {robot:'机器人产业链', ev:'新能源汽车产业链', chip:'半导体产业链', solar:'光伏产业链', bio:'生物医药产业链'};
+
+/* 生物医药产业链节点数据(用于兜底页展示环节级投资逻辑) */
+const BIO_NODES = {
+  '细胞培养基与血清':{size:'约120亿',growth:'~25%',logic:'国产替代+生物药放量双驱动,价值量高',bottleneck:'无血清培养基配方与工艺 Know-how',share:[{co:'默克',v:35},{co:'赛默飞',v:25},{co:'Cytiva',v:15},{co:'奥浦迈',v:5},{co:'其他',v:20}]},
+  '色谱填料/层析介质':{size:'约80亿',growth:'~30%',logic:'纯化是生物药成本大头,国产替代空间大',bottleneck:'基质合成与偶联工艺,高性能软胶',share:[{co:'Cytiva',v:40},{co:'赛多利斯',v:25},{co:'东曹',v:8},{co:'纳微科技',v:6},{co:'其他',v:21}]},
+  '一次性生物耗材':{size:'约150亿',growth:'~20%',logic:'一次性技术渗透率提升,国产设备厂商受益',bottleneck:'膜材料与焊接工艺,大体积袋良率',share:[{co:'赛多利斯',v:30},{co:'默克',v:25},{co:'Cytiva',v:10},{co:'东富龙',v:8},{co:'其他',v:27}]},
+  '原料药(API)':{size:'约4500亿',growth:'~8%',logic:'特色原料药+CDMO 双轮驱动,中国主导',bottleneck:'高端特色原料药工艺与合规',share:[{co:'新和成',v:8},{co:'华海药业',v:6},{co:'九州药业',v:5},{co:'普洛药业',v:5},{co:'其他',v:76}]},
+  '药用辅料与包材':{size:'约600亿',growth:'~12%',logic:'中硼硅替代+集采放量,国产替代受益',bottleneck:'中硼硅玻璃管拉制工艺',share:[{co:'山东药玻',v:25},{co:'肖特',v:20},{co:'格雷斯海姆',v:12},{co:'华兰股份',v:8},{co:'其他',v:35}]},
+  'CXO(CRO/CDMO)':{size:'约1500亿',growth:'~15%',logic:'工程师红利+一体化优势,地缘风险是变量',bottleneck:'海外客户信任与地缘政策',share:[{co:'药明康德',v:35},{co:'康龙化成',v:12},{co:'泰格医药',v:10},{co:'凯莱英',v:8},{co:'其他',v:35}]},
+  '生物药(抗体/疫苗/CGT)':{size:'约5000亿',growth:'~18%',logic:'创新药出海+ADC 全球 licensing 热潮',bottleneck:'原创靶点与全球临床能力',share:[{co:'恒瑞医药',v:18},{co:'百济神州',v:12},{co:'信达生物',v:8},{co:'君实生物',v:5},{co:'其他',v:57}]},
+  '化学药(创新药/仿制药)':{size:'约8000亿',growth:'~6%',logic:'创新转型对冲集采,龙头集中度提升',bottleneck:'创新靶点与临床转化能力',share:[{co:'恒瑞医药',v:12},{co:'石药集团',v:9},{co:'翰森制药',v:7},{co:'中国生物制药',v:6},{co:'其他',v:66}]},
+  '体外诊断(IVD)':{size:'约1200亿',growth:'~15%',logic:'化学发光国产替代+集采放量',bottleneck:'化学发光试剂抗体原料与流水线整合',share:[{co:'罗氏',v:20},{co:'迈瑞医疗',v:15},{co:'安图生物',v:10},{co:'新产业',v:8},{co:'其他',v:47}]},
+  '医疗器械':{size:'约8000亿',growth:'~12%',logic:'集采加速国产替代,高端设备出海',bottleneck:'高端核心部件(球管/探测器)与材料',share:[{co:'迈瑞医疗',v:12},{co:'联影医疗',v:5},{co:'微创医疗',v:4},{co:'乐普医疗',v:3},{co:'其他',v:76}]},
+  '医药流通':{size:'约2.2万亿',growth:'~8%',logic:'两票制后集中度提升,国企主导',bottleneck:'',share:[{co:'国药集团',v:20},{co:'上海医药',v:12},{co:'华润医药',v:10},{co:'九州通',v:8},{co:'其他',v:50}]},
+  '零售药店':{size:'约5000亿',growth:'~10%',logic:'处方外流+门诊统筹,龙头集中度提升',bottleneck:'',share:[{co:'益丰药房',v:8},{co:'大参林',v:7},{co:'老百姓',v:6},{co:'一心堂',v:5},{co:'其他',v:74}]},
+  '医疗服务':{size:'约2万亿',growth:'~15%',logic:'消费医疗+第三方检验,专科连锁高成长',bottleneck:'',share:[{co:'爱尔眼科',v:5},{co:'通策医疗',v:2},{co:'金域医学',v:3},{co:'迪安诊断',v:2},{co:'其他',v:88}]},
+  '创新支付':{size:'约9000亿',growth:'~20%',logic:'商保+惠民保缓解创新药支付压力,高增长',bottleneck:'',share:[]},
+};
+
 function renderFallback(coName, ind, node){
   const root = document.getElementById('root');
   const indLabel = IND_LABELS[ind] || '产业链';
+  const nodeData = (ind === 'bio' && node) ? BIO_NODES[node] : null;
+  const maxShare = nodeData && nodeData.share ? Math.max(...nodeData.share.map(s=>s.v)) : 0;
+
   root.innerHTML = `<div class="wrap">
     <div class="topbar"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
     <div class="co-head">
       <div class="nm">${esc(coName)}</div>
       <div class="sub">${esc(indLabel)}${node ? ' · ' + esc(node) : ''}</div>
     </div>
+
+    ${nodeData ? `
+    <!-- 环节投资指标 -->
+    <div class="sec">
+      <div class="sec-title"><span class="num">01</span>环节概览</div>
+      <div class="metrics">
+        ${nodeData.size ? `<div class="metric"><div class="mv">${esc(nodeData.size)}</div><div class="mk">市场规模</div></div>` : ''}
+        ${nodeData.growth ? `<div class="metric"><div class="mv" style="color:var(--up)">${esc(nodeData.growth)}</div><div class="mk">增速</div></div>` : ''}
+      </div>
+    </div>
+
+    <!-- 投资逻辑 -->
+    ${nodeData.logic ? `
+    <div class="sec">
+      <div class="sec-title"><span class="num">02</span>投资逻辑</div>
+      <div class="logic-card"><div class="lc-text">${esc(nodeData.logic)}</div></div>
+    </div>` : ''}
+
+    <!-- 竞争格局 -->
+    ${nodeData.share && nodeData.share.length ? `
+    <div class="sec">
+      <div class="sec-title"><span class="num">03</span>竞争格局</div>
+      <div class="share-chart">
+        ${nodeData.share.map(s=>`
+        <div class="share-row">
+          <span class="sr-name">${esc(s.co)}</span>
+          <div class="sr-track"><div class="sr-fill" style="width:${(s.v/maxShare*100).toFixed(0)}%;background:var(--down)"></div></div>
+          <span class="sr-val">${s.v}%</span>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- 卡点风险 -->
+    ${nodeData.bottleneck ? `
+    <div class="sec">
+      <div class="sec-title"><span class="num">04</span>核心卡点</div>
+      <div class="risk-card"><div class="rc-text">${esc(nodeData.bottleneck)}</div></div>
+    </div>` : ''}
+
+    <!-- 同环节公司 -->
+    <div class="sec">
+      <div class="sec-title"><span class="num">05</span>同环节其他公司</div>
+      <div class="note-box">该公司暂无独立财务数据。返回产业链图谱可查看该环节的完整公司列表与投资逻辑。</div>
+    </div>
+    ` : `
     <div class="hint-box" style="margin:24px 0">
       <div class="big">暂无详细财务数据</div>
       <div class="small">该公司暂未收录在数据库中,可能为未上市公司、外资企业或非 A股标的。你可以在产业链图谱中查看该环节的投资逻辑与竞争格局。</div>
@@ -374,6 +470,8 @@ function renderFallback(coName, ind, node){
       <div class="info-row"><span class="k">所属产业</span><span class="v">${esc(indLabel)}</span></div>
       ${node ? `<div class="info-row"><span class="k">所处环节</span><span class="v">${esc(node)}</span></div>` : ''}
     </div>
+    `}
+
     <div style="margin-top:24px"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链图谱</a></div>
   </div>`;
 }
@@ -469,7 +567,14 @@ function renderPage(row){
   }
   html += `</div>`;
 
-  /* ===== Section 2.5: 财报预期 vs 实际 ===== */
+  /* ===== Section 2.5: 实时行情 (Finnhub) ===== */
+  const ticker = getTicker(coName);
+  html += `<div class="sec rt-sec" id="rt-sec">
+    <div class="sec-title"><span class="num">02.5</span>实时行情 <span class="rt-live off" id="rt-badge">等待加载</span><span class="rt-ts" id="rt-ts"></span></div>
+    <div id="rt-body"><div class="rt-loading">正在获取实时数据…</div></div>
+  </div>`;
+
+  /* ===== Section 2.6: 财报预期 vs 实际 ===== */
   if(row.eps || row.eps_est){
     const epsSurp = row.eps_surp ? parseFloat(row.eps_surp) : null;
     const revSurp = row.rev_surp ? parseFloat(row.rev_surp) : null;
@@ -565,6 +670,86 @@ function renderPage(row){
   html += `</div>`; /* .wrap */
 
   root.innerHTML = html;
+
+  /* 异步加载 Finnhub 实时行情 */
+  if(ticker){
+    loadRealtimeData(coName, ticker);
+  } else {
+    const rtBody = document.getElementById('rt-body');
+    const rtSec = document.getElementById('rt-sec');
+    if(rtSec) rtSec.style.display = 'none';
+  }
+}
+
+/* 加载实时行情数据 */
+async function loadRealtimeData(coName, ticker){
+  const badge = document.getElementById('rt-badge');
+  const ts = document.getElementById('rt-ts');
+  const body = document.getElementById('rt-body');
+  if(!body) return;
+
+  try{
+    const [quote, earnings] = await Promise.all([
+      fetchQuote(ticker),
+      fetchEarnings(ticker)
+    ]);
+
+    if(!quote || !quote.price){
+      body.innerHTML = `<div class="rt-err">暂无实时行情数据 (该股票可能不在 Finnhub 免费版覆盖范围)</div>`;
+      if(badge){ badge.textContent = '无数据'; badge.className = 'rt-live off'; }
+      return;
+    }
+
+    if(badge){ badge.textContent = '实时'; badge.className = 'rt-live'; }
+    if(ts){ ts.textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN', {hour12:false}); }
+
+    const chg = fmtChange(quote.changePct);
+    let html = `<div class="rt-grid">
+      <div class="rt-card">
+        <div class="rt-k">实时股价</div>
+        <div class="rt-price">
+          <span class="rt-v">${fmtPrice(quote.price)}</span>
+          ${chg ? `<span class="rt-pct ${chg.cls}">${chg.text}</span>` : ''}
+        </div>
+        <div class="rt-sub">${quote.exchange || ''} · ${ticker}</div>
+      </div>`;
+
+    if(quote.marketCap) html += `<div class="rt-card"><div class="rt-k">市值(实时)</div><div class="rt-v">${fmtMcap(quote.marketCap)}</div><div class="rt-sub">Market Cap</div></div>`;
+    if(quote.peTTM) html += `<div class="rt-card"><div class="rt-k">PE (TTM)</div><div class="rt-v">${quote.peTTM.toFixed(1)}</div><div class="rt-sub">滚动市盈率</div></div>`;
+    if(quote.high) html += `<div class="rt-card"><div class="rt-k">今日最高</div><div class="rt-v">${fmtPrice(quote.high)}</div></div>`;
+    if(quote.low) html += `<div class="rt-card"><div class="rt-k">今日最低</div><div class="rt-v">${fmtPrice(quote.low)}</div></div>`;
+    if(quote.prevClose) html += `<div class="rt-card"><div class="rt-k">前收盘</div><div class="rt-v">${fmtPrice(quote.prevClose)}</div></div>`;
+    if(quote.dividend) html += `<div class="rt-card"><div class="rt-k">股息率</div><div class="rt-v">${quote.dividend.toFixed(2)}%</div></div>`;
+
+    html += `</div>`;
+
+    /* 最近4季度财报surprise */
+    if(earnings && earnings.length){
+      html += `<div class="rt-earn">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">最近财报 (EPS Surprise)</div>
+        <table class="rt-earn-tbl">
+          <thead><tr><th>季度</th><th>预期 EPS</th><th>实际 EPS</th><th>惊喜</th><th>营收惊喜</th></tr></thead>
+          <tbody>`;
+      earnings.slice(0, 4).forEach(e => {
+        const epsSurprise = e.surprise != null ? (e.surprise >= 0 ? 'up' : 'down') : '';
+        html += `<tr>
+          <td>${e.period || '—'}</td>
+          <td>$${e.epsEstimate != null ? e.epsEstimate.toFixed(2) : '—'}</td>
+          <td>$${e.actual != null ? e.actual.toFixed(2) : '—'}</td>
+          <td class="${epsSurprise}">${e.surprise != null ? (e.surprise >= 0 ? '+' : '') + e.surprise.toFixed(2) : '—'}</td>
+          <td>${e.revenueEstimate != null ? '$' + (e.revenueEstimate/1e9).toFixed(1) + 'B' : '—'}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+
+    html += `<div class="rt-source">数据来源: Finnhub (15分钟延迟) · ${quote.industry || ''}</div>`;
+    body.innerHTML = html;
+
+  }catch(e){
+    body.innerHTML = `<div class="rt-err">行情加载失败: ${e.message || e}</div>`;
+    if(badge){ badge.textContent = '失败'; badge.className = 'rt-live off'; }
+  }
 }
 
 /* ============ 启动 ============ */
