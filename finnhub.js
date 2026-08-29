@@ -89,13 +89,18 @@ async function fetchQuote(ticker) {
     ]);
     const quote = await quoteRes.json();
     const profile = await profileRes.json();
-    /* Convert local currency market cap to USD using real-time FX rates */
+    /* For non-USD listings, prefer public market cap (ADR price × shares);
+       fall back to FX conversion if ADR ratio is clearly not 1:1 */
     const cur = profile.currency || 'USD';
     let marketCapUsd = profile.marketCapitalization || 0;
     if (cur !== 'USD' && marketCapUsd) {
       const rates = await getFxRates();
       const rate = rates[cur];
-      if (rate) marketCapUsd = marketCapUsd / rate;  /* local currency millions / (local per USD) = USD millions */
+      const mcapFx = rate ? marketCapUsd / rate : 0;           /* total market cap via FX */
+      const mcapAdr = (quote.c && profile.shareOutstanding) ? quote.c * profile.shareOutstanding : 0;  /* public market cap */
+      /* Use ADR price × shares if it's >= 50% of FX result (ADR ratio ~1:1);
+         otherwise the ADR ratio is non-1:1, so FX conversion is more accurate */
+      marketCapUsd = (mcapAdr && mcapFx && mcapAdr >= mcapFx * 0.5) ? mcapAdr : (mcapFx || mcapAdr);
     }
     const data = {
       ticker,
