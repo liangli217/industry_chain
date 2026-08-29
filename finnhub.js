@@ -163,12 +163,12 @@ async function fetchCompanyData(ticker) {
   return { quote, metrics, earnings };
 }
 
-/* 格式化市值 */
+/* 格式化市值 (million USD → display) */
 function fmtMcap(m) {
   if (!m) return '—';
-  if (m >= 1e6) return '$' + (m / 1e6).toFixed(1) + '万亿';
-  if (m >= 1e3) return '$' + (m / 1e3).toFixed(0) + '亿';
-  return '$' + m.toFixed(0) + '百万';
+  if (m >= 1e6) return '$' + (m / 1e6).toFixed(2) + 'T';
+  if (m >= 1e3) return '$' + (m / 1e3).toFixed(1) + 'B';
+  return '$' + m.toFixed(0) + 'M';
 }
 
 /* 格式化价格 */
