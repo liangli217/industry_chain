@@ -57,6 +57,27 @@ function setCached(key, data) {
   cache.set(key, { ts: Date.now(), data });
 }
 
+/* 汇率缓存(1小时) */
+let fxRates = null;
+let fxTs = 0;
+async function getFxRates() {
+  if (fxRates && Date.now() - fxTs < 3600000) return fxRates;
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const json = await res.json();
+    if (json.rates) {
+      fxRates = json.rates;
+      fxTs = Date.now();
+    }
+  } catch(e) { /* fallback below */ }
+  if (!fxRates) {
+    /* fallback hardcoded rates */
+    fxRates = { DKK:6.42, JPY:160, EUR:0.861, CHF:0.808, GBP:0.785, SEK:10.5, CAD:1.36, AUD:1.52 };
+    fxTs = Date.now();
+  }
+  return fxRates;
+}
+
 /* 获取实时行情 (price, change%, market cap, PE等) */
 async function fetchQuote(ticker) {
   const cached = getCached('quote:' + ticker);
@@ -68,11 +89,13 @@ async function fetchQuote(ticker) {
     ]);
     const quote = await quoteRes.json();
     const profile = await profileRes.json();
-    /* For non-USD listings, calculate market cap from ADR price × shares */
+    /* Convert local currency market cap to USD using real-time FX rates */
     const cur = profile.currency || 'USD';
     let marketCapUsd = profile.marketCapitalization || 0;
-    if(cur !== 'USD' && quote.c && profile.shareOutstanding){
-      marketCapUsd = quote.c * profile.shareOutstanding;  /* ADR price (USD) × shares (M) */
+    if (cur !== 'USD' && marketCapUsd) {
+      const rates = await getFxRates();
+      const rate = rates[cur];
+      if (rate) marketCapUsd = marketCapUsd / rate;  /* local currency millions / (local per USD) = USD millions */
     }
     const data = {
       ticker,
