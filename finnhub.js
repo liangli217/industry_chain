@@ -68,6 +68,10 @@ async function fetchQuote(ticker) {
     ]);
     const quote = await quoteRes.json();
     const profile = await profileRes.json();
+    /* OTC ADR tickers return market cap in local currency; convert to USD */
+    const FX_TO_USD = { USD:1, JPY:1/150, EUR:1.10, CHF:1.12, GBP:1.27, DKK:0.145, SEK:0.095, CAD:0.73, AUD:0.66 };
+    const cur = profile.currency || 'USD';
+    const fxRate = FX_TO_USD[cur] || 1;
     const data = {
       ticker,
       price: quote.c,
@@ -77,7 +81,8 @@ async function fetchQuote(ticker) {
       low: quote.l,
       prevClose: quote.pc,
       open: quote.o,
-      marketCap: profile.marketCapitalization,
+      marketCap: (profile.marketCapitalization || 0) * fxRate,  /* convert to USD millions */
+      currency: cur,
       pe: profile.pe,
       peTTM: profile.peTTM,
       dividend: profile.dividend,
