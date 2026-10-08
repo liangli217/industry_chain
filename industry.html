@@ -307,17 +307,13 @@
 </div>
 
 <script>
-const TIERS = {
-  up:  {label:'上游', en:'UPSTREAM',   c:'#4fc9bd'},
-  mid: {label:'中游', en:'MIDSTREAM',  c:'#e8a44c'},
-  down:{label:'下游', en:'DOWNSTREAM', c:'#b98ce6'}
-};
 const dim = h => { const n=h.replace('#',''); return `rgba(${parseInt(n.slice(0,2),16)},${parseInt(n.slice(2,4),16)},${parseInt(n.slice(4,6),16)},.14)`; };
 
 /* ============ 数据 ============ */
 const DATA = {
   robot:{
     name:'机器人', short:'以人形机器人为主线',
+    tiers:{ up:{label:'上游',en:'UPSTREAM',c:'#4fc9bd'}, mid:{label:'中游',en:'MIDSTREAM',c:'#e8a44c'}, down:{label:'下游',en:'DOWNSTREAM',c:'#b98ce6'} },
     sub:'从减速器、丝杠、电机、传感器等核心零部件,到芯片、具身智能算法,再到本体制造与多元应用场景。',
     note:'上游零部件约占整机成本 70%,其中执行器系统约 45%、传感器约 15% 为最大头。中国供应链配套完整、整机成本约为海外同类 50%,但六维力传感器、行星滚柱丝杠等高端环节仍在追赶。',
     stages:[
@@ -514,7 +510,9 @@ const DATA = {
     }
   },
   ev:{
-    name:'新能源汽车', sub:'从关键材料到整车与出行服务的完整电动化产业链。',
+    name:'新能源汽车',
+    tiers:{ up:{label:'上游',en:'UPSTREAM',c:'#4fc9bd'}, mid:{label:'中游',en:'MIDSTREAM',c:'#e8a44c'}, down:{label:'下游',en:'DOWNSTREAM',c:'#b98ce6'} },
+    sub:'从关键材料到整车与出行服务的完整电动化产业链。',
     note:'中国在全球动力电池与整车制造环节占据主导,核心材料国产化率高;功率半导体(SiC)与高端汽车电子是国产替代重点。',
     nodes:{
       u1:{tier:'up',name:'锂资源',sub:'碳酸锂 / 氢氧化锂',co:['赣锋锂业','天齐锂业','盐湖股份'],links:['m1'],
@@ -563,52 +561,224 @@ const DATA = {
     }
   },
   chip:{
-    name:'半导体', sub:'从材料、设备、EDA 到芯片设计、制造、封测与终端应用。',
-    note:'半导体是国产替代核心战场。设备与EDA国产化率最低(10-20%),是最大卡点;封测国产化率最高(约65%)。先进制程受外部限制,成熟制程国产替代加速。',
+    name:'半导体',
+    tiers:{
+      L4:{label:'应用层',  en:'APPLICATIONS',  c:'#e8a44c'},
+      L3:{label:'模型层',  en:'MODELS',        c:'#b98ce6'},
+      L2:{label:'基础设施',en:'INFRASTRUCTURE',c:'#4fc9bd'},
+      L1:{label:'芯片层',  en:'CHIPS',         c:'#3fa0e6'},
+      L0:{label:'能源材料',en:'ENERGY & MATERIALS',c:'#7a6bb0'}
+    },
+    sub:'Jensen 五层蛋糕: 从能源与材料地基,到芯片、基础设施、模型,再到顶层应用。',
+    note:'按 Jensen Huang 的 AI Stack 五层蛋糕重构。AI 工厂的瓶颈不在某一颗芯片,而在从电力→冷却→硅→封装→互连→软件→应用的层层协同。HBM 属芯片层(硅本身),先进封装与光互连属基础设施层(让硅能造出来、连起来)。',
+    stages:[
+      {k:'apps',    label:'应用层',  en:'APPLICATIONS',   tier:'L4', ids:['a1','a2','a3','a4']},
+      {k:'models',  label:'模型层',  en:'MODELS & SW',    tier:'L3', ids:['m1','m2','m3']},
+      {k:'infra',   label:'基础设施',en:'INFRASTRUCTURE',  tier:'L2', ids:['i1','i2','i3','i4','i5','i6','i7','i8']},
+      {k:'chips',   label:'芯片层',  en:'CHIPS',          tier:'L1', ids:['c1','c2','c3','c4','c5','c6']},
+      {k:'energy',  label:'能源材料',en:'ENERGY & MAT',   tier:'L0', ids:['e1','e2','e3','e4']}
+    ],
     nodes:{
-      u1:{tier:'up',name:'半导体材料',sub:'硅片 / 光刻胶 / 电子特气',co:['沪硅产业','南大光电','华特气体'],links:['m2','m3'],
-        size:'约500亿', growth:'~15%',
-        logic:'国产替代空间大,材料是基础',
-        bottleneck:'光刻胶与电子特气高端品种'},
-      u2:{tier:'up',name:'半导体设备',sub:'光刻 / 刻蚀 / 薄膜沉积',co:['ASML','中微公司','北方华创'],links:['m2'],
-        size:'约800亿', growth:'~25%',
-        logic:'设备国产化最关键卡点,价值高',
-        bottleneck:'光刻机被ASML垄断,EUV受限',
-        share:[{co:'ASML',v:90},{co:'中微公司',v:5},{co:'北方华创',v:3},{co:'其他',v:2}]},
-      u3:{tier:'up',name:'EDA 与 IP',sub:'设计工具与 IP 核',co:['Synopsys','Cadence','华大九天'],links:['m1'],
-        size:'约150亿', growth:'~15%',
-        logic:'海外垄断严重,国产替代空间最大',
-        bottleneck:'Synopsys/Cadence双寡头,生态壁垒',
-        share:[{co:'Synopsys',v:32},{co:'Cadence',v:30},{co:'Siemens EDA',v:14},{co:'华大九天',v:5},{co:'其他',v:19}]},
-      m1:{tier:'mid',name:'芯片设计',sub:'Fabless / IDM 设计',co:['英伟达','高通','海思','韦尔股份'],links:['d1','d2','d3','d4'],
-        size:'约3000亿', growth:'~20%',
-        logic:'设计是高价值环节,国产追赶中'},
-      m2:{tier:'mid',name:'晶圆制造',sub:'先进与成熟制程代工',co:['台积电','中芯国际','三星'],links:['d1','d2','d3'],
-        size:'约5000亿', growth:'~15%',
-        logic:'先进制程国产化关键,战略环节',
-        bottleneck:'先进制程设备受限,7nm以下卡点',
-        share:[{co:'台积电',v:60},{co:'三星',v:15},{co:'中芯国际',v:6},{co:'其他',v:19}]},
-      m3:{tier:'mid',name:'封装测试',sub:'先进封装与测试',co:['日月光','长电科技','通富微电'],links:['d1','d3','d4'],
-        size:'约1500亿', growth:'~12%',
-        logic:'国产化率较高,先进封装追赶',
-        share:[{co:'日月光',v:30},{co:'长电科技',v:14},{co:'通富微电',v:10},{co:'其他',v:46}]},
-      d1:{tier:'down',name:'消费电子',sub:'手机 / PC / 可穿戴',co:['苹果','小米','联想'],links:[],
+      /* ===== L4 APPLICATIONS 应用层 ===== */
+      a1:{tier:'L4',group:'应用层',name:'AI 云 / 数据中心',sub:'大模型训练与推理集群',
+        co:['AWS(美)','Azure(美)','GCP(美)','阿里云','Meta(美)'],links:[],
+        metrics:[{k:'规模',v:'~$2000亿 2026'},{k:'增速',v:'~35%'}],
+        note:'AI 工厂的最终买单者。训练集群动辄数万卡 GPU,推理集群更需规模化部署;每 GWh 电力消耗直接决定算力成本。',
+        size:'约1.5万亿', growth:'~35%',
+        logic:'AI 算力需求爆发,驱动全栈升级',
+        bottleneck:'算力瓶颈与电力成本'},
+      a2:{tier:'L4',group:'应用层',name:'消费电子',sub:'手机 / PC / 可穿戴 / AR',
+        co:['苹果(美)','华为','小米','联想','Meta(美)'],links:[],
+        metrics:[{k:'成熟度',v:'高'},{k:'增速',v:'~5%'}],
+        note:'传统硅最大终端市场,量大利薄;AI PC、iPhone 端侧 AI 成新增长点,Apple Silicon 生态闭环引领。',
         size:'约1.5万亿', growth:'~8%',
-        logic:'终端最大应用,成熟稳增'},
-      d2:{tier:'down',name:'数据中心与 AI',sub:'服务器与加速计算',co:['英伟达','超微','浪潮'],links:[],
-        size:'约8000亿', growth:'~35%',
-        logic:'AI算力需求爆发,高增长赛道',
-        bottleneck:'高端AI芯片被英伟达垄断'},
-      d3:{tier:'down',name:'汽车电子',sub:'车规芯片与控制器',co:['博世','大陆','比亚迪半导体'],links:[],
-        size:'约2000亿', growth:'~25%',
-        logic:'汽车智能化核心,国产替代加速'},
-      d4:{tier:'down',name:'工业与物联网',sub:'工控 / 通信 / 边缘设备',co:['华为','中兴','汇川技术'],links:[],
-        size:'约3000亿', growth:'~20%',
-        logic:'物联网规模大,国产份额提升'}
+        logic:'AI PC 与端侧 AI 成新增长点'},
+      a3:{tier:'L4',group:'应用层',name:'汽车电子 / 智能驾驶',sub:'域控制器 / SoC / ADAS',
+        co:['特斯拉(美)','英伟达(美)','高通(美)','地平线','黑芝麻智能'],links:[],
+        metrics:[{k:'域控制器单车价值',v:'~$500'},{k:'增速',v:'~25%'}],
+        note:'汽车智能化单车半导体价值提升 5-10 倍。英伟达 Orin/Thor 主导高端,地平线征程系列国产替代加速;L4 仍处早期。',
+        size:'约4000亿', growth:'~25%',
+        logic:'单车半导体价值量升5倍,域控制器是核心',
+        bottleneck:'高端车规芯片英伟达垄断'},
+      a4:{tier:'L4',group:'应用层',name:'工业 / 通信 / 边缘',sub:'工控 / 5G / IoT 边缘',
+        co:['华为','中兴','汇川技术','博世(德)','西门子(德)'],links:[],
+        metrics:[{k:'成熟度',v:'中高'},{k:'增速',v:'~15%'}],
+        note:'工业控制、5G 基站、边缘 AI 网关等对可靠性与成本敏感,国产份额较高;通信 SOC 华为海思受制约,工业 MCU 是替代重点。',
+        size:'约5000亿', growth:'~15%',
+        logic:'可靠性要求高,国产份额提升'},
+
+      /* ===== L3 MODELS & SOFTWARE 模型层 ===== */
+      m1:{tier:'L3',group:'模型层',name:'Foundation Models',sub:'LLM / VLM / VLA / MoE',
+        co:['OpenAI(美)','谷歌 DeepMind(美)','Meta(美)',' Anthropic(美)','智谱 AI'],links:['a1'],
+        metrics:[{k:'训练成本',v:'$100M-$1B+'},{k:'参数规模',v:'万亿级'}],
+        note:'Jensen 蛋糕的"智能"层——让芯片有用的软件大脑。训练一个前沿 LLM 消耗 $10 亿级算力,Moe 架构让参数规模突破万亿;中美差距在原始算力与数据。',
+        size:'约1000亿', growth:'~80%',
+        logic:'AI 定价权最高层,数据与算力壁垒',
+        bottleneck:'顶级算力集群与高质量训练数据',
+        share:[{co:'OpenAI',v:25},{co:'谷歌',v:20},{co:'Meta',v:15},{co:'其他',v:40}]},
+      m2:{tier:'L3',group:'模型层',name:'AI 框架与软件栈',sub:'CUDA / PyTorch / TensorRT',
+        co:['英伟达(美)','Meta(美·PyTorch)','谷歌(美·JAX)','百度(飞桨)','华为(昇腾 CANN)'],links:['c2','c3'],
+        metrics:[{k:'CUDA 市占',v:'~95%'}],
+        note:'让开发者不用写 GPU 汇编的基础设施。CUDA 生态锁定力极强(市占 95%+),是英伟达的隐形护城河;国产昇腾 CANN、飞桨加速替代但生态差距明显。',
+        size:'约300亿', growth:'~40%',
+        logic:'软件生态决定硬件选择,CUDA 是英伟达护城河',
+        bottleneck:'CUDA 生态锁定,国产软件栈成熟度不足'},
+      m3:{tier:'L3',group:'模型层',name:'嵌入式 / IoT 软件',sub:'RTOS / 嵌入式 Linux',
+        co:['实时创新(美)','Wind River(美)','华为(鸿蒙)','NuttX','Zephyr'],links:['c6'],
+        metrics:[{k:'国产化率',v:'~30%'}],
+        note:'手机、汽车、工业设备运行的实时操作系统。车规 RTOS 由 Wind River/QNX 主导,国产鸿蒙、AliOS Things 加速渗透;安全认证是主要门槛。',
+        size:'约500亿', growth:'~20%',
+        logic:'安全认证门槛高,车规是核心场景',
+        bottleneck:'功能安全认证与车规可靠性'},
+
+      /* ===== L2 INFRASTRUCTURE 基础设施层 ===== */
+      /* —— Chip Making 制造基础设施 —— */
+      i1:{tier:'L2',group:'制芯基础设施',name:'EDA 与 IP 核',sub:'设计工具 / 模拟 IP / Chiplet IP',
+        co:['Synopsys(美)','Cadence(美)','西门子(德)','华大九天','芯原股份'],links:['c1','c2','c3','c4','c5','c6'],
+        metrics:[{k:'国产化率',v:'~10%'},{k:'双寡头份额',v:'~60%'}],
+        note:'芯片设计的"建筑师"。Synopsys+Cadence 双寡头垄断高端 EDA(约 60%),生态锁定极强;国产华大九天份额不足 10%,是设计端最硬卡点之一。Chiplet IP 是新赛道。',
+        size:'约150亿', growth:'~25%',
+        logic:'海外垄断最严重环节,国产替代最具战略价值',
+        bottleneck:'Synopsys/Cadence 双寡头,生态锁定',
+        share:[{co:'Synopsys',v:32},{co:'Cadence',v:30},{co:'西门子 EDA',v:14},{co:'华大九天',v:5},{co:'其他',v:19}]},
+      i2:{tier:'L2',group:'制芯基础设施',name:'半导体设备',sub:'光刻 / 刻蚀 / 薄膜沉积 / CMP',
+        co:['ASML(荷)','Applied Materials(美)','东京电子(日)','北方华创','中微公司'],links:['e3','e4'],
+        metrics:[{k:'国产化率',v:'~15%'},{k:'EUV 垄断',v:'ASML 100%'}],
+        note:'晶圆制造的"机床"。EUV 光刻机被 ASML 100% 垄断,受出口管制;刻蚀/薄膜沉积国产北方华创、中微加速追赶;整体国产化率约 15%,是最硬卡点。',
+        size:'约800亿', growth:'~25%',
+        logic:'设备是晶圆制造的硬门槛,EUV 管制是最核心卡点',
+        bottleneck:'ASML EUV 垄断,7nm 以下制程被卡死',
+        share:[{co:'ASML',v:25},{co:'应用材料',v:20},{co:'东京电子',v:15},{co:'北方华创+中微',v:5},{co:'其他',v:35}]},
+      i3:{tier:'L2',group:'制芯基础设施',name:'晶圆代工',sub:'先进制程 / 成熟制程 / IDM',
+        co:['台积电(台)','三星(韩)','中芯国际','英特尔(美·IDM)'],links:['i4'],
+        metrics:[{k:'先进制程份额',v:'台积电 ~60%'},{k:'中芯成熟制程',v:'~28nm'}],
+        note:'AI 时代最值钱的工厂。台积电垄断全球约 60% 先进制程(7nm 以下),苹果、英伟达、AMD 都是其客户;中芯成熟制程(28nm)国产替代,先进制程受设备限制。',
+        size:'约5000亿', growth:'~18%',
+        logic:'AI 芯片订单爆满,台积电成全球供应链枢纽',
+        bottleneck:'台积电先进制程垄断,中芯先进制程被卡',
+        share:[{co:'台积电',v:60},{co:'三星',v:15},{co:'中芯国际',v:6},{co:'英特尔',v:8},{co:'其他',v:11}]},
+      i4:{tier:'L2',group:'制芯基础设施',name:'先进封装',sub:'CoWoS / SoIC / InFO / Chiplet',
+        co:['台积电(台·CoWoS/SoIC)','日月光','长电科技','通富微电','Intel(美·EMIB/Foveros)'],links:['i3','c2','c5'],
+        metrics:[{k:'台积电 CoWoS 份额',v:'~90%'},{k:'国产化率',v:'~65%(封测整体)'}],
+        note:'让 GPU+HBM+Chiplet"粘"在一起的魔法。台积电 CoWoS-S/L 是 AI 时代最紧缺产能(英伟达 H100/B100 都用它),SoIC 是未来 Chiplet 互连路线;日月光、长电追先进,国产整体封测国产化率约 65%。',
+        size:'约1800亿', growth:'~25%',
+        logic:'CoWoS 产能是 B100 量产瓶颈,SoIC 是 Chiplet 时代的关键',
+        bottleneck:'台积电 CoWoS 垄断,国产长电/通富追先进',
+        share:[{co:'台积电',v:35},{co:'日月光',v:20},{co:'长电科技',v:14},{co:'通富微电',v:10},{co:'其他',v:21}]},
+      /* —— Systems 系统互连基础设施 —— */
+      i5:{tier:'L2',group:'系统互连',name:'服务器 / ODM',sub:'AI 服务器 / 通用服务器 / 整机',
+        co:['超微(美)','Dell(美)','HPE(美)','浪潮','紫光'],links:['c1','c2','c6'],
+        metrics:[{k:'AI 服务器增速',v:'~40%'},{k:'ODM 份额',v:'超微领先'}],
+        note:'把 CPU/GPU/内存/互连拼成 AI 工厂的"主板"。超微(AMD EPYC)、Dell PowerEdge、HPE ProLiant 是主流;浪潮、紫光等国内客户主要面向国内云厂商。',
+        size:'约3000亿', growth:'~25%',
+        logic:'AI 服务器量大利厚,ODM 集中度提升',
+        bottleneck:'AI 服务器主板设计与 BIOS 生态'},
+      i6:{tier:'L2',group:'系统互连',name:'光互连 / 硅光子',sub:'800G / 1.6T / 硅光芯片',
+        co:['Marvell(美·硅光)','Ciena(加)','华工科技','光迅科技','II-VI(美)'],links:['i8','c2'],
+        metrics:[{k:'800G 需求',v:'2026爆发'},{k:'硅光渗透率',v:'~10%'}],
+        note:'AI 工厂的"高速水管"——当 GPU 集群跨机房时,电互连不够用,需要光。Marvell Silicon Photonics(收购 Inphi)是硅光龙头,直接把光模块做进芯片封装;华工/光迅追 800G 光模块。',
+        size:'约600亿', growth:'~60%',
+        logic:'AI 集群带宽瓶颈,硅光芯片直接接 GPU 封装是未来',
+        bottleneck:'硅光芯片良率与封装技术',
+        share:[{co:'Marvell',v:25},{co:'Ciena',v:20},{co:'华为/华工',v:15},{co:'其他',v:40}]},
+      i7:{tier:'L2',group:'系统互连',name:'CXL / 内存互连',sub:'CXL 1.1/2.0/3.0 控制器 / 交换芯片',
+        co:['英特尔(美·CXL 发起人)','三星(韩)','SK Hynix(韩)','Montage Tech','澜起科技'],links:['c1','c5'],
+        metrics:[{k:'CXL 3.0 带宽',v:'~1TB/s/设备'},{k:'生态',v:'Intel 主导'}],
+        note:'让服务器内存可以"池化"的协议——CXL 把 DRAM/HBM/SSD 变成可热插拔的内存,解决 AI 训练时内存墙瓶颈。Intel 是主要发起人,三星/SK Hynix 出 CXL Memory Device,国内澜起追 CXL 交换芯片。',
+        size:'约200亿', growth:'~100%',
+        logic:'打破内存墙的关键技术,CXL 2026 起规模部署',
+        bottleneck:'Intel 协议主导,CXL 交换芯片生态',
+        share:[{co:'Intel',v:30},{co:'三星+SK Hynix',v:25},{co:'Montage',v:15},{co:'其他',v:30}]},
+      i8:{tier:'L2',group:'系统互连',name:'网络交换机',sub:'以太网 / InfiniBand / GPU-Direct',
+        co:['Broadcom(美)','Mellanox(美·英伟达)','Marvell(美)','锐捷网络','新华三'],links:['a1','i6'],
+        metrics:[{k:'1.6T 端口',v:'2026 商用'},{k:'InfiniBand',v:'英伟达垄断'}],
+        note:'AI 集群的"高速公路"。Broadcom Tomahawk 是以太网交换芯片龙头,InfiniBand 由 Nvidia Mellanox 垄断(训练集群必备);Marvell 同时做交换芯片和硅光,是唯一跨两层的玩家。',
+        size:'约1000亿', growth:'~35%',
+        logic:'AI 集群 east-west 流量爆发,1.6T 成新标准',
+        bottleneck:'InfiniBand 被英伟达垄断,Broadcom 主导以太网',
+        share:[{co:'Broadcom',v:40},{co:'Mellanox(NVIDIA)',v:20},{co:'Marvell',v:15},{co:'锐捷+新华三',v:10},{co:'其他',v:15}]},
+
+      /* ===== L1 CHIPS 芯片层(硅本身) ===== */
+      c1:{tier:'L1',group:'芯片层',name:'CPU',sub:'x86 / ARM / RISC-V / 服务器 / PC / 手机',
+        co:['英特尔(美)','AMD(美)','苹果(美·Apple Silicon)','华为(鲲鹏/麒麟)','海思'],links:['c2','i5'],
+        metrics:[{k:'服务器市占',v:'Intel ~70%'},{k:'手机 SoC',v:'高通+联发科 ~60%'}],
+        note:'计算栈的"通用大脑"。服务器端 Intel Xeon+AMD EPYC 双雄,Intel 仍占 ~70%;消费电子 Apple M 系列、高通骁龙、联发科天玑三分天下;RISC-V 国产替代战略方向。',
+        size:'约3500亿', growth:'~12%',
+        logic:'服务器 CPU 是数据中心标配,Apple Silicon 生态最强',
+        bottleneck:'Intel 服务器垄断,高端被美国管制'},
+      c2:{tier:'L1',group:'芯片层',name:'GPU',sub:'训练 / 推理 / 通用计算 / 数据中心',
+        co:['英伟达(美·H100/B100)','AMD(美·MI300)','英特尔(美·Gaudi)','华为(昇腾 910B)','壁仞科技'],links:['c5','i4','i5'],
+        metrics:[{k:'数据中心份额',v:'NVIDIA ~85%'},{k:'单卡价格',v:'H100 ~$30k'}],
+        note:'AI 时代的"芯片之王"。英伟达数据中心 GPU 市占 ~85%,H100/B100 每张 $2-3 万,全年产能被 AI 厂抢光;AMD MI300、Intel Gaudi、华为昇腾追,但生态与性能均有差距。',
+        size:'约2500亿', growth:'~65%',
+        logic:'AI 算力核心,英伟达垄断最严重环节,国产替代空间大',
+        bottleneck:'英伟达 CUDA 生态+性能双重锁定,B100 出口管制',
+        share:[{co:'英伟达',v:85},{co:'AMD',v:7},{co:'Intel',v:3},{co:'华为/壁仞',v:3},{co:'其他',v:2}]},
+      c3:{tier:'L1',group:'芯片层',name:'ASIC / NPU / TPU',sub:'专用 AI 芯片 / 加速器 / 推理',
+        co:['谷歌(美·TPU)','海思','地平线','黑芝麻智能','寒武纪'],links:['m2'],
+        metrics:[{k:'市场增速',v:'~50%'},{k:'应用',v:'车规/边缘/推理'}],
+        note:'为特定任务极致优化的"专用大脑"。谷歌 TPU 是云端推理标杆;地平线征程、黑芝麻智能专注车规域控制器;寒武纪追通用 AI 加速器;能效比(performance/W)是核心竞争力。',
+        size:'约1200亿', growth:'~50%',
+        logic:'能效比天花板,车规与边缘 AI 核心赛道',
+        bottleneck:'软件栈生态与算法适配,车规认证周期长'},
+      c4:{tier:'L1',group:'芯片层',name:'FPGA',sub:'可编程逻辑 / 原型验证 / 5G / 航天',
+        co:['AMD(美·Xilinx)','Intel(美·Altera)','Lattice(美)','安路科技','紫光同创'],links:['i1','i5'],
+        metrics:[{k:'AMD+Intel',v:'~85%'},{k:'国产化率',v:'~10%'}],
+        note:'可现场编程的"万能芯片"。5G 基站、航天军工、AI 原型验证刚需;AMD Xilinx+Intel Altera 双寡头 ~85%,国产安路、紫光同创追中低端,高端仍受限。',
+        size:'约200亿', growth:'~15%',
+        logic:'5G/航天刚需,国产替代战略环节',
+        bottleneck:'AMD+Intel 双寡头,高端 FPGA 受管制'},
+      c5:{tier:'L1',group:'芯片层',name:'HBM',sub:'HBM3e / HBM4 / 3D-Stack DRAM',
+        co:['SK Hynix(韩)','三星(韩)','Micron(美)','长鑫存储'],links:['c2','i4','i7'],
+        metrics:[{k:'SK Hynix+HBM 份额',v:'~50%'},{k:'每颗 GPU 配',v:'8-12 颗 HBM3e'}],
+        note:'GPU 的"贴身记忆"——和芯片一起封装的 3D 堆叠 DRAM,带宽是 DDR5 的 10 倍以上。H100 用 50GB HBM3,B100 用 192GB HBM3e;SK Hynix 份额 ~50% 领先,三星、美光紧随;国产长鑫追 DDR5,HBM 差距大。',
+        size:'约300亿', growth:'~80%',
+        logic:'AI 算力刚需,每卡 GPU 都要配,与 GPU 产能绑定',
+        bottleneck:'SK Hynix+HBM 份额领先,国产 HBM 尚未量产',
+        share:[{co:'SK Hynix',v:50},{co:'三星',v:30},{co:'Micron',v:18},{co:'长鑫',v:2},{co:'其他',v:0}]},
+      c6:{tier:'L1',group:'芯片层',name:'SoC / MCU / 模拟',sub:'移动 SoC / 车规 MCU / 电源管理 / 射频',
+        co:['高通(美)','联发科(台)','NXP(荷)','STM(意)','英飞凌(德)','汇顶科技'],links:['i1','m3','a3','a4'],
+        metrics:[{k:'手机 SoC',v:'高通第一'},{k:'MCU 国产化率',v:'~15%'}],
+        note:'把 CPU/GPU/基带/射频"装在一颗芯片上"的"全能大脑"。手机 SoC 高通骁龙、联发科天玑领跑;车规 MCU 英飞凌/NXP/STM 三巨头,国产替代空间巨大;电源管理与射频芯片也属此类。',
+        size:'约2000亿', growth:'~20%',
+        logic:'量最大的芯片类别,车规 MCU 国产替代最硬卡点',
+        bottleneck:'高端车规 MCU 三巨头垄断,车规认证严格'},
+
+      /* ===== L0 ENERGY & MATERIALS 能源材料层(最底层) ===== */
+      e1:{tier:'L0',group:'能源材料',name:'数据中心电力',sub:'市电 / 核电 / 绿电 / UPS',
+        co:['国家电网','南方电网','中国广核','Vertiv(美)','伊顿(美)'],links:['a1','e2'],
+        metrics:[{k:'AI 集群功率',v:'100MW+'},{k:'电力成本占比',v:'~30%'}],
+        note:'AI 工厂的"燃料"——一个 10 万卡 GPU 的训练集群需要 100MW+ 供电。绿电(核电/水电)是关键选址条件;数据中心运营商正在和核电站签长期购电协议。',
+        size:'约2000亿', growth:'~40%',
+        logic:'AI 集群选址核心约束,绿电成战略资源',
+        bottleneck:'大型数据中心电力增容周期长(3-5年)'},
+      e2:{tier:'L0',group:'能源材料',name:'液冷散热',sub:'浸没式 / 冷板 / 导热介质',
+        co:['Vertiv(美)','科华数据','英维克','Shinwa(日)','GRC(美)'],links:['c2','e1'],
+        metrics:[{k:'H100 功耗',v:'700W→液冷必选'},{k:'增速',v:'~60%'}],
+        note:'B100 功耗 1000W+ 已经超出传统风冷极限,液冷成刚需。浸没式液冷(服务器完全泡在绝缘冷却液里)效率最高,但对数据中心改造要求大;冷板式液冷是主流过渡方案。',
+        size:'约300亿', growth:'~60%',
+        logic:'700W+ GPU 必须液冷,2026 成规模拐点',
+        bottleneck:'浸没式液冷运维经验,绝缘冷却液依赖进口'},
+      e3:{tier:'L0',group:'能源材料',name:'硅片 / 衬底',sub:'300mm 逻辑硅片 / 200mm 特种衬底',
+        co:['信越化学(日)','SUMCO(日)','沪硅产业','立昂微','SK Siltron(韩)'],links:['i2','i3'],
+        metrics:[{k:'信越+SUMCO',v:'~60%'},{k:'国产化率',v:'~15%(300mm 逻辑)'}],
+        note:'晶圆制造的"石板"。300mm(12 英寸)逻辑硅片由信越化学+SUMCO 垄断 ~60%;沪硅产业在 200mm 国产替代上突破,300mm 逻辑硅片刚量产;SOI、GaN、SiC 等特种衬底是国产新赛道。',
+        size:'约400亿', growth:'~15%',
+        logic:'硅是一切的基础,特种衬底国产替代加速',
+        bottleneck:'300mm 逻辑硅片信越/SUMCO 垄断,国产沪硅刚突破'},
+      e4:{tier:'L0',group:'能源材料',name:'光刻胶 / 电子特气 / CMP Slurry',sub:'G线/I线/ArF/ArF-浸没式 / 各种功能气体',
+        co:['JSR(日)','信越化学(日)','默克(德)','Air Products(美)','华特气体','南大光电'],links:['i2','i3'],
+        metrics:[{k:'国产化率',v:'~10%(高端)'},{k:'海外份额',v:'>80%'}],
+        note:'光刻胶是"芯片的底片"——ArF-浸没式光刻胶被 JSR/信越垄断 80%+;电子特气(如 ArF 激光混合气)被 Air Products/Linde 垄断;CMP Slurry(抛光液)是另一个被卡的环节;高端国产化率不足 10%。',
+        size:'约300亿', growth:'~20%',
+        logic:'材料是被忽略的底层卡点,国产化率最低环节之一',
+        bottleneck:'ArF 光刻胶 JSR/信越垄断,电子特气海外主导'}
     }
   },
   solar:{
-    name:'光伏', sub:'从硅料、组件到电站、分布式与储能配套的光伏发电产业链。',
+    name:'光伏',
+    tiers:{ up:{label:'上游',en:'UPSTREAM',c:'#4fc9bd'}, mid:{label:'中游',en:'MIDSTREAM',c:'#e8a44c'}, down:{label:'下游',en:'DOWNSTREAM',c:'#b98ce6'} },
+    sub:'从硅料、组件到电站、分布式与储能配套的光伏发电产业链。',
     note:'中国光伏产业链全球主导,各环节国产化率均超80%,硅片环节达95%。技术迭代(TOPCon/HJT/钙钛矿)与储能配套是核心看点。',
     nodes:{
       u1:{tier:'up',name:'多晶硅料',sub:'高纯多晶硅',co:['通威股份','大全能源','协鑫科技'],links:['m1'],
@@ -648,6 +818,7 @@ const DATA = {
   },
   bio:{
     name:'生物医药', short:'从上游原料耗材到CXO、创新药、器械与终端流通',
+    tiers:{ up:{label:'上游',en:'UPSTREAM',c:'#4fc9bd'}, mid:{label:'中游',en:'MIDSTREAM',c:'#e8a44c'}, down:{label:'下游',en:'DOWNSTREAM',c:'#b98ce6'} },
     sub:'从培养基、色谱填料、一次性耗材等上游核心原料,到 CXO 研发外包、生物药/化学药/IVD/器械制造,再到流通、零售与医疗服务。',
     note:'上游高端耗材(培养基、色谱填料、一次性反应袋)国产化率不足 30%,是核心卡点;中游创新药与 CXO 是高价值环节,国产 ADC、双抗等创新药出海加速;下游集采重塑流通与终端格局。',
     nodes:{
@@ -813,16 +984,36 @@ const MOAT = {
     d4:{sup:'国产兴起',supc:'cn',moat:1,why:'循环经济高增长,格林美、邦普等布局领先;壁垒来自渠道与工艺,格局未定。'}
   },
   chip:{
-    u1:{sup:'海外主导 · 国产追赶',supc:'race',moat:2,why:'硅片/光刻胶/电子特气高端品种海外主导,国产沪硅、南大光电等加速替代;光刻胶是关键卡点。'},
-    u2:{sup:'海外垄断 · 卡脖子',supc:'risk',moat:3,why:'光刻机被 ASML 垄断,EUV 受出口管制;刻蚀/薄膜沉积国产北方华创、中微追赶,是最受地缘约束的卡点。'},
-    u3:{sup:'海外垄断 · 卡脖子',supc:'risk',moat:3,why:'Synopsys/Cadence 双寡头主导,生态壁垒极高;国产华大九天份额不足 10%,是设计端最硬的卡点。'},
-    m1:{sup:'美国主导 · 中国追赶',supc:'risk',moat:2,why:'英伟达、高通等美国巨头主导高端设计,华为海思受制约;国产韦尔等在中低端追赶。'},
-    m2:{sup:'海外主导 · 卡脖子',supc:'risk',moat:3,why:'台积电主导先进制程(约 60%),7nm 以下受设备限制;中芯国际在成熟制程追赶,先进制程是核心卡点。'},
-    m3:{sup:'国产较强',supc:'cn',moat:2,why:'封测国产化率约 65%,长电、通富规模领先;先进封装(CoWoS 等)仍偏弱,是追赶方向。'},
-    d1:{sup:'需求驱动',supc:'neutral',moat:1,why:'终端应用,成熟稳增,议价力来自品牌与规模。'},
-    d2:{sup:'美国主导 · 高增长',supc:'risk',moat:2,why:'AI 算力需求爆发,高端 AI 芯片被英伟达垄断;国产替代空间大但受制于先进制程。'},
-    d3:{sup:'海外偏强 · 国产追赶',supc:'race',moat:2,why:'车规芯片博世、大陆等海外主导,比亚迪半导体等国产加速;认证周期长,壁垒中等。'},
-    d4:{sup:'国产较强',supc:'cn',moat:1,why:'工控/通信/边缘设备国产份额较高,华为、中兴、汇川等领先,竞争充分。'}
+    /* ===== L4 APPLICATIONS ===== */
+    a1:{sup:'美国主导 · 高增长',supc:'risk',moat:2,why:'AWS/Azure/GCP 三巨头 + 阿里云竞争;美国在 AI 云技术领先,电力成本是关键门槛,AI 算力需求驱动全栈升级。'},
+    a2:{sup:'竞争充分 · Apple 领先',supc:'race',moat:2,why:'消费电子成熟市场,Apple Silicon 生态最强,华为受制约;端侧 AI 成新增长点。'},
+    a3:{sup:'英伟达主导 · 国产追赶',supc:'risk',moat:2,why:'英伟达 Orin/Thor 垄断高端域控制器;地平线征程、黑芝麻国产加速,但车规认证周期长。'},
+    a4:{sup:'国产较强',supc:'cn',moat:1,why:'工业/5G/边缘设备国产份额较高,华为、中兴、汇川等领先;通信 SoC 受制约但整体可控。'},
+    /* ===== L3 MODELS & SOFTWARE ===== */
+    m1:{sup:'美国绝对垄断',supc:'risk',moat:3,why:'OpenAI/谷歌/Meta 占前沿 LLM 训练资源 80%+;中国追赶但原始算力与高质量数据差距明显,定价权最高层。'},
+    m2:{sup:'英伟达垄断 · 护城河最深',supc:'risk',moat:3,why:'CUDA 市占 ~95%,锁定开发者与硬件生态;国产昇腾 CANN、飞桨加速替代但生态成熟度差距大,是英伟达最隐形的护城河。'},
+    m3:{sup:'海外主导 · 国产追赶',supc:'race',moat:2,why:'车规 RTOS Wind River/QNX 主导,鸿蒙、AliOS 加速渗透;安全功能认证门槛高,壁垒中等。'},
+    /* ===== L2 INFRASTRUCTURE ===== */
+    i1:{sup:'Synopsys+Cadence 双寡头',supc:'risk',moat:3,why:'EDA 是半导体最硬卡点之一,双寡头垄断高端设计工具 ~60%;国产华大九天份额不足 10%,Chiplet IP 是新赛道。'},
+    i2:{sup:'ASML EUV 100% 垄断',supc:'risk',moat:3,why:'光刻机最卡脖子环节,EUV 被 ASML 100% 垄断且受出口管制;刻蚀/薄膜沉积北方华创、中微加速追赶。'},
+    i3:{sup:'台积电先进制程垄断',supc:'risk',moat:3,why:'台积电垄断 ~60% 先进制程(7nm 以下),苹果/英伟达/AMD 全是客户;中芯成熟制程(28nm)国产替代,先进制程被设备卡死。'},
+    i4:{sup:'台积电 CoWoS 垄断',supc:'risk',moat:3,why:'CoWoS-S/L 是 AI 时代最紧缺产能(H100/B100 都用),台积电份额 ~90%;国产长电科技追先进封装,但 SoIC 仍有明显差距。'},
+    i5:{sup:'美国 ODM 领先 · 国产追',supc:'race',moat:2,why:'超微、Dell、HPE 是全球服务器 ODM 巨头;浪潮、紫光覆盖国内云厂商,BIOS/固件生态壁垒中等。'},
+    i6:{sup:'Marvell 领先 · 国产追',supc:'race',moat:2,why:'硅光芯片 Marvell(收购 Inphi)领先,光模块 Ciena 主导;华工、光迅追 800G 光模块,硅光良率与封装是卡点。'},
+    i7:{sup:'Intel 主导协议',supc:'race',moat:2,why:'CXL 协议由 Intel 主导发起,三星/SK Hynix 出 CXL Memory Device;国内澜起追 CXL 交换芯片,生态建设中,壁垒中等。'},
+    i8:{sup:'Broadcom+Mellanox 双强',supc:'risk',moat:2,why:'Broadcom 主导以太网交换芯片,Mellanox(NVIDIA) 垄断 InfiniBand(训练集群必备);国产锐捷/新华三在中低端追赶。'},
+    /* ===== L1 CHIPS ===== */
+    c1:{sup:'Intel+AMD 双寡头',supc:'race',moat:2,why:'服务器 CPU Intel 仍占 ~70%,AMD EPYC 迅速追赶;Apple Silicon 在消费电子生态闭环最强;华为鲲鹏/麒麟受管制。'},
+    c2:{sup:'英伟达垄断 ~85%',supc:'risk',moat:3,why:'数据中心 GPU 是 AI 时代最核心卡点,英伟达垄断 ~85% 份额 + CUDA 生态;AMD MI300、Intel Gaudi、华为昇腾追但差距明显。'},
+    c3:{sup:'谷歌 TPU 领先 · 国产追赶',supc:'race',moat:2,why:'ASIC/NPU 专用赛道能效比天花板,谷歌 TPU 是云端标杆;地平线、寒武纪追车规与边缘,软件栈适配与算法生态是壁垒。'},
+    c4:{sup:'AMD Xilinx+Intel Altera 双寡头',supc:'risk',moat:2,why:'FPGA 市场双寡头 ~85%,高端受管制;国产安路、紫光同创追中低端,5G/航天刚需但份额仍低。'},
+    c5:{sup:'SK Hynix 领先 · 三星追',supc:'race',moat:2,why:'HBM 是 AI 算力刚需,SK Hynix 份额 ~50% 领先,三星、美光紧随;国产长鑫追 DDR5,HBM 尚未量产,但与 GPU 产能强绑定。'},
+    c6:{sup:'高通+联发科+三巨头',supc:'race',moat:2,why:'手机 SoC 高通骁龙、联发科天玑领跑;车规 MCU 英飞凌/NXP/STM 三巨头垄断,国产替代空间大但车规认证严格。'},
+    /* ===== L0 ENERGY & MATERIALS ===== */
+    e1:{sup:'需求驱动 · 国家电网垄断',supc:'neutral',moat:1,why:'电力是 AI 工厂选址核心约束,绿电(核电/水电)成战略资源;但电网运营门槛高,属基础设施刚需而非卡脖子技术。'},
+    e2:{sup:'Vertiv 领先 · 国产追',supc:'race',moat:2,why:'液冷是 700W+ GPU 刚需,Vertiv 全球领先,科华、英维克追浸没式液冷;绝缘冷却液仍依赖进口,运维经验不足是卡点。'},
+    e3:{sup:'信越+SUMCO 垄断 ~60%',supc:'risk',moat:2,why:'300mm 逻辑硅片被日本双寡头垄断 ~60%,沪硅产业 200mm 国产突破,300mm 刚量产;特种衬底(SiC/GaN)是国产新赛道。'},
+    e4:{sup:'海外垄断 >80%',supc:'risk',moat:3,why:'ArF 光刻胶 JSR/信越垄断 80%+,电子特气 Air Products/Linde 主导,CMP Slurry 另一卡点;高端国产化率不足 10%,最硬材料卡点。'}
   },
   solar:{
     u1:{sup:'中国主导',supc:'cn',moat:3,why:'中国多晶硅全球份额超 80%,通威、协鑫、大全形成龙头集中;规模与能耗管控构成强壁垒。'},
@@ -911,7 +1102,7 @@ function renderChain(){
     colsEl.style.gridTemplateColumns=`repeat(${stages.length}, minmax(184px,1fr))`;
     cvs.style.minWidth=(stages.length*184 + (stages.length-1)*60 + 60)+'px';
     stages.forEach(s=>{
-      const T=TIERS[s.tier];
+      const T=DATA[current].tiers[s.tier];
       const col=document.createElement('div');
       const head=document.createElement('div'); head.className='col-head stage'; head.style.color=T.c;
       head.innerHTML=`<div class="ch-top"><span class="bar" style="background:${T.c}"></span><span class="cn">${s.label}</span><span class="ct">${s.ids.length}</span></div>
@@ -921,11 +1112,11 @@ function renderChain(){
       colsEl.appendChild(col);
     });
   } else {
-    /* 三栏布局(上中下游) */
-    colsEl.style.gridTemplateColumns='repeat(3, minmax(230px,1fr))';
-    cvs.style.minWidth='840px';
-    ['up','mid','down'].forEach(tier=>{
-      const T=TIERS[tier], ids=idsByTier(tier);
+    /* 三栏布局(按 tiers 动态列) */
+    colsEl.style.gridTemplateColumns=`repeat(${Object.keys(DATA[current].tiers).length}, minmax(230px,1fr))`;
+    cvs.style.minWidth=`${Object.keys(DATA[current].tiers).length*230 + (Object.keys(DATA[current].tiers).length-1)*60 + 60}px`;
+    Object.keys(DATA[current].tiers).forEach(tier=>{
+      const T=DATA[current].tiers[tier], ids=idsByTier(tier);
       const col=document.createElement('div');
       const head=document.createElement('div'); head.className='col-head'; head.style.color=T.c;
       head.innerHTML=`<span class="bar" style="background:${T.c}"></span><span class="cn">${T.label}</span>${T.en}<span class="ct">${ids.length} 环节</span>`;
@@ -943,7 +1134,7 @@ function renderChain(){
 }
 
 function makeNode(id, tier){
-  const n=DATA[current].nodes[id], T=TIERS[tier];
+  const n=DATA[current].nodes[id], T=DATA[current].tiers[tier];
   const el=document.createElement('div');
   el.className='node'; el.dataset.id=id; el.tabIndex=0;
   el.style.setProperty('--tc',T.c); el.style.setProperty('--tc-dim',dim(T.c));
@@ -979,7 +1170,7 @@ function drawWires(){
       const p=document.createElementNS('http://www.w3.org/2000/svg','path');
       p.setAttribute('class','wire');
       p.setAttribute('d',`M ${x1} ${y1} C ${x1+dx} ${y1}, ${x2-dx} ${y2}, ${x2} ${y2}`);
-      if(selected && ((up.has(id)&&up.has(tid))||(down.has(id)&&down.has(tid)))){ p.classList.add('active'); p.style.setProperty('--wc',TIERS[n[id].tier].c); }
+      if(selected && ((up.has(id)&&up.has(tid))||(down.has(id)&&down.has(tid)))){ p.classList.add('active'); p.style.setProperty('--wc',DATA[current].tiers[n[id].tier].c); }
       /* 搜索态:两端都匹配的连线高亮 */
       if(searching && from.classList.contains('matched') && to.classList.contains('matched')){
         p.classList.add('matched');
@@ -1055,22 +1246,20 @@ function renderDetail(){
 
 /* 概览面板(未选中节点) */
 function renderOverview(d){
-  const nodes=d.nodes,t={up:0,mid:0,down:0}; Object.values(nodes).forEach(n=>t[n.tier]++);
+  const nodes=d.nodes, tierKeys=Object.keys(d.tiers), t={}; Object.values(nodes).forEach(n=>{t[n.tier]=(t[n.tier]||0)+1;});
   detailEl.className='inner overview'; detailEl.style.removeProperty('--tc');
 
   /* 价值量分布图 */
-  const valChartHtml = buildValueChart(nodes);
+  const valChartHtml = buildValueChart(nodes, d.tiers);
   /* 关键卡点 */
   const riskHtml = buildRiskList(nodes);
+
+  const statsHtml = tierKeys.map(tk=>`<div class="stat"><div class="n" style="color:${d.tiers[tk].c}">${t[tk]||0}</div><div class="l">${d.tiers[tk].label}</div></div>`).join('');
 
   detailEl.innerHTML=`<div class="d-eyebrow">当前产业${d.short?' · '+d.short:''}</div>
     <div class="ov-name">${d.name}</div><div class="ov-sub">${d.sub}</div>
     <div class="d-sec">链路概览</div>
-    <div class="stats">
-      <div class="stat"><div class="n" style="color:var(--up)">${t.up}</div><div class="l">上游环节</div></div>
-      <div class="stat"><div class="n" style="color:var(--mid)">${t.mid}</div><div class="l">中游环节</div></div>
-      <div class="stat"><div class="n" style="color:var(--down)">${t.down}</div><div class="l">下游环节</div></div>
-    </div>
+    <div class="stats">${statsHtml}</div>
     ${valChartHtml}
     ${riskHtml}
     ${d.note?`<div class="ov-note">${d.note}</div>`:''}
@@ -1078,20 +1267,21 @@ function renderOverview(d){
     <div class="cta-hint"><span class="k">▶</span><span>点击任一环节,自动追踪它向上溯源、向下延伸的完整链路;其余淡出。详情里的上下游环节可继续点进,顺着链条一路走。点空白处取消。</span></div>`;
 }
 
-/* 构建价值量分布图:按上中下游分组,组内按规模降序 */
-function buildValueChart(nodes){
+/* 构建价值量分布图:按 tiers 分组,组内按规模降序 */
+function buildValueChart(nodes, tiers){
   const hasSize = Object.values(nodes).some(n=>n.size);
   if(!hasSize) return '';
-  const groups = {up:[],mid:[],down:[]};
-  Object.entries(nodes).forEach(([id,n])=>{ if(n.size) groups[n.tier].push({id,n}); });
+  const tierKeys = Object.keys(tiers);
+  const groups = {}; tierKeys.forEach(tk=>groups[tk]=[]);
+  Object.entries(nodes).forEach(([id,n])=>{ if(n.size && groups[n.tier]) groups[n.tier].push({id,n}); });
   /* 全局最大值用于比例 */
   let maxV = 0;
   Object.values(groups).forEach(arr=>arr.forEach(({n})=>{ maxV=Math.max(maxV, parseSize(n.size)); }));
   if(maxV===0) return '';
   let html = `<div class="d-sec">价值量分布</div><div class="val-chart">`;
-  ['up','mid','down'].forEach(tier=>{
+  tierKeys.forEach(tier=>{
     if(!groups[tier].length) return;
-    const T=TIERS[tier];
+    const T=tiers[tier];
     groups[tier].sort((a,b)=>parseSize(b.n.size)-parseSize(a.n.size));
     html += `<div class="vc-group"><div class="vc-glabel" style="color:${T.c}">${T.label} · ${T.en}</div>`;
     groups[tier].forEach(({id,n})=>{
@@ -1127,7 +1317,7 @@ function buildRiskList(nodes){
 
 /* 节点详情面板(选中节点) */
 function renderNodeDetail(d){
-  const n=d.nodes[selected], T=TIERS[n.tier];
+  const n=d.nodes[selected], T=d.tiers[n.tier];
   detailEl.className='inner'; detailEl.style.setProperty('--tc',T.c);
 
   /* 投资指标卡 */
@@ -1180,7 +1370,7 @@ function buildInvCard(n){
 function nbGroup(label,arrow,ids){
   const n=DATA[current].nodes;
   const body=ids.length
-    ? `<div class="nb-chips">${ids.map(id=>`<span class="nb" style="--tc2:${TIERS[n[id].tier].c}" onclick="event.stopPropagation();select('${id}')">${n[id].name}</span>`).join('')}</div>`
+    ? `<div class="nb-chips">${ids.map(id=>`<span class="nb" style="--tc2:${DATA[current].tiers[n[id].tier].c}" onclick="event.stopPropagation();select('${id}')">${n[id].name}</span>`).join('')}</div>`
     : `<div class="empty-hint">${arrow==='←'?'位于链路起点,无上游来源':'位于链路终端,无下游去向'}</div>`;
   return `<div class="nb-group"><div class="lbl"><span class="arrow">${arrow}</span>${label}</div>${body}</div>`;
 }
