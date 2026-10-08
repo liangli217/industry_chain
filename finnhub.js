@@ -86,7 +86,7 @@ async function fetchQuote(ticker) {
   try {
     const [quoteRes, profileRes] = await Promise.all([
       fetch(`${FINNHUB_BASE}/quote?symbol=${ticker}`),
-      fetch(`${FINNHUB_BASE}/stock/profile2?symbol=${ticker}`)
+      fetch(`${FINNHUB_BASE}/profile?symbol=${ticker}`)
     ]);
     const quote = await quoteRes.json();
     const profile = await profileRes.json();
@@ -135,7 +135,7 @@ async function fetchMetrics(ticker) {
   const cached = getCached('metric:' + ticker);
   if (cached) return cached;
   try {
-    const res = await fetch(`${FINNHUB_BASE}/stock/metric?symbol=${ticker}&metric=all`);
+    const res = await fetch(`${FINNHUB_BASE}/metric?symbol=${ticker}`);
     const json = await res.json();
     const m = json.metric || {};
     const data = {
@@ -179,7 +179,7 @@ async function fetchEarnings(ticker) {
   const cached = getCached('earn:' + ticker);
   if (cached) return cached;
   try {
-    const res = await fetch(`${FINNHUB_BASE}/stock/earnings?symbol=${ticker}`);
+    const res = await fetch(`${FINNHUB_BASE}/earnings?symbol=${ticker}`);
     const data = await res.json();
     setCached('earn:' + ticker, data);
     return data;
