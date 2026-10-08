@@ -563,20 +563,20 @@ const DATA = {
   chip:{
     name:'半导体',
     tiers:{
-      L4:{label:'应用层',  en:'APPLICATIONS',  c:'#e8a44c'},
-      L3:{label:'模型层',  en:'MODELS',        c:'#b98ce6'},
-      L2:{label:'基础设施',en:'INFRASTRUCTURE',c:'#4fc9bd'},
+      L0:{label:'能源材料',en:'ENERGY & MATERIALS',c:'#7a6bb0'},
       L1:{label:'芯片层',  en:'CHIPS',         c:'#3fa0e6'},
-      L0:{label:'能源材料',en:'ENERGY & MATERIALS',c:'#7a6bb0'}
+      L2:{label:'基础设施',en:'INFRASTRUCTURE',c:'#4fc9bd'},
+      L3:{label:'模型层',  en:'MODELS',        c:'#b98ce6'},
+      L4:{label:'应用层',  en:'APPLICATIONS',  c:'#e8a44c'}
     },
     sub:'Jensen 五层蛋糕: 从能源与材料地基,到芯片、基础设施、模型,再到顶层应用。',
     note:'按 Jensen Huang 的 AI Stack 五层蛋糕重构。AI 工厂的瓶颈不在某一颗芯片,而在从电力→冷却→硅→封装→互连→软件→应用的层层协同。HBM 属芯片层(硅本身),先进封装与光互连属基础设施层(让硅能造出来、连起来)。',
     stages:[
-      {k:'apps',    label:'应用层',  en:'APPLICATIONS',   tier:'L4', ids:['a1','a2','a3','a4']},
-      {k:'models',  label:'模型层',  en:'MODELS & SW',    tier:'L3', ids:['m1','m2','m3']},
-      {k:'infra',   label:'基础设施',en:'INFRASTRUCTURE',  tier:'L2', ids:['i1','i2','i3','i4','i5','i6','i7','i8']},
+      {k:'energy',  label:'能源材料',en:'ENERGY & MAT',   tier:'L0', ids:['e1','e2','e3','e4']},
       {k:'chips',   label:'芯片层',  en:'CHIPS',          tier:'L1', ids:['c1','c2','c3','c4','c5','c6']},
-      {k:'energy',  label:'能源材料',en:'ENERGY & MAT',   tier:'L0', ids:['e1','e2','e3','e4']}
+      {k:'infra',   label:'基础设施',en:'INFRASTRUCTURE',  tier:'L2', ids:['i1','i2','i3','i4','i5','i6','i7','i8']},
+      {k:'models',  label:'模型层',  en:'MODELS & SW',    tier:'L3', ids:['m1','m2','m3']},
+      {k:'apps',    label:'应用层',  en:'APPLICATIONS',   tier:'L4', ids:['a1','a2','a3','a4']}
     ],
     nodes:{
       /* ===== L4 APPLICATIONS 应用层 ===== */
@@ -1165,7 +1165,10 @@ function drawWires(){
     (n[id].links||[]).forEach(tid=>{
       const to=cvs.querySelector(`.node[data-id="${tid}"]`); if(!to) return;
       const tr=to.getBoundingClientRect();
-      const x1=fr.right-box.left, y1=fr.top-box.top+fr.height/2, x2=tr.left-box.left, y2=tr.top-box.top+tr.height/2;
+      /* 连线始终沿视觉方向绘制: 从左侧节点的右缘到右侧节点的左缘,与 links 语义方向无关 */
+      const fromLeft=fr.left<=tr.left;
+      const x1=(fromLeft?fr.right:tr.right)-box.left, y1=(fromLeft?fr.top:tr.top)-box.top+(fromLeft?fr.height:tr.height)/2;
+      const x2=(fromLeft?tr.left:fr.left)-box.left,   y2=(fromLeft?tr.top:fr.top)-box.top+(fromLeft?tr.height:fr.height)/2;
       const dx=Math.max(40,(x2-x1)*0.5);
       const p=document.createElementNS('http://www.w3.org/2000/svg','path');
       p.setAttribute('class','wire');
