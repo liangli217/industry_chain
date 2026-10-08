@@ -4,8 +4,9 @@
  * 注册: https://finnhub.io/register
  * ============================================================ */
 
-const FINNHUB_API_KEY = 'da8k5ghr01qo86chau50da8k5ghr01qo86chau5g'; // ← 替换为你的API Key
-const FINNHUB_BASE = 'https://finnhub.io/api/v1';
+/* API key is injected server-side by the Cloudflare Worker proxy,
+   so it is never exposed to the browser. */
+const FINNHUB_BASE = 'https://finhub-proxy.lil-020.workers.dev';
 
 /* 公司名 → 股票代码映射 (23家JPM药企 + 其他) */
 const TICKER_MAP = {
@@ -84,8 +85,8 @@ async function fetchQuote(ticker) {
   if (cached) return cached;
   try {
     const [quoteRes, profileRes] = await Promise.all([
-      fetch(`${FINNHUB_BASE}/quote?symbol=${ticker}&token=${FINNHUB_API_KEY}`),
-      fetch(`${FINNHUB_BASE}/stock/profile2?symbol=${ticker}&token=${FINNHUB_API_KEY}`)
+      fetch(`${FINNHUB_BASE}/quote?symbol=${ticker}`),
+      fetch(`${FINNHUB_BASE}/stock/profile2?symbol=${ticker}`)
     ]);
     const quote = await quoteRes.json();
     const profile = await profileRes.json();
@@ -134,7 +135,7 @@ async function fetchMetrics(ticker) {
   const cached = getCached('metric:' + ticker);
   if (cached) return cached;
   try {
-    const res = await fetch(`${FINNHUB_BASE}/stock/metric?symbol=${ticker}&metric=all&token=${FINNHUB_API_KEY}`);
+    const res = await fetch(`${FINNHUB_BASE}/stock/metric?symbol=${ticker}&metric=all`);
     const json = await res.json();
     const m = json.metric || {};
     const data = {
@@ -178,7 +179,7 @@ async function fetchEarnings(ticker) {
   const cached = getCached('earn:' + ticker);
   if (cached) return cached;
   try {
-    const res = await fetch(`${FINNHUB_BASE}/stock/earnings?symbol=${ticker}&token=${FINNHUB_API_KEY}`);
+    const res = await fetch(`${FINNHUB_BASE}/stock/earnings?symbol=${ticker}`);
     const data = await res.json();
     setCached('earn:' + ticker, data);
     return data;
