@@ -8,14 +8,37 @@
    so it is never exposed to the browser. */
 const FINNHUB_BASE = 'https://finhub-proxy.lil-020.workers.dev';
 
-/* 公司名 → 股票代码映射 (23家JPM药企 + 其他) */
+/* 公司名 → 股票代码映射 (23家JPM药企 + 半导体产业链美股/ADR公司) */
 const TICKER_MAP = {
+  /* —— JPM 2026 药企 —— */
   '礼来':'LLY','强生':'JNJ','艾伯维':'ABBV','罗氏':'RHHBY',
   '阿斯利康':'AZN','默沙东':'MRK','诺华':'NVS','诺和诺德':'NVO',
   '安进':'AMGN','吉利德':'GILD','辉瑞':'PFE','福泰制药':'VRTX',
   '百时美施贵宝':'BMY','赛诺菲':'SNY','GSK':'GSK','再生元':'REGN',
   '默克(德)':'MKKGY','UCB':'UCB','武田':'TAK','拜耳':'BAYRY',
-  '第一三共':'DSNKY','渤健':'BIIB','安斯泰来':'ALPMY'
+  '第一三共':'DSNKY','渤健':'BIIB','安斯泰来':'ALPMY',
+  /* —— 半导体产业链: 美股直接上市 —— */
+  '英伟达(美)':'NVDA','英伟达(美·H100/B100)':'NVDA','Mellanox(美·英伟达)':'NVDA',
+  'AMD(美)':'AMD','AMD(美·MI300)':'AMD','AMD(美·Xilinx)':'AMD',
+  '英特尔(美)':'INTC','英特尔(美·IDM)':'INTC','英特尔(美·Gaudi)':'INTC',
+  '英特尔(美·CXL 发起人)':'INTC','Intel(美·EMIB/Foveros)':'INTC','Intel(美·Altera)':'INTC',
+  '高通(美)':'QCOM','Micron(美)':'MU','Lattice(美)':'LSCC',
+  'Broadcom(美)':'AVGO','Marvell(美)':'MRVL','Marvell(美·硅光)':'MRVL',
+  'Synopsys(美)':'SNPS','Cadence(美)':'CDNS','Applied Materials(美)':'AMAT',
+  '苹果(美)':'AAPL','苹果(美·Apple Silicon)':'AAPL','特斯拉(美)':'TSLA',
+  'Meta(美)':'META','Meta(美·PyTorch)':'META',
+  '谷歌 DeepMind(美)':'GOOGL','谷歌(美·JAX)':'GOOGL','谷歌(美·TPU)':'GOOGL',
+  'AWS(美)':'AMZN','Azure(美)':'MSFT','GCP(美)':'GOOGL',
+  '超微(美)':'SMCI','Dell(美)':'DELL','HPE(美)':'HPE',
+  'Ciena(加)':'CIEN','II-VI(美)':'COHR',
+  'Vertiv(美)':'VRT','伊顿(美)':'ETN','Air Products(美)':'APD',
+  /* —— 半导体产业链: 美股 ADR / 纽交所纳斯达克挂牌外企 —— */
+  '台积电(台)':'TSM','台积电(台·CoWoS/SoIC)':'TSM','日月光':'ASX',
+  'ASML(荷)':'ASML','NXP(荷)':'NXPI','STM(意)':'STM',
+  '阿里云':'BABA','百度(飞桨)':'BIDU',
+  '西门子(德)':'SIEGY','英飞凌(德)':'IFNNY',
+  '东京电子(日)':'TOELY','信越化学(日)':'SHECY','SUMCO(日)':'SUOPY',
+  '三星(韩)':'SSNLF','SK Hynix(韩)':'HXSCF','联发科(台)':'MTKAF','中芯国际':'SMICY'
 };
 
 /* 23家药企元数据(非财务数据,来自JPM 2026演讲总结) */
