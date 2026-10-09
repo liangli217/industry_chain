@@ -9,11 +9,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b1119; --bg2:#0e1622; --panel:#121e2d; --panel2:#16273a;
-    --line:#22344a; --border:#233852; --border2:#2e4763;
+    --bg:#0b1119; --bg2:#0e1622; --panel:#121e2d;
+    --border:#233852; --border2:#2e4763;
     --text:#e9eff6; --muted:#94a6bb; --faint:#63768c;
     --up:#4fc9bd; --mid:#e8a44c; --down:#b98ce6;
-    --risk:#e87a6c; --warn:#e8a44c;
+    --risk:#e87a6c;
     --sans:'Sora',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
     --cn:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
     --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -79,14 +79,6 @@
     font-family:var(--mono); font-size:10px; color:var(--up);
     border:1px solid var(--up); border-radius:4px; padding:1px 6px; letter-spacing:1px;
   }
-
-  .crumb{
-    display:flex; align-items:center; gap:11px; flex-wrap:wrap; margin-bottom:18px;
-    font-size:13px;
-  }
-  .crumb .item{color:var(--muted)}
-  .crumb .item.cur{color:var(--text); font-weight:500}
-  .crumb .sep{color:var(--faint); font-family:var(--mono); font-size:11px}
 
   .fin-grid{
     display:grid; grid-template-columns:repeat(3,1fr); gap:11px;
@@ -156,27 +148,21 @@
 
   /* 实时行情 */
   .rt-sec{margin-bottom:24px}
-  .rt-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
   .rt-live{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:#54cf8b;background:rgba(84,207,139,.1);border:1px solid rgba(84,207,139,.3);border-radius:999px;padding:2px 8px}
   .rt-live::before{content:'';width:6px;height:6px;border-radius:50%;background:#54cf8b;animation:pulse 2s infinite}
-  .rt-live.off{color:var(--faint);background:var(--panel);border-color:var(--border2)}
-  .rt-live.off::before{background:var(--faint);animation:none}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
   .rt-ts{font-size:11px;color:var(--faint);margin-left:auto}
   .rt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
   .rt-card{background:var(--panel);border:1px solid var(--border2);border-radius:11px;padding:12px 14px}
-  .rt-card .rt-k{font-size:11px;color:var(--mute);margin-bottom:4px}
+  .rt-card .rt-k{font-size:11px;color:var(--muted);margin-bottom:4px}
   .rt-card .rt-v{font-size:17px;font-weight:700;font-family:'SF Mono','Cascadia Code',monospace}
   .rt-card .rt-v.up{color:#54cf8b}
   .rt-card .rt-v.down{color:#ec6d5f}
   .rt-card .rt-sub{font-size:10px;color:var(--faint);margin-top:3px}
   .rt-price{display:flex;align-items:baseline;gap:8px}
   .rt-price .rt-pct{font-size:13px;font-weight:600}
-  .rt-loading{padding:20px;text-align:center;color:var(--faint);font-size:13px}
-  .rt-err{padding:16px;text-align:center;color:var(--mute);font-size:13px;background:var(--panel);border-radius:11px;border:1px solid var(--border2)}
-  .rt-earn{margin-top:16px}
   .rt-earn-tbl{width:100%;border-collapse:collapse;font-size:12px}
-  .rt-earn-tbl th{text-align:left;color:var(--mute);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border2)}
+  .rt-earn-tbl th{text-align:left;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border2)}
   .rt-earn-tbl td{padding:6px 8px;border-bottom:1px solid var(--border2)}
   .rt-earn-tbl td.up{color:#54cf8b}
   .rt-earn-tbl td.down{color:#ec6d5f}
@@ -229,13 +215,10 @@ async function init(){
   const indLabel = IND_LABELS[ind] || '产业链';
 
   if(ticker){
-    /* JPM 药企: 从 Finnhub 加载全部实时数据 */
+    /* 有 ticker 的公司: 从 Finnhub 加载全部实时数据 */
     await renderFinnhubCompany(coName, ticker, meta, indLabel, node);
-  } else if(meta){
-    /* 有元数据但无 ticker */
-    renderFallback(coName, indLabel, node);
   } else {
-    /* 非药企: 兜底页 */
+    /* 无 ticker: 兜底页(环节级投资逻辑) */
     renderFallback(coName, indLabel, node);
   }
 }
@@ -401,12 +384,14 @@ function renderFallback(coName, indLabel, node){
   const nodeData = (indLabel.includes('生物') && node) ? BIO_NODES[node] : null;
   const maxShare = nodeData && nodeData.share ? Math.max(...nodeData.share.map(s=>s.v)) : 0;
 
-  let html = `<div class="wrap">
-    <div class="topbar"><a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a></div>
+  let html = `<div class="topbar">
+    <a class="back" href="industry.html"><span class="arrow">←</span>返回产业链</a>
     <div class="co-head">
       <div class="nm">${esc(coName)}</div>
-      <div class="sub">${esc(indLabel)}${node ? ' · ' + esc(node) : ''}</div>
-    </div>`;
+      <div class="code">${esc(indLabel)}${node ? ' · ' + esc(node) : ''}</div>
+    </div>
+  </div>
+  <div class="wrap">`;
 
   if(nodeData){
     html += `

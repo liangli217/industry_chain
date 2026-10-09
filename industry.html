@@ -10,7 +10,7 @@
 <style>
   :root{
     --bg:#0b1119; --bg2:#0e1622; --panel:#121e2d; --panel2:#16273a;
-    --line:#22344a; --border:#233852; --border2:#2e4763;
+    --border:#233852; --border2:#2e4763;
     --text:#e9eff6; --muted:#94a6bb; --faint:#63768c;
     --up:#4fc9bd; --mid:#e8a44c; --down:#b98ce6;
     --risk:#e87a6c;  /* 风险红 */
@@ -1066,8 +1066,6 @@ function parseSize(s){
   else if(m[2]==='万') v*=0.0001;  /* 万 → 亿 */
   return v;
 }
-/* 从百分比字符串中解析出数值 */
-function parsePct(s){ if(!s) return null; const m=s.match(/([\d.]+)/); return m?parseFloat(m[1]):null; }
 
 /* ============ 渲染 ============ */
 const cvs=document.getElementById('canvas'), wires=document.getElementById('wires');

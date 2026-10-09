@@ -185,7 +185,7 @@ async function loadRealtimeData(){
   if(peStat) peStat.textContent = count ? (totalPE/count).toFixed(1) : '—';
 }
 
-function esc(s){return s?s.replace(/</g,'&lt;'):'';}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 load();
 </script>
 <style>@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>

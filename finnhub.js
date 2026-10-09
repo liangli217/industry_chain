@@ -212,16 +212,6 @@ async function fetchEarnings(ticker) {
   }
 }
 
-/* 获取公司完整数据(quote + metrics + earnings合并) */
-async function fetchCompanyData(ticker) {
-  const [quote, metrics, earnings] = await Promise.all([
-    fetchQuote(ticker),
-    fetchMetrics(ticker),
-    fetchEarnings(ticker)
-  ]);
-  return { quote, metrics, earnings };
-}
-
 /* 格式化市值 (million USD → display) */
 function fmtMcap(m) {
   if (!m) return '—';
@@ -253,22 +243,4 @@ function fmtPct(p) {
 /* 根据公司名获取ticker */
 function getTicker(companyName) {
   return TICKER_MAP[companyName] || null;
-}
-
-/* 批量获取行情(控制并发避免限流) */
-async function fetchQuotesBatch(companyNames) {
-  const results = {};
-  const tasks = companyNames.map(async (name) => {
-    const ticker = getTicker(name);
-    if (!ticker) return;
-    results[name] = await fetchQuote(ticker);
-  });
-  const batches = [];
-  for (let i = 0; i < tasks.length; i += 10) {
-    batches.push(tasks.slice(i, i + 10));
-  }
-  for (const batch of batches) {
-    await Promise.all(batch.map(t => t));
-  }
-  return results;
 }
