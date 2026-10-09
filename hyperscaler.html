@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hyperscaler CAPEX Tracker · 链脉</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230b1119'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%234fc9bd'>链</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="finnhub.js"></script>
+<script src="hyperscaler.js"></script>
+<style>
+  :root{
+    --bg:#0b1119; --bg2:#0e1622; --panel:#121e2d;
+    --border:#233852; --border2:#2e4763;
+    --text:#e9eff6; --muted:#94a6bb; --faint:#63768c;
+    --up:#4fc9bd; --mid:#e8a44c; --down:#b98ce6; --risk:#e87a6c;
+    --mono:'SF Mono','Cascadia Code',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:var(--mono),system-ui,-apple-system,sans-serif;
+    font-size:14px;line-height:1.6;min-height:100vh
+  }
+  a{color:inherit;text-decoration:none}
+  /* ---- topbar ---- */
+  .topbar{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;gap:12px;
+    padding:14px 24px;background:rgba(11,17,25,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--border);
+    flex-wrap:wrap
+  }
+  .topbar .brand{font-size:18px;font-weight:700;letter-spacing:1px}
+  .topbar .brand span{color:var(--up)}
+  .topbar .back{
+    font-size:13px;color:var(--muted);
+    display:flex;align-items:center;gap:6px;
+    padding:6px 12px;border:1px solid var(--border2);
+    border-radius:999px;transition:.2s
+  }
+  .topbar .back:hover{color:var(--text);border-color:var(--up)}
+  .topbar .ts{font-size:11px;color:var(--faint);margin-left:auto}
+  /* ---- wrap ---- */
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 24px 60px}
+  .wrap h1{font-size:24px;margin-bottom:4px}
+  .wrap .sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+  /* ---- summary strip ---- */
+  .sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+  .sum-card{
+    background:var(--panel);border:1px solid var(--border2);
+    border-radius:12px;padding:16px 18px
+  }
+  .sum-card .k{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  .sum-card .v{font-size:22px;font-weight:700;font-family:var(--mono)}
+  .sum-card .delta{font-size:12px;color:var(--up);margin-top:4px}
+  .sum-card .delta.warn{color:var(--mid)}
+  /* ---- chart ---- */
+  .chart-card{
+    background:var(--panel);border:1px solid var(--border2);
+    border-radius:14px;padding:20px;margin-bottom:28px
+  }
+  .chart-card .ch-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+  .chart-card .ch-title{font-size:15px;font-weight:600}
+  .chart-card .ch-note{font-size:11px;color:var(--faint)}
+  .chart-wrap{position:relative;height:420px}
+  /* ---- company cards ---- */
+  .co-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:28px}
+  .co-card{
+    background:var(--panel);border:1px solid var(--border2);
+    border-radius:12px;padding:16px 18px;position:relative;overflow:hidden
+  }
+  .co-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--co-color,var(--up))}
+  .co-card .co-name{font-size:15px;font-weight:600;margin-bottom:2px}
+  .co-card .co-cloud{font-size:11px;color:var(--muted);margin-bottom:12px}
+  .co-card .co-capex{font-size:11px;color:var(--faint);margin-bottom:2px}
+  .co-card .co-capex-v{font-size:20px;font-weight:700;font-family:var(--mono)}
+  .co-card .co-yoy{font-size:12px;margin-top:2px}
+  .co-card .co-yoy.up{color:var(--up)}
+  .co-card .co-yoy.down{color:var(--risk)}
+  .co-card .co-guide{font-size:11px;color:var(--mid);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+  .co-card .co-note{font-size:11px;color:var(--faint);margin-top:8px}
+  .co-card .mkt-cap{font-size:11px;color:var(--faint);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+  .co-card .mkt-cap-v{font-size:13px;color:var(--text);font-weight:600}
+  .co-card .rt-err{font-size:11px;color:var(--faint)}
+  /* ---- guidance table ---- */
+  .guide-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .guide-tbl th{text-align:left;color:var(--muted);font-weight:500;padding:10px 12px;border-bottom:1px solid var(--border2);white-space:nowrap}
+  .guide-tbl td{padding:10px 12px;border-bottom:1px solid var(--border)}
+  .guide-tbl tr:hover td{background:rgba(79,201,189,.04)}
+  .guide-tbl .guide-cell{color:var(--mid)}
+  .guide-tbl .note-cell{color:var(--faint);font-size:12px;max-width:320px}
+  /* ---- footer ---- */
+  .footer{font-size:11px;color:var(--faint);text-align:center;padding:20px;border-top:1px solid var(--border)}
+  .footer a{color:var(--muted)}
+  /* ---- loading ---- */
+  .loading{padding:40px;text-align:center;color:var(--faint);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="industry.html"><span>←</span> 返回产业链</a>
+  <div class="brand">链脉 <span>/ ChainMap</span></div>
+  <div class="ts" id="updateTime"></div>
+</div>
+
+<div class="wrap">
+  <h1>Hyperscaler CAPEX Tracker</h1>
+  <div class="sub">超大模型公司季度资本开支追踪 · CAPEX 含融资租赁 (MSFT/AMZN/META), GOOGL 为现金口径</div>
+
+  <!-- 汇总指标 -->
+  <div class="sum-grid" id="sumGrid"></div>
+
+  <!-- 折线图 -->
+  <div class="chart-card">
+    <div class="ch-head">
+      <div class="ch-title">季度 CAPEX 趋势 ($B)</div>
+      <div class="ch-note">数据来源: 各公司财报 / Earnings Call</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="capexChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 公司卡片 -->
+  <div class="co-grid" id="coGrid"></div>
+
+  <!-- 指引表 -->
+  <div class="chart-card">
+    <div class="ch-head">
+      <div class="ch-title">FY 2026 CAPEX 指引</div>
+      <div class="ch-note">汇总四家合计 CAPEX 指引</div>
+    </div>
+    <table class="guide-tbl" id="guideTbl">
+      <thead>
+        <tr>
+          <th>公司</th>
+          <th>云业务</th>
+          <th>最新季度 CAPEX</th>
+          <th>同比</th>
+          <th>2026 指引</th>
+          <th>备注</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    数据从财报自动整理 · 每季度更新 ·
+    <a href="https://github.com/liangli217/industry_chain">GitHub</a>
+  </div>
+</div>
+
+<script>
+/* ---- 渲染汇总指标 ---- */
+function renderSummary(){
+  const total = getTotalLatest();
+  const guidance = getTotalGuidance();
+  const yoyAvg = HC_DATA.map(getCapexYoy).filter(v=>v).map(Number);
+  const yoyAvgVal = yoyAvg.length ? Math.round(yoyAvg.reduce((a,b)=>a+b,0)/yoyAvg.length) : null;
+
+  const items = [
+    {k:'最新季度合计 CAPEX', v:'$'+total.toFixed(1)+'B', delta:'4 家合计'},
+    {k:'2026 全年指引合计', v:'$'+guidance+'B', delta:'同比约翻倍', warn:true},
+    {k:'平均同比增速', v: yoyAvgVal?yoyAvgVal+'%':'—', delta:yoyAvgVal>50?'加速中':'稳定增长'},
+  ];
+  document.getElementById('sumGrid').innerHTML = items.map(i=>`
+    <div class="sum-card">
+      <div class="k">${i.k}</div>
+      <div class="v">${i.v}</div>
+      <div class="delta${i.warn?' warn':''}">${i.delta}</div>
+    </div>
+  `).join('');
+}
+
+/* ---- 渲染折线图 ---- */
+function renderChart(){
+  const ctx = document.getElementById('capexChart');
+  const datasets = HC_DATA.map(co=>({
+    label: co.cn + ' ' + co.name,
+    data: co.capex,
+    borderColor: co.color,
+    backgroundColor: co.color+'20',
+    borderWidth: 2.5,
+    pointRadius: 4,
+    pointHoverRadius: 6,
+    pointBackgroundColor: co.color,
+    tension: 0.35,
+    spanGaps: true
+  }));
+
+  new Chart(ctx, {
+    type:'line',
+    data:{ labels: HC_QUARTERS, datasets },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{
+          position:'bottom',
+          labels:{ color:'#94a6bb', font:{size:12}, padding:14, usePointStyle:true, pointStyle:'circle' }
+        },
+        tooltip:{
+          backgroundColor:'#0e1622',
+          borderColor:'#2e4763',
+          borderWidth:1,
+          titleColor:'#e9eff6',
+          bodyColor:'#94a6bb',
+          padding:12,
+          callbacks:{
+            label: ctx => {
+              const co = HC_DATA[ctx.datasetIndex];
+              const v = ctx.parsed.y;
+              if(v==null) return ctx.dataset.label+': N/A';
+              const rev = co.revenue[ctx.dataIndex];
+              const ratio = rev ? (v/rev*100).toFixed(0)+'%' : '';
+              return `${ctx.dataset.label}: $${v}B${ratio?' (占营收 '+ratio+')':''}`;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ ticks:{color:'#63768c',font:{size:11}}, grid:{color:'rgba(35,56,82,.4)'} },
+        y:{ ticks:{color:'#63768c',font:{size:11},callback:v=>'$'+v+'B'}, grid:{color:'rgba(35,56,82,.4)'}, beginAtZero:true }
+      }
+    }
+  });
+}
+
+/* ---- 渲染公司卡片 ---- */
+function renderCards(){
+  const grid = document.getElementById('coGrid');
+  grid.innerHTML = HC_DATA.map(co=>{
+    const latest = getLatestCapex(co);
+    const yoy = getCapexYoy(co);
+    const yoyNum = yoy ? parseInt(yoy) : 0;
+    const rev = co.revenue.filter(v=>v!=null).pop();
+    const ratio = (latest && rev) ? (latest/rev*100).toFixed(0) : null;
+
+    return `
+    <div class="co-card" style="--co-color:${co.color}">
+      <div class="co-name">${co.cn} ${co.name}</div>
+      <div class="co-cloud">${co.cloud} · ${co.ticker}</div>
+      <div class="co-capex">最新季度 CAPEX</div>
+      <div class="co-capex-v">${latest?'$'+latest+'B':'—'}</div>
+      <div class="co-yoy ${yoyNum>=0?'up':'down'}">${yoy?'同比 '+yoy+'%':'—'}</div>
+      ${ratio?`<div class="co-capex" style="margin-top:8px">占营收比: <span style="color:var(--text);font-weight:600">${ratio}%</span></div>`:''}
+      <div class="co-guide">${co.fyGuidance}</div>
+      <div class="co-note">${co.note}</div>
+      <div class="mkt-cap" id="mcap-${co.ticker}">
+        <span class="rt-err">实时市值加载中…</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // 异步加载市值
+  HC_DATA.forEach(async co=>{
+    try{
+      const quote = await fetchQuote(co.ticker);
+      const el = document.getElementById('mcap-'+co.ticker);
+      if(el && quote){
+        const mcap = fmtMcap(quote.marketCap);
+        el.innerHTML = `实时市值: <span class="mkt-cap-v">${mcap}</span>`;
+      }else if(el){
+        el.innerHTML = '<span class="rt-err">市值数据暂不可用</span>';
+      }
+    }catch(e){
+      const el = document.getElementById('mcap-'+co.ticker);
+      if(el) el.innerHTML = '<span class="rt-err">市值数据加载失败</span>';
+    }
+  });
+}
+
+/* ---- 渲染指引表 ---- */
+function renderGuidanceTable(){
+  const rows = getGuidanceRows();
+  document.querySelector('#guideTbl tbody').innerHTML = rows.map(r=>`
+    <tr>
+      <td>${r.name}</td>
+      <td>${r.cloud}</td>
+      <td>${r.latestCapex?'$'+r.latestCapex+'B':'—'}</td>
+      <td>${r.yoy}</td>
+      <td class="guide-cell">${r.guidance}</td>
+      <td class="note-cell">${r.note}</td>
+    </tr>
+  `).join('');
+}
+
+/* ---- 初始化 ---- */
+async function init(){
+  document.getElementById('updateTime').textContent = '数据截至 2026 Q1 财报季';
+  renderSummary();
+  renderChart();
+  renderCards();
+  renderGuidanceTable();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
