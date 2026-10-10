@@ -1144,7 +1144,7 @@ function makeNode(id, tier){
     <div class="sub">${n.sub}</div>
     ${n.moat!=null?`<div class="moat"><span class="stars">${stars(n.moat)}</span><span class="ml">护城河</span></div>`:''}
     ${nodeIndBar(n)}
-    <div class="chips">${n.co.slice(0,3).map(c=>`<a class="chip" href="company.html?name=${encodeURIComponent(c)}&ind=${current}&node=${encodeURIComponent(n.name)}" onclick="event.stopPropagation()">${c}</a>`).join('')}${n.co.length>3?(id==='m6'&&current==='bio'?`<a class="chip more" href="industry.html" onclick="event.stopPropagation()">+${n.co.length-3} 查看全部 →</a>`:`<span class="chip">+${n.co.length-3}</span>`):''}</div>`;
+    <div class="chips">${n.co.slice(0,3).map(c=>`<a class="chip" href="company.html?name=${encodeURIComponent(c)}&ind=${current}&node=${encodeURIComponent(n.name)}" onclick="event.stopPropagation()">${c}</a>`).join('')}${n.co.length>3?`<span class="chip">+${n.co.length-3}</span>`:''}</div>`;
   el.onclick=e=>{ e.stopPropagation(); select(id); };
   el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); select(id);} };
   return el;
