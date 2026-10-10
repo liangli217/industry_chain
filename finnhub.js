@@ -212,6 +212,54 @@ async function fetchEarnings(ticker) {
   }
 }
 
+/* 获取分析师一致目标价 (price-target) */
+async function fetchTargetPrice(ticker) {
+  const cached = getCached('tp:' + ticker);
+  if (cached) return cached;
+  try {
+    const res = await fetch(`${FINNHUB_BASE}/price-target?symbol=${ticker}`);
+    const data = await res.json();
+    setCached('tp:' + ticker, data);
+    return data;
+  } catch (e) {
+    console.warn('Finnhub price-target failed for', ticker, e);
+    return null;
+  }
+}
+
+/* 获取分析师评级分布 (recommendation) */
+async function fetchRecommendations(ticker) {
+  const cached = getCached('rec:' + ticker);
+  if (cached) return cached;
+  try {
+    const res = await fetch(`${FINNHUB_BASE}/recommendation?symbol=${ticker}`);
+    const data = await res.json();
+    setCached('rec:' + ticker, data);
+    return data;
+  } catch (e) {
+    console.warn('Finnhub recommendation failed for', ticker, e);
+    return null;
+  }
+}
+
+/* 获取公司新闻 (company-news) */
+async function fetchNews(ticker) {
+  const cached = getCached('news:' + ticker);
+  if (cached) return cached;
+  try {
+    const today = new Date();
+    const to = today.toISOString().slice(0,10);
+    const from = new Date(today.getTime() - 30*86400000).toISOString().slice(0,10);
+    const res = await fetch(`${FINNHUB_BASE}/company-news?symbol=${ticker}&from=${from}&to=${to}`);
+    const data = await res.json();
+    setCached('news:' + ticker, data);
+    return data;
+  } catch (e) {
+    console.warn('Finnhub news failed for', ticker, e);
+    return null;
+  }
+}
+
 /* 格式化市值 (million USD → display) */
 function fmtMcap(m) {
   if (!m) return '—';

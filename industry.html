@@ -10,7 +10,7 @@
 <style>
   :root{
     --bg:#0b1119; --bg2:#0e1622; --panel:#121e2d; --panel2:#16273a;
-    --border:#233852; --border2:#2e4763;
+    --line:#22344a; --border:#233852; --border2:#2e4763;
     --text:#e9eff6; --muted:#94a6bb; --faint:#63768c;
     --up:#4fc9bd; --mid:#e8a44c; --down:#b98ce6;
     --risk:#e87a6c;  /* 风险红 */
@@ -1066,18 +1066,20 @@ function parseSize(s){
   else if(m[2]==='万') v*=0.0001;  /* 万 → 亿 */
   return v;
 }
+/* 从百分比字符串中解析出数值 */
+function parsePct(s){ if(!s) return null; const m=s.match(/([\d.]+)/); return m?parseFloat(m[1]):null; }
 
 /* ============ 渲染 ============ */
 const cvs=document.getElementById('canvas'), wires=document.getElementById('wires');
 const colsEl=document.getElementById('columns'), detailEl=document.getElementById('detail'), pillsEl=document.getElementById('pills');
 const searchInput=document.getElementById('searchInput'), searchBox=document.getElementById('searchBox'), searchClr=document.getElementById('searchClr');
-let current=sessionStorage.getItem('lastInd')||'robot', selected=null, searchQuery='';
+let current='robot', selected=null, searchQuery='';
 
 /* 产业切换按钮 */
 Object.entries(DATA).forEach(([key,d])=>{
   const b=document.createElement('button');
   b.className='pill'+(key===current?' on':''); b.textContent=d.name; b.dataset.key=key;
-  b.onclick=()=>{ current=key; sessionStorage.setItem('lastInd',key); selected=null; clearSearch(); renderPills(); renderChain(); renderDetail(); document.getElementById('canvasWrap').scrollTop=0; };
+  b.onclick=()=>{ current=key; selected=null; clearSearch(); renderPills(); renderChain(); renderDetail(); document.getElementById('canvasWrap').scrollTop=0; };
   pillsEl.appendChild(b);
 });
 function renderPills(){ [...pillsEl.children].forEach(b=>b.classList.toggle('on', b.dataset.key===current)); }
@@ -1142,7 +1144,7 @@ function makeNode(id, tier){
     <div class="sub">${n.sub}</div>
     ${n.moat!=null?`<div class="moat"><span class="stars">${stars(n.moat)}</span><span class="ml">护城河</span></div>`:''}
     ${nodeIndBar(n)}
-    <div class="chips">${n.co.slice(0,3).map(c=>`<a class="chip" href="company.html?name=${encodeURIComponent(c)}&ind=${current}&node=${encodeURIComponent(n.name)}" onclick="event.stopPropagation()">${c}</a>`).join('')}${n.co.length>3?(id==='m6'&&current==='bio'?`<a class="chip more" href="pharma.html" onclick="event.stopPropagation()">+${n.co.length-3} 查看全部 →</a>`:`<span class="chip">+${n.co.length-3}</span>`):''}</div>`;
+    <div class="chips">${n.co.slice(0,3).map(c=>`<a class="chip" href="company.html?name=${encodeURIComponent(c)}&ind=${current}&node=${encodeURIComponent(n.name)}" onclick="event.stopPropagation()">${c}</a>`).join('')}${n.co.length>3?(id==='m6'&&current==='bio'?`<a class="chip more" href="industry.html" onclick="event.stopPropagation()">+${n.co.length-3} 查看全部 →</a>`:`<span class="chip">+${n.co.length-3}</span>`):''}</div>`;
   el.onclick=e=>{ e.stopPropagation(); select(id); };
   el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); select(id);} };
   return el;
@@ -1257,11 +1259,8 @@ function renderOverview(d){
 
   const statsHtml = tierKeys.map(tk=>`<div class="stat"><div class="n" style="color:${d.tiers[tk].c}">${t[tk]||0}</div><div class="l">${d.tiers[tk].label}</div></div>`).join('');
 
-  const hyperLink = current==='chip' ? `<a href="hyperscaler.html" onclick="sessionStorage.setItem('lastInd','chip')" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--up);border:1px solid var(--border2);border-radius:999px;padding:4px 12px;margin-bottom:16px;text-decoration:none">📊 Hyperscaler CAPEX Tracker →</a>` : '';
-
   detailEl.innerHTML=`<div class="d-eyebrow">当前产业${d.short?' · '+d.short:''}</div>
     <div class="ov-name">${d.name}</div><div class="ov-sub">${d.sub}</div>
-    ${hyperLink}
     <div class="d-sec">链路概览</div>
     <div class="stats">${statsHtml}</div>
     ${valChartHtml}
