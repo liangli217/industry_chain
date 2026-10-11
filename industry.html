@@ -1259,8 +1259,11 @@ function renderOverview(d){
 
   const statsHtml = tierKeys.map(tk=>`<div class="stat"><div class="n" style="color:${d.tiers[tk].c}">${t[tk]||0}</div><div class="l">${d.tiers[tk].label}</div></div>`).join('');
 
+  const hyperLink = current==='chip' ? `<a href="hyperscaler.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--up);border:1px solid var(--border2);border-radius:999px;padding:4px 12px;margin-bottom:16px;text-decoration:none">📊 Hyperscaler CAPEX Tracker →</a>` : '';
+
   detailEl.innerHTML=`<div class="d-eyebrow">当前产业${d.short?' · '+d.short:''}</div>
     <div class="ov-name">${d.name}</div><div class="ov-sub">${d.sub}</div>
+    ${hyperLink}
     <div class="d-sec">链路概览</div>
     <div class="stats">${statsHtml}</div>
     ${valChartHtml}
