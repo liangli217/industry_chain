@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
   :root{
     --bg:#0b1119; --bg2:#0e1622; --panel:#121e2d;
@@ -102,6 +103,79 @@
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
   .rt-ts{font-size:11px;color:var(--faint);margin-left:auto}
   .rt-source{margin-top:10px;font-size:11px;color:var(--faint)}
+
+  /* ===== 财报汇总表 ===== */
+  .earn-summary{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:18px}
+  .es-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+  .es-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:.3px}
+  .es-period{font-size:11px;color:var(--faint);font-family:var(--mono)}
+  .es-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .es-tbl th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;letter-spacing:.5px;padding:8px 10px;border-bottom:1px solid var(--border2)}
+  .es-tbl td{padding:10px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+  .es-tbl tr:last-child td{border-bottom:none}
+  .es-met{font-family:var(--sans)!important;color:var(--text);font-weight:500}
+  .beat-badge{display:inline-block;font-size:10px;font-weight:600;color:var(--up);background:rgba(79,201,189,.12);border:1px solid rgba(79,201,189,.3);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+
+  /* ===== 增长曲线图 ===== */
+  .earn-chart{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:14px}
+  .ec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .ec-tabs{display:flex;gap:6px}
+  .ec-tab{font-size:11.5px;color:var(--muted);background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;transition:.18s;font-family:var(--sans)}
+  .ec-tab:hover{color:var(--text);border-color:var(--border2)}
+  .ec-tab.active{color:var(--up);border-color:var(--up);background:rgba(79,201,189,.08)}
+  .ec-canvas-wrap{position:relative;height:260px}
+  .ec-legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--faint);margin-top:10px}
+  .dot{display:inline-block;width:10px;height:3px;border-radius:2px}
+  .dot-actual{background:var(--up)}
+  .dot-est{background:var(--mid)}
+
+  /* ===== 财务二级 Tab ===== */
+  .fin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+  .fin-tab{
+    font-size:12.5px;color:var(--muted);background:var(--bg2);
+    border:1px solid var(--border);border-radius:8px;
+    padding:7px 14px;cursor:pointer;transition:.18s;font-family:var(--sans);
+  }
+  .fin-tab:hover{color:var(--text);border-color:var(--border2)}
+  .fin-tab.active{color:var(--up);border-color:var(--up);background:rgba(79,201,189,.08);font-weight:500}
+  .fin-tab-body{display:block}
+  .fin-tab-body.hidden{display:none}
+
+  /* 财务报表表 */
+  .stmt-wrap{overflow-x:auto}
+  .stmt-tbl{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)}
+  .stmt-tbl th{text-align:right;color:var(--muted);font-weight:500;font-size:11px;padding:8px 10px;border-bottom:1px solid var(--border2);white-space:nowrap}
+  .stmt-tbl th:first-child{text-align:left;min-width:180px}
+  .stmt-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+  .stmt-tbl td:first-child{text-align:left;color:var(--text);font-family:var(--sans)}
+  .stmt-tbl tr:hover td{background:rgba(79,201,189,.04)}
+  .stmt-tbl .grp td{background:var(--bg2);color:var(--up);font-weight:600;font-family:var(--sans);font-size:11.5px;letter-spacing:.5px}
+  .stmt-tbl .yoy{color:var(--faint);font-size:11px}
+  .stmt-tbl .yoy.up{color:var(--up)}
+  .stmt-tbl .yoy.down{color:var(--risk)}
+
+  /* ===== Hover 提示 (财报表) ===== */
+  .tt-host{position:relative;display:inline-block;cursor:help;border-bottom:1px dotted var(--border2)}
+  .tt-host .tt{
+    position:absolute;bottom:calc(100% + 8px);left:50%;
+    transform:translateX(-50%) translateY(4px);
+    background:#060b12;border:1px solid var(--border2);border-radius:8px;
+    padding:9px 12px;font-family:var(--mono);font-size:11px;line-height:1.7;
+    white-space:nowrap;text-align:left;color:var(--text);
+    opacity:0;visibility:hidden;pointer-events:none;z-index:40;
+    box-shadow:0 8px 24px rgba(0,0,0,.5);
+    transition:opacity .15s ease,transform .15s ease;
+  }
+  .tt-host:hover .tt{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+  .tt .tt-k{color:var(--faint);display:inline-block;min-width:62px}
+  .tt .tt-v{color:var(--text)}
+  .tt::after{
+    content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:5px solid transparent;border-top-color:var(--border2);
+  }
+
+  /* Chart.js 提示样式 */
+  .ec-canvas-wrap canvas{cursor:crosshair}
 
   /* Mini bar for 52W / Day position */
   .mini-bar{position:relative;height:6px;background:var(--bg2);border-radius:3px;margin-top:12px}
@@ -238,6 +312,9 @@
 
 <script src="finnhub.js?v=5"></script>
 <script>
+let _earningsChartData = null;
+let _earningsChart = null;
+
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 
 /* 产业标签 */
@@ -300,11 +377,13 @@ async function init(){
 
   /* 并行加载所有数据 */
   const promises = [];
-  let quoteIdx=-1, metricsIdx=-1, earningsIdx=-1, tpIdx=-1, recIdx=-1, newsIdx=-1;
+  let quoteIdx=-1, metricsIdx=-1, earningsIdx=-1, finIdx=-1, estIdx=-1, tpIdx=-1, recIdx=-1, newsIdx=-1;
   if(ticker){
     quoteIdx=promises.length; promises.push(fetchQuote(ticker));
     metricsIdx=promises.length; promises.push(fetchMetrics(ticker));
     earningsIdx=promises.length; promises.push(fetchEarnings(ticker));
+    finIdx=promises.length; promises.push(fetchFinancials(ticker));
+    estIdx=promises.length; promises.push(fetchEarningsEstimate(ticker));
     tpIdx=promises.length; promises.push(fetchTargetPrice(ticker));
     recIdx=promises.length; promises.push(fetchRecommendations(ticker));
     newsIdx=promises.length; promises.push(fetchNews(ticker));
@@ -313,15 +392,17 @@ async function init(){
   const quote = quoteIdx>=0 ? results[quoteIdx] : null;
   const metrics = metricsIdx>=0 ? results[metricsIdx] : null;
   const earnings = earningsIdx>=0 ? results[earningsIdx] : null;
+  const financials = finIdx>=0 ? results[finIdx] : null;
+  const estimates = estIdx>=0 ? results[estIdx] : null;
   const tp = tpIdx>=0 ? results[tpIdx] : null;
   const recs = recIdx>=0 ? results[recIdx] : null;
   const news = newsIdx>=0 ? results[newsIdx] : null;
 
-  renderPage({coName, ticker, meta, ind, node, indLabel, isBio, nodeData, quote, metrics, earnings, tp, recs, news});
+  renderPage({coName, ticker, meta, ind, node, indLabel, isBio, nodeData, quote, metrics, earnings, financials, estimates, tp, recs, news});
 }
 
 function renderPage(ctx){
-  const {coName, ticker, meta, indLabel, node, isBio, nodeData, quote, metrics, earnings, tp, recs, news} = ctx;
+  const {coName, ticker, meta, indLabel, node, isBio, nodeData, quote, metrics, earnings, financials, estimates, tp, recs, news} = ctx;
   const root = document.getElementById('root');
   const enName = meta ? meta.en : '';
   const displayName = enName ? `${esc(enName)} <span style="font-size:15px;color:var(--muted);font-weight:400">${esc(coName)}</span>` : esc(coName);
@@ -368,6 +449,23 @@ function renderPage(ctx){
 
   html += '</div>';
   root.innerHTML = html;
+  initEarningsChart();
+  bindFinTabs();
+}
+
+/* 财务二级 tab 切换 */
+function bindFinTabs(){
+  document.querySelectorAll('.fin-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      document.querySelectorAll('.fin-tab').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.fin-tab-body').forEach(body => {
+        body.classList.toggle('hidden', body.dataset.tabBody !== target);
+      });
+      /* 切回 Earnings 时重建图表 (canvas 从 hidden 状态恢复后 Chart.js 需要重渲) */
+      if(target === 'earnings') initEarningsChart();
+    });
+  });
 }
 
 /* ② Hero 行情概览 */
@@ -506,56 +604,121 @@ function renderChainPosition(ctx){
   return html;
 }
 
-/* ④ 财务健康度 */
+/* ④ 财务 (二级 tab 布局) */
 function renderFinancials(ctx){
-  const {metrics, earnings} = ctx;
-  const m = metrics || {};
-  const hasData = metrics && (m.grossMargin!=null || m.peTTM!=null);
+  const {metrics, earnings, financials, estimates} = ctx;
+  const hasFinData = financials && Array.isArray(financials.financials) && financials.financials.length;
+  const hasData = (metrics && (metrics.grossMargin!=null || metrics.peTTM!=null)) || hasFinData;
 
   if(!hasData){
     return `<div class="sec">
-      <div class="sec-title"><span class="num">03</span>财务健康度</div>
+      <div class="sec-title"><span class="num">03</span>财务 Financials</div>
       <div class="skeleton-box"><div class="sk-icon">💰</div>暂无财务指标数据</div>
     </div>`;
   }
 
-  const rgClass = m.revenueGrowth>=10 ? 'yoy-up' : (m.revenueGrowth<3 ? 'yoy-down' : '');
-  const card = (k,v,sub,bench) => {
-    let benchHtml = '';
-    if(bench) benchHtml = `<div class="fv-bench">${bench}</div>`;
-    return `<div class="fin-card"><div class="fk">${k}</div><div class="fv">${v}</div><div class="fu">${sub||''}</div>${benchHtml}</div>`;
-  };
-
-  let html = `<div class="sec">
-    <div class="sec-title"><span class="num">03</span>财务健康度</div>
-    <div class="fin-groups">
-      <div class="fin-group">
-        <div class="fin-group-title">盈利质量</div>
-        ${card('毛利率 Gross Margin', m.grossMargin!=null?fmtPct(m.grossMargin):'—','Gross Margin TTM')}
-        ${card('净利率 Net Margin', m.netMargin!=null?fmtPct(m.netMargin):'—','Net Margin TTM')}
-        ${card('ROE 净资产收益率', m.roe!=null?fmtPct(m.roe):'—','Return on Equity TTM')}
-        ${`<div class="fin-card ${rgClass}"><div class="fk">营收增速 Revenue Growth</div><div class="fv">${m.revenueGrowth!=null?fmtPct(m.revenueGrowth):'—'}</div><div class="fu">YoY · TTM ${m.revenueGrowth>=10?'🟢':m.revenueGrowth<3?'🔴':''}</div></div>`}
-      </div>
-      <div class="fin-group">
-        <div class="fin-group-title">估值</div>
-        ${card('P/E TTM', m.peTTM!=null?m.peTTM.toFixed(1):'—','P/E TTM')}
-        ${card('Forward P/E', m.forwardPE!=null?m.forwardPE.toFixed(1):'—','Forward P/E')}
-        ${card('PEG', m.peg!=null?m.peg.toFixed(2):'—','P/E to Growth')}
-        ${card('P/B 市净率', m.pb!=null?m.pb.toFixed(1):'—','Price to Book')}
-        ${card('EV/EBITDA', m.evEbitda!=null?m.evEbitda.toFixed(1):'—','EV / EBITDA TTM')}
-        ${card('P/S 市销率', m.ps!=null?m.ps.toFixed(1):'—','Price to Sales TTM')}
-        ${card('股息率 Div Yield', m.dividendYield!=null?m.dividendYield.toFixed(2)+'%':'—','Dividend Yield TTM')}
-      </div>
+  let html = `<div class="sec" id="finSection">
+    <div class="sec-title"><span class="num">03</span>财务 Financials</div>
+    <div class="fin-tabs">
+      <button class="fin-tab active" data-tab="earnings">Earnings</button>
+      <button class="fin-tab" data-tab="revbreak">Revenue Breakdown</button>
+      <button class="fin-tab" data-tab="indicators">Financial Indicators</button>
+      <button class="fin-tab" data-tab="income">Income Statement</button>
+      <button class="fin-tab" data-tab="balance">Balance Sheet</button>
+      <button class="fin-tab" data-tab="cashflow">Cash Flow</button>
     </div>`;
 
-  /* EPS Surprise 表 */
+  /* 每个 tab 一个容器, 默认显示 earnings */
+  html += `<div class="fin-tab-body" data-tab-body="earnings">${renderEarningsTab(ctx)}</div>`;
+  html += `<div class="fin-tab-body hidden" data-tab-body="revbreak">${renderRevBreakTab(ctx)}</div>`;
+  html += `<div class="fin-tab-body hidden" data-tab-body="indicators">${renderIndicatorsTab(ctx)}</div>`;
+  html += `<div class="fin-tab-body hidden" data-tab-body="income">${renderIncomeStatementTab(ctx)}</div>`;
+  html += `<div class="fin-tab-body hidden" data-tab-body="balance">${renderBalanceSheetTab(ctx)}</div>`;
+  html += `<div class="fin-tab-body hidden" data-tab-body="cashflow">${renderCashFlowTab(ctx)}</div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+/* ---- Tab 1: Earnings (原财报汇总表 + 增长曲线 + EPS Surprise) ---- */
+function renderEarningsTab(ctx){
+  const {earnings, financials, estimates} = ctx;
+  let html = '';
+
+  /* 财报汇总表 */
+  const qData = getLatestQuarter(financials);
+  if(qData){
+    const {rev, revYoy, ni, niYoy, period, endDate, fillDate, yPeriod, yEndDate, yRev, yNi} = qData;
+    const revEst = estimates?.revenueEstimate?.[0]?.revenueEstimateAvg || null;
+    const revBeat = (rev && revEst) ? ((rev - revEst)/revEst*100) : null;
+    const yoyCls = v => v>=0?'var(--up)':'var(--risk)';
+    const yoyTxt = v => v!=null?`${v>=0?'+':''}${v.toFixed(1)}%`:'—';
+    const tl = (label, value) => `<span class="tt-k">${label}</span><span class="tt-v">${value}</span>`;
+    const tt = (inner, lines) => `<span class="tt-host">${inner}<span class="tt">${lines}</span></span>`;
+    const d = v => v || '—';
+    const actualCell = (val, name) => tt(fmtLarge(val),
+      tl(name, fmtLarge(val)) + '<br>' + tl('季度', d(period)) + '<br>' + tl('期末', d(endDate)) + (fillDate?'<br>'+tl('填报日',d(fillDate)):''));
+    const yoyCell = (yoyv, name, yv) => yoyv==null?'—':tt(yoyTxt(yoyv),
+      tl('同比 YoY', yoyTxt(yoyv))+'<br>'+tl('对比', d(yPeriod)+(yEndDate?' ('+yEndDate+')':''))+'<br>'+tl('上年同期', fmtLarge(yv)));
+    const estCell = revEst?tt(fmtLarge(revEst), tl('营收预期', fmtLarge(revEst))+'<br>'+tl('口径','分析师一致预期')):'';
+    const beatCell = revEst?tt(revBeat!=null?(revBeat>=0?'+':'')+revBeat.toFixed(1)+'%':'—',
+      tl('超预期', revBeat!=null?(revBeat>=0?'+':'')+revBeat.toFixed(1)+'%':'—')+'<br>'+tl('实际 / 预期', fmtLarge(rev)+' / '+fmtLarge(revEst))):'';
+
+    html += `<div class="earn-summary">
+      <div class="es-head">
+        <span class="es-title">财报汇总 Earnings Summary</span>
+        <span class="es-period">${esc(period||'—')} · USD · 期末 ${esc(endDate||'—')}</span>
+      </div>
+      <table class="es-tbl">
+        <thead><tr>
+          <th>指标 Metric</th><th>实际 Actual</th><th>同比 YoY</th>
+          ${revEst?'<th>预期 Estimate</th><th>超预期 Beat</th>':''}
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="es-met">营收 Revenue ${revBeat!=null?`<span class="beat-badge">${revBeat>=0?'Beat':'Miss'} Est.</span>`:''}</td>
+            <td>${actualCell(rev,'营收 Revenue')}</td>
+            <td style="color:${yoyCls(revYoy)}">${yoyCell(revYoy,'营收',yRev)}</td>
+            ${revEst?`<td>${estCell}</td><td style="color:${yoyCls(revBeat)}">${beatCell}</td>`:''}
+          </tr>
+          <tr>
+            <td class="es-met">净利润 Net Income</td>
+            <td>${actualCell(ni,'净利润 Net Income')}</td>
+            <td style="color:${yoyCls(niYoy)}">${yoyCell(niYoy,'净利润',yNi)}</td>
+            ${revEst?'<td>—</td><td>—</td>':''}
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+  } else {
+    html += `<div class="skeleton-box"><div class="sk-icon">📊</div>暂无财报数据</div>`;
+  }
+
+  /* 增长曲线图 */
+  const chartData = buildEarningsChartData(financials, estimates);
+  _earningsChartData = chartData;
+  if(chartData.labels.length){
+    html += `<div class="earn-chart">
+      <div class="ec-head">
+        <span class="es-title">增长趋势 Actual vs Estimate</span>
+        <div class="ec-tabs">
+          <button class="ec-tab active" data-metric="revenue">营收 Revenue</button>
+          <button class="ec-tab" data-metric="netIncome">净利 Net Income</button>
+          <button class="ec-tab" data-metric="eps">EPS</button>
+        </div>
+      </div>
+      <div class="ec-canvas-wrap"><canvas id="earningsChart"></canvas></div>
+      <div class="ec-legend"><span class="dot dot-actual"></span>Actual · <span class="dot dot-est"></span>Estimate</div>
+    </div>`;
+  }
+
+  /* EPS Surprise (折叠) */
   if(earnings && earnings.length){
     html += `<details style="margin-top:14px"><summary style="font-size:12px;color:var(--muted);cursor:pointer;letter-spacing:.5px">EPS Surprise (最近4季) ▸</summary>
       <table class="rt-earn-tbl" style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
         <thead><tr><th style="text-align:left;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border2)">Quarter</th><th style="text-align:left;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border2)">EPS Est.</th><th style="text-align:left;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border2)">EPS Actual</th><th style="text-align:left;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border2)">Surprise</th></tr></thead>
         <tbody>`;
     earnings.slice(0,4).forEach(e => {
-      const cls = e.surprise!=null?(e.surprise>=0?'up':'down'):'';
       html += `<tr>
         <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${esc(e.period||'—')}</td>
         <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">$${e.epsEstimate!=null?e.epsEstimate.toFixed(2):'—'}</td>
@@ -565,10 +728,380 @@ function renderFinancials(ctx){
     });
     html += `</tbody></table></details>`;
   }
-
-  html += `</div>`;
   return html;
 }
+
+/* ---- Tab 2: Revenue Breakdown (营收分业务线, 占位骨架) ---- */
+function renderRevBreakTab(ctx){
+  /* Finnhub 免费层无 segment data, 显示骨架 */
+  return `<div class="skeleton-box"><div class="sk-icon">🧩</div>分业务/分地区营收构成 · 数据即将上线 (需接入 SEC 10-Q Segment 数据)</div>`;
+}
+
+/* ---- Tab 3: Financial Indicators (原盈利质量+估值卡) ---- */
+function renderIndicatorsTab(ctx){
+  const {metrics} = ctx;
+  const m = metrics || {};
+  const hasMetrics = metrics && (m.grossMargin!=null || m.peTTM!=null);
+  if(!hasMetrics){
+    return `<div class="skeleton-box"><div class="sk-icon">💰</div>暂无指标数据</div>`;
+  }
+  const rgClass = m.revenueGrowth>=10?'yoy-up':(m.revenueGrowth<3?'yoy-down':'');
+  const card = (k,v,sub,bench) => `<div class="fin-card"><div class="fk">${k}</div><div class="fv">${v}</div><div class="fu">${sub||''}</div>${bench?`<div class="fv-bench">${bench}</div>`:''}</div>`;
+  return `<div class="fin-groups">
+    <div class="fin-group">
+      <div class="fin-group-title">盈利质量</div>
+      ${card('毛利率 Gross Margin', m.grossMargin!=null?fmtPct(m.grossMargin):'—','Gross Margin TTM')}
+      ${card('净利率 Net Margin', m.netMargin!=null?fmtPct(m.netMargin):'—','Net Margin TTM')}
+      ${card('ROE 净资产收益率', m.roe!=null?fmtPct(m.roe):'—','Return on Equity TTM')}
+      ${`<div class="fin-card ${rgClass}"><div class="fk">营收增速 Revenue Growth</div><div class="fv">${m.revenueGrowth!=null?fmtPct(m.revenueGrowth):'—'}</div><div class="fu">YoY · TTM</div></div>`}
+    </div>
+    <div class="fin-group">
+      <div class="fin-group-title">估值</div>
+      ${card('P/E TTM', m.peTTM!=null?m.peTTM.toFixed(1):'—','P/E TTM')}
+      ${card('Forward P/E', m.forwardPE!=null?m.forwardPE.toFixed(1):'—','Forward P/E')}
+      ${card('PEG', m.peg!=null?m.peg.toFixed(2):'—','P/E to Growth')}
+      ${card('P/B 市净率', m.pb!=null?m.pb.toFixed(1):'—','Price to Book')}
+      ${card('EV/EBITDA', m.evEbitda!=null?m.evEbitda.toFixed(1):'—','EV / EBITDA TTM')}
+      ${card('P/S 市销率', m.ps!=null?m.ps.toFixed(1):'—','Price to Sales TTM')}
+      ${card('股息率 Div Yield', m.dividendYield!=null?m.dividendYield.toFixed(2)+'%':'—','Dividend Yield TTM')}
+    </div>
+  </div>`;
+}
+
+/* ---- Tab 4: Income Statement 利润表 ---- */
+function renderIncomeStatementTab(ctx){
+  const {financials} = ctx;
+  if(!financials || !Array.isArray(financials.financials)) return `<div class="skeleton-box"><div class="sk-icon">📋</div>暂无利润表数据</div>`;
+  const rows = financials.financials.slice().sort((a,b)=> new Date(b.endDate) - new Date(a.endDate)).slice(0, 8);
+  const ic = f => f.ic || {};
+  const get = (f, keys) => {
+    for(const k of keys){
+      const v = (f.ic||{})[k];
+      if(v != null) return Number(v);
+    }
+    return null;
+  };
+  const lines = [
+    {label:'营收 Revenue', keys:['revenue','totalRevenue','Revenue']},
+    {label:'营业成本 COGS', keys:['costOfGoodsSold','costOfRevenue','cogs']},
+    {label:'毛利润 Gross Profit', keys:['grossProfit']},
+    {label:'研发费用 R&D', keys:['researchAndDevelopment','rnd']},
+    {label:'销售管理费用 SG&A', keys:['sellingGeneralAndAdministrative','sga']},
+    {label:'营业利润 Operating Income', keys:['operatingIncome']},
+    {label:'利息费用 Interest Exp', keys:['interestExpense']},
+    {label:'税前利润 Pre-tax Income', keys:['incomeBeforeTax','preTaxIncome']},
+    {label:'所得税 Tax', keys:['incomeTaxExpense','taxExpense']},
+    {label:'净利润 Net Income', keys:['netIncome','netIncomeAvailableToCommonStockholders']},
+    {label:'EPS 基本', keys:['eps','epsBasic']},
+    {label:'EPS 稀释', keys:['epsDiluted','epsdiluted']},
+  ];
+  return renderStmtTable('利润表 Income Statement', rows, lines, ic, get);
+}
+
+/* ---- Tab 5: Balance Sheet 资产负债表 ---- */
+function renderBalanceSheetTab(ctx){
+  const {financials} = ctx;
+  if(!financials || !Array.isArray(financials.financials)) return `<div class="skeleton-box"><div class="sk-icon">📋</div>暂无资产负债表数据</div>`;
+  const rows = financials.financials.slice().sort((a,b)=> new Date(b.endDate) - new Date(a.endDate)).slice(0, 8);
+  const get = (f, keys) => {
+    for(const k of keys){
+      const v = (f.bs||{})[k];
+      if(v != null) return Number(v);
+    }
+    return null;
+  };
+  const lines = [
+    {label:'现金及等价物 Cash & Equivalents', keys:['cashAndCashEquivalents','cash']},
+    {label:'短期投资 ST Investments', keys:['shortTermInvestments']},
+    {label:'应收账款 AR', keys:['accountsReceivable','receivables']},
+    {label:'存货 Inventory', keys:['inventory']},
+    {label:'流动资产 Current Assets', keys:['totalCurrentAssets']},
+    {label:'固定资产 PP&E', keys:['propertyPlantEquipment','ppe']},
+    {label:'商誉 Goodwill', keys:['goodwill']},
+    {label:'无形资产 Intangibles', keys:['intangibleAssets']},
+    {label:'总资产 Total Assets', keys:['totalAssets']},
+    {label:'应付账款 AP', keys:['accountsPayable']},
+    {label:'短期债务 ST Debt', keys:['shortTermDebt']},
+    {label:'流动负债 Current Liabilities', keys:['totalCurrentLiabilities']},
+    {label:'长期债务 LT Debt', keys:['longTermDebt']},
+    {label:'总负债 Total Liabilities', keys:['totalLiabilities']},
+    {label:'股东权益 Equity', keys:['totalStockholdersEquity','totalEquity']},
+  ];
+  return renderStmtTable('资产负债表 Balance Sheet', rows, lines, null, get);
+}
+
+/* ---- Tab 6: Cash Flow 现金流量表 ---- */
+function renderCashFlowTab(ctx){
+  const {financials} = ctx;
+  if(!financials || !Array.isArray(financials.financials)) return `<div class="skeleton-box"><div class="sk-icon">📋</div>暂无现金流量表数据</div>`;
+  const rows = financials.financials.slice().sort((a,b)=> new Date(b.endDate) - new Date(a.endDate)).slice(0, 8);
+  const get = (f, keys) => {
+    for(const k of keys){
+      const v = (f.cf||{})[k];
+      if(v != null) return Number(v);
+    }
+    return null;
+  };
+  const lines = [
+    {label:'净利润 Net Income', keys:['netIncome']},
+    {label:'折旧摊销 D&A', keys:['depreciationAmortization','depreciationAndAmortization']},
+    {label:'营运资本变动 Δ WC', keys:['changesInWorkingCapital']},
+    {label:'经营现金流 CFO', keys:['cashFlowFromOperatingActivities','operatingCashFlow']},
+    {label:'资本支出 CapEx', keys:['capitalExpenditures','capex']},
+    {label:'投资现金流 CFI', keys:['cashFlowFromInvestingActivities','investingCashFlow']},
+    {label:'股份回购 Buybacks', keys:['repurchaseOfCommonStock','shareRepurchase']},
+    {label:'股利支付 Dividends', keys:['dividendsPaid','dividends']},
+    {label:'筹资现金流 CFF', keys:['cashFlowFromFinancingActivities','financingCashFlow']},
+    {label:'自由现金流 FCF', keys:['freeCashFlow']},
+    {label:'现金净变动 Net Change', keys:['netChangeInCash']},
+  ];
+  return renderStmtTable('现金流量表 Cash Flow', rows, lines, null, get);
+}
+
+/* 报表通用渲染器: 行=指标, 列=季度 */
+function renderStmtTable(title, rows, lines, icFn, getFn){
+  const fmtShort = v => {
+    if(v == null) return '—';
+    const abs = Math.abs(v);
+    const sign = v < 0 ? '-' : '';
+    if(abs >= 1e9) return sign + '$' + (abs/1e9).toFixed(2) + 'B';
+    if(abs >= 1e6) return sign + '$' + (abs/1e6).toFixed(0) + 'M';
+    return sign + '$' + abs.toFixed(0);
+  };
+  const cols = rows.map(r => `${r.period||''} ${r.endDate?.slice(2,4)||''}`.trim());
+  let html = `<div class="earn-summary"><div class="es-head">
+      <span class="es-title">${esc(title)}</span>
+      <span class="es-period">USD · 最近 ${rows.length} 个季度</span>
+    </div>
+    <div class="stmt-wrap"><table class="stmt-tbl">
+      <thead><tr><th>指标 Metric</th>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
+      <tbody>`;
+  lines.forEach(line => {
+    const values = rows.map(r => getFn(r, line.keys));
+    if(values.every(v => v==null)) return;
+    html += `<tr><td>${esc(line.label)}</td>${values.map(v => `<td>${fmtShort(v)}</td>`).join('')}</tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+  return html;
+}
+
+
+/* 解析季度财务数据, 返回最新季 + YoY */
+function getLatestQuarter(fin){
+  if(!fin || !Array.isArray(fin.financials) || !fin.financials.length) return null;
+  const sorted = fin.financials.slice().sort((a,b)=> new Date(b.endDate) - new Date(a.endDate));
+  const latest = sorted[0];
+  const ic = latest.ic || {};
+  const rev = ic.revenue != null ? Number(ic.revenue) : null;
+  const ni  = ic.netIncome != null ? Number(ic.netIncome) : null;
+  /* 同比: 取4个季度前的数据 */
+  const yago = sorted[4];
+  const yic = yago?.ic || {};
+  const yRev = yic.revenue != null ? Number(yic.revenue) : null;
+  const yNi  = yic.netIncome != null ? Number(yic.netIncome) : null;
+  const revYoy = (rev && yRev) ? ((rev - yRev)/yRev*100) : null;
+  const niYoy  = (ni && yNi)  ? ((ni - yNi)/yNi*100) : null;
+  const pLabel = `${latest.period||''} ${latest.endDate?.slice(0,4)||''}`.trim();
+  const yLabel = yago ? `${yago.period||''} ${yago.endDate?.slice(0,4)||''}`.trim() : '';
+  return {
+    rev, revYoy, ni, niYoy, yRev, yNi,
+    period: pLabel,
+    endDate: latest.endDate || '',
+    fillDate: latest.filledDate || '',
+    yPeriod: yLabel,
+    yEndDate: yago?.endDate || '',
+  };
+}
+
+/* 构建增长曲线图数据 */
+function buildEarningsChartData(fin, est){
+  const labels = [];
+  const dates = [];
+  const periods = [];
+  const actual = { revenue:[], netIncome:[], eps:[] };
+  const estimate = { revenue:[], netIncome:[], eps:[] };
+
+  if(fin && Array.isArray(fin.financials)){
+    /* 取最近8季, 按时间升序 */
+    const sorted = fin.financials.slice().sort((a,b)=> new Date(a.endDate) - new Date(b.endDate)).slice(-8);
+    sorted.forEach(f => {
+      const ic = f.ic || {};
+      labels.push(`${f.period||''} ${f.endDate?.slice(2,4)||''}`.trim() || f.endDate?.slice(0,7) || '?');
+      dates.push(f.endDate || '');
+      periods.push(f.period || '');
+      actual.revenue.push(ic.revenue != null ? Number(ic.revenue) : null);
+      actual.netIncome.push(ic.netIncome != null ? Number(ic.netIncome) : null);
+      actual.eps.push(ic.eps != null ? Number(ic.eps) : (ic.epsdiluted != null ? Number(ic.epsdiluted) : null));
+      estimate.revenue.push(null); estimate.netIncome.push(null); estimate.eps.push(null);
+    });
+  }
+
+  /* 分析师预期: 追加未来季度 (仅 revenue + eps 有数据) */
+  if(est){
+    const revEst = est.revenueEstimate || [];
+    const epsEst = est.earningsEstimate || [];
+    const ebitEst = est.ebitEstimate || [];
+    /* 找有预期但无实际值的未来季度 */
+    const futRev = revEst.filter(e => e.revenueActual == null && e.revenueEstimateAvg != null);
+    futRev.forEach((e, i) => {
+      labels.push(e.period || `Q${i+1} est`);
+      dates.push(e.period || '');
+      periods.push(e.period || '');
+      actual.revenue.push(null); actual.netIncome.push(null); actual.eps.push(null);
+      estimate.revenue.push(Number(e.revenueEstimateAvg));
+      /* 尝试匹配同期 eps 预期 */
+      const ep = epsEst.find(x => x.period === e.period);
+      estimate.eps.push(ep?.epsEstimateAvg != null ? Number(ep.epsEstimateAvg) : null);
+      const eb = ebitEst.find(x => x.period === e.period);
+      estimate.netIncome.push(eb?.ebitEstimateAvg != null ? Number(eb.ebitEstimateAvg) : null);
+    });
+  }
+  return { labels, dates, periods, actual, estimate };
+}
+
+/* 格式化大额美元: $32.5B / $1.2T */
+function fmtLarge(v){
+  if(v == null) return '—';
+  if(v >= 1e12) return '$' + (v/1e12).toFixed(2) + 'T';
+  if(v >= 1e9)  return '$' + (v/1e9).toFixed(2) + 'B';
+  if(v >= 1e6)  return '$' + (v/1e6).toFixed(1) + 'M';
+  if(v >= 1e3)  return '$' + (v/1e3).toFixed(1) + 'K';
+  return '$' + v.toFixed(0);
+}
+
+/* 初始化增长曲线图 (Chart.js) */
+function initEarningsChart(){
+  if(!_earningsChartData || !_earningsChartData.labels.length) return;
+  if(typeof Chart === 'undefined') return; /* Chart.js CDN 未加载时跳过 */
+  const canvas = document.getElementById('earningsChart');
+  if(!canvas) return;
+  if(_earningsChart){ _earningsChart.destroy(); _earningsChart = null; }
+
+  const metric = _earningsChartMetric || 'revenue';
+  const actualData = _earningsChartData.actual[metric] || [];
+  const estData    = _earningsChartData.estimate[metric] || [];
+
+  const isPct = metric === 'eps';
+
+  const cfg = {
+    type: 'line',
+    data: {
+      labels: _earningsChartData.labels,
+      datasets: [
+        {
+          label: 'Actual',
+          data: actualData,
+          borderColor: '#4fc9bd',
+          backgroundColor: 'rgba(79,201,189,.12)',
+          borderWidth: 2.5,
+          tension: 0.3,
+          pointRadius: actualData.map(v => v==null?0:4),
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#4fc9bd',
+          pointBorderColor: '#0b1119',
+          pointBorderWidth: 2,
+          spanGaps: true,
+        },
+        {
+          label: 'Estimate',
+          data: estData,
+          borderColor: '#e8a44c',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash: [6,4],
+          tension: 0.3,
+          pointRadius: estData.map(v => v==null?0:4),
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#e8a44c',
+          pointBorderColor: '#0b1119',
+          pointBorderWidth: 2,
+          spanGaps: true,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#060b12',
+          borderColor: '#2e4763',
+          borderWidth: 1,
+          titleColor: '#e9eff6',
+          titleFont: { size: 12, weight: '600' },
+          bodyColor: '#94a6bb',
+          bodyFont: { size: 12 },
+          padding: 11,
+          displayColors: true,
+          boxWidth: 9,
+          boxHeight: 9,
+          callbacks: {
+            /* 标题: 季度标签 + 完整期末日期 */
+            title: items => {
+              if(!items.length) return '';
+              const i = items[0].dataIndex;
+              const lab = _earningsChartData.labels[i] || '';
+              const dt = _earningsChartData.dates?.[i] || '';
+              /* 实际季显示期末日期; 预期季无日期则只显示季度 */
+              return dt ? `${lab}  ·  ${dt}` : lab;
+            },
+            /* 正文: 指标名 + 数值 + 同比(实际季) */
+            label: ctx => {
+              const v = ctx.parsed.y;
+              if(v == null) return null;
+              const i = ctx.dataIndex;
+              const val = isPct ? '$'+v.toFixed(2) : fmtLarge(v);
+              let line = `${ctx.dataset.label}  ${val}`;
+              /* 实际季: 追加同比 */
+              if(ctx.dataset.label === 'Actual' && !isPct){
+                const arr = _earningsChartData.actual[metric] || [];
+                const dt = _earningsChartData.dates?.[i] || '';
+                const sameQPrevYear = arr[i-4];
+                if(sameQPrevYear && dt){
+                  const yoy = ((v - sameQPrevYear)/sameQPrevYear*100);
+                  line += `   (YoY ${yoy>=0?'+':''}${yoy.toFixed(1)}%)`;
+                }
+              }
+              return line;
+            },
+            /* 底部标注指标口径 */
+            footer: () => isPct ? '单位: 美元/股' : '单位: 美元',
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(35,56,82,.5)' },
+          ticks: { color: '#63768c', font:{ size:10 } }
+        },
+        y: {
+          grid: { color: 'rgba(35,56,82,.5)' },
+          ticks: {
+            color: '#63768c',
+            font:{ size:10 },
+            callback: v => isPct ? '$'+v : fmtLarge(v)
+          }
+        }
+      }
+    }
+  };
+
+  _earningsChart = new Chart(canvas.getContext('2d'), cfg);
+
+  /* 绑定 tab 切换 */
+  document.querySelectorAll('.ec-tab').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.ec-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _earningsChartMetric = btn.dataset.metric;
+      initEarningsChart();
+    };
+  });
+}
+
+let _earningsChartMetric = 'revenue';
 
 /* ⑤ 分析师信号 */
 function renderAnalystSignals(ctx){

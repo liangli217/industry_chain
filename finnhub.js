@@ -212,6 +212,38 @@ async function fetchEarnings(ticker) {
   }
 }
 
+/* 获取季度报告原始财务数据 (income statement: revenue, netIncome, eps)
+   用于画营收/净利增长曲线 + 计算 YoY */
+async function fetchFinancials(ticker) {
+  const cached = getCached('fin:' + ticker);
+  if (cached) return cached;
+  try {
+    const res = await fetch(`${FINNHUB_BASE}/financials-reported?symbol=${ticker}&freq=quarterly`);
+    const data = await res.json();
+    setCached('fin:' + ticker, data);
+    return data;
+  } catch (e) {
+    console.warn('Finnhub financials failed for', ticker, e);
+    return null;
+  }
+}
+
+/* 获取分析师一致预期 (revenue/eps/ebit estimate, 未来季度)
+   免费层可能无数据, 失败返回 null */
+async function fetchEarningsEstimate(ticker) {
+  const cached = getCached('est:' + ticker);
+  if (cached) return cached;
+  try {
+    const res = await fetch(`${FINNHUB_BASE}/earnings-estimate?symbol=${ticker}`);
+    const data = await res.json();
+    setCached('est:' + ticker, data);
+    return data;
+  } catch (e) {
+    console.warn('Finnhub earnings-estimate failed for', ticker, e);
+    return null;
+  }
+}
+
 /* 获取分析师一致目标价 (price-target) */
 async function fetchTargetPrice(ticker) {
   const cached = getCached('tp:' + ticker);
