@@ -1,0 +1,50 @@
+name: Earnings Analyst Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      companies:
+        description: '公司名(逗号分隔,留空=全部23家)'
+        required: false
+        default: ''
+  schedule:
+    # 每年1/4/7/10月每周一运行(财报季)
+    - cron: '0 10 * 1,4,7,10 1'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run earnings analyst
+        id: analyst
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COMPANIES: ${{ inputs.companies }}
+        run: node scripts/earnings-analyst.mjs
+
+      - name: Create PR if changes
+        if: steps.analyst.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="earnings-update-$(date +%Y%m%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add finnhub.js scripts/earnings_summary.md
+          git commit -m "feat(pharma): update PHARMA_META from earnings reports $(date +%Y-%m-%d)"
+          git push --set-upstream origin "$BRANCH"
+          gh pr create \
+            --title "Earnings Analyst: PHARMA_META update $(date +%Y-%m-%d)" \
+            --body-file scripts/earnings_summary.md \
+            --label "earnings-update"

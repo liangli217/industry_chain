@@ -798,64 +798,14 @@ function renderIncomeStatementTab(ctx){
   return renderStmtTable('利润表 Income Statement', rows, lines, ic, get);
 }
 
-/* ---- Tab 5: Balance Sheet 资产负债表 ---- */
+/* ---- Tab 5: Balance Sheet 资产负债表 (骨架, FMP Starter 可用) ---- */
 function renderBalanceSheetTab(ctx){
-  const {financials} = ctx;
-  if(!financials || !Array.isArray(financials.financials)) return `<div class="skeleton-box"><div class="sk-icon">📋</div>暂无资产负债表数据</div>`;
-  const rows = financials.financials.slice().sort((a,b)=> new Date(b.endDate) - new Date(a.endDate)).slice(0, 8);
-  const get = (f, keys) => {
-    for(const k of keys){
-      const v = (f.bs||{})[k];
-      if(v != null) return Number(v);
-    }
-    return null;
-  };
-  const lines = [
-    {label:'现金及等价物 Cash & Equivalents', keys:['cashAndCashEquivalents','cash']},
-    {label:'短期投资 ST Investments', keys:['shortTermInvestments']},
-    {label:'应收账款 AR', keys:['accountsReceivable','receivables']},
-    {label:'存货 Inventory', keys:['inventory']},
-    {label:'流动资产 Current Assets', keys:['totalCurrentAssets']},
-    {label:'固定资产 PP&E', keys:['propertyPlantEquipment','ppe']},
-    {label:'商誉 Goodwill', keys:['goodwill']},
-    {label:'无形资产 Intangibles', keys:['intangibleAssets']},
-    {label:'总资产 Total Assets', keys:['totalAssets']},
-    {label:'应付账款 AP', keys:['accountsPayable']},
-    {label:'短期债务 ST Debt', keys:['shortTermDebt']},
-    {label:'流动负债 Current Liabilities', keys:['totalCurrentLiabilities']},
-    {label:'长期债务 LT Debt', keys:['longTermDebt']},
-    {label:'总负债 Total Liabilities', keys:['totalLiabilities']},
-    {label:'股东权益 Equity', keys:['totalStockholdersEquity','totalEquity']},
-  ];
-  return renderStmtTable('资产负债表 Balance Sheet', rows, lines, null, get);
+  return `<div class="skeleton-box"><div class="sk-icon">📋</div>资产负债表 Balance Sheet · 需 FMP Starter 订阅 ($19/月)<br><a href="https://site.financialmodelingprep.com/developer/docs/stable/balance-sheet-statement" target="_blank" style="color:var(--up);text-decoration:none">升级订阅 →</a></div>`;
 }
 
-/* ---- Tab 6: Cash Flow 现金流量表 ---- */
+/* ---- Tab 6: Cash Flow 现金流量表 (骨架, FMP Starter 可用) ---- */
 function renderCashFlowTab(ctx){
-  const {financials} = ctx;
-  if(!financials || !Array.isArray(financials.financials)) return `<div class="skeleton-box"><div class="sk-icon">📋</div>暂无现金流量表数据</div>`;
-  const rows = financials.financials.slice().sort((a,b)=> new Date(b.endDate) - new Date(a.endDate)).slice(0, 8);
-  const get = (f, keys) => {
-    for(const k of keys){
-      const v = (f.cf||{})[k];
-      if(v != null) return Number(v);
-    }
-    return null;
-  };
-  const lines = [
-    {label:'净利润 Net Income', keys:['netIncome']},
-    {label:'折旧摊销 D&A', keys:['depreciationAmortization','depreciationAndAmortization']},
-    {label:'营运资本变动 Δ WC', keys:['changesInWorkingCapital']},
-    {label:'经营现金流 CFO', keys:['cashFlowFromOperatingActivities','operatingCashFlow']},
-    {label:'资本支出 CapEx', keys:['capitalExpenditures','capex']},
-    {label:'投资现金流 CFI', keys:['cashFlowFromInvestingActivities','investingCashFlow']},
-    {label:'股份回购 Buybacks', keys:['repurchaseOfCommonStock','shareRepurchase']},
-    {label:'股利支付 Dividends', keys:['dividendsPaid','dividends']},
-    {label:'筹资现金流 CFF', keys:['cashFlowFromFinancingActivities','financingCashFlow']},
-    {label:'自由现金流 FCF', keys:['freeCashFlow']},
-    {label:'现金净变动 Net Change', keys:['netChangeInCash']},
-  ];
-  return renderStmtTable('现金流量表 Cash Flow', rows, lines, null, get);
+  return `<div class="skeleton-box"><div class="sk-icon">💵</div>现金流量表 Cash Flow · 需 FMP Starter 订阅 ($19/月)<br><a href="https://site.financialmodelingprep.com/developer/docs/stable/cash-flow-statement" target="_blank" style="color:var(--up);text-decoration:none">升级订阅 →</a></div>`;
 }
 
 /* 报表通用渲染器: 行=指标, 列=季度 */

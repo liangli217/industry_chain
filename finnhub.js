@@ -212,18 +212,56 @@ async function fetchEarnings(ticker) {
   }
 }
 
-/* 获取季度报告原始财务数据 (income statement: revenue, netIncome, eps)
-   用于画营收/净利增长曲线 + 计算 YoY */
+/* 获取 FMP Income Statement (季度, 免费层可用)
+   返回 { financials: [ {date, period, revenue, costOfRevenue, grossProfit,
+     researchAndDevelopmentExpenses, sellingGeneralAndAdministrativeExpenses,
+     operatingIncome, incomeBeforeTax, incomeTaxExpense, netIncome, eps, epsDiluted, ...}, ... ] }
+   同时兼容 Finnhub financials-reported 的结构, company.html 无需改动 */
 async function fetchFinancials(ticker) {
   const cached = getCached('fin:' + ticker);
   if (cached) return cached;
   try {
-    const res = await fetch(`${FINNHUB_BASE}/financials-reported?symbol=${ticker}&freq=quarterly`);
-    const data = await res.json();
+    const res = await fetch(`${FINNHUB_BASE}/fmp/income-statement?symbol=${ticker}`);
+    if (!res.ok) throw new Error('FMP HTTP ' + res.status);
+    const arr = await res.json();
+    if (!Array.isArray(arr)) throw new Error('FMP not array');
+    /* 统一封装成 { financials: [...] }, 兼容后续 Finnhub 三表 + FMP 两表 */
+    const data = { financials: arr.map(f => ({
+      date: f.date,
+      endDate: f.date,
+      period: f.period,
+      fiscalYear: f.fiscalYear,
+      filingDate: f.filingDate,
+      reportedCurrency: f.reportedCurrency,
+      ic: {
+        revenue: f.revenue,
+        costOfRevenue: f.costOfRevenue,
+        costOfGoodsSold: f.costOfRevenue,
+        grossProfit: f.grossProfit,
+        researchAndDevelopment: f.researchAndDevelopmentExpenses,
+        rnd: f.researchAndDevelopmentExpenses,
+        sellingGeneralAndAdministrative: f.sellingGeneralAndAdministrativeExpenses,
+        sga: f.sellingGeneralAndAdministrativeExpenses,
+        operatingIncome: f.operatingIncome,
+        interestExpense: f.interestExpense,
+        incomeBeforeTax: f.incomeBeforeTax,
+        preTaxIncome: f.incomeBeforeTax,
+        incomeTaxExpense: f.incomeTaxExpense,
+        taxExpense: f.incomeTaxExpense,
+        netIncome: f.netIncome,
+        eps: f.eps,
+        epsBasic: f.eps,
+        epsdiluted: f.epsDiluted,
+        epsDiluted: f.epsDiluted,
+        depreciationAndAmortization: f.depreciationAndAmortization,
+        ebitda: f.ebitda,
+        ebit: f.ebit,
+      },
+    })) };
     setCached('fin:' + ticker, data);
     return data;
   } catch (e) {
-    console.warn('Finnhub financials failed for', ticker, e);
+    console.warn('FMP income-statement failed for', ticker, e);
     return null;
   }
 }
